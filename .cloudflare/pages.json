@@ -1,0 +1,16 @@
+{
+  "build": {
+    "command": "npm run export",
+    "output": "out",
+    "environment": {
+      "NODE_VERSION": "20"
+    }
+  },
+  "routes": [
+    {
+      "pattern": "/admin/*",
+      "script": "return new Response('Not found', { status: 404 })"
+    },
+    { "pattern": "/api/*", "script": "return new Response('Not found', { status: 404 })" }
+  ]
+} 

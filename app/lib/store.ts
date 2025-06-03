@@ -89,8 +89,8 @@ export const useStore = create<StoreState>()(
 			
 			// Payment Info
 			paymentInfo: {
-				bankName: 'VietcomBank',
-				accountNumber: '1234567890',
+				bankName: 'Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam',
+				accountNumber: 'MS00T09331707449347',
 				accountName: 'SHINE SHOP',
 				qrTemplate: 'compact',
 				wiseEmail: 'payment@shineshop.org',
@@ -118,7 +118,7 @@ export const useStore = create<StoreState>()(
 			setAdminAuthenticated: (authenticated) => set({ isAdminAuthenticated: authenticated }),
 		}),
 		{
-			name: 'shineshop-storage',
+			name: 'shineshop-storage-v2',
 			storage: createJSONStorage(() => localStorage),
 			partialize: (state) => ({
 				language: state.language,

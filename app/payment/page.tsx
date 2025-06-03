@@ -8,28 +8,35 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
+import { VietQRPayment } from '@/app/components/ui/viet-qr-payment'
 
 type PaymentMethod = 'vietqr' | 'wise' | 'paypal'
+
+// Bank BIN mapping
+const BANK_BIN_MAP: Record<string, string> = {
+	'MB': '970422',
+	'MBBANK': '970422',
+	'VCB': '970436',
+	'VIETCOMBANK': '970436',
+	'TCB': '970407',
+	'TECHCOMBANK': '970407',
+	'ACB': '970416',
+	'VPB': '970432',
+	'VPBANK': '970432',
+	'BIDV': '970418',
+	'VIB': '970441',
+	'TPB': '970423',
+	'TPBANK': '970423',
+	'SACOMBANK': '970403',
+	'STB': '970403',
+}
 
 export default function PaymentPage() {
 	const { paymentInfo } = useStore()
 	const { t } = useTranslation()
-	const [amount, setAmount] = useState('')
-	const [copied, setCopied] = useState(false)
 	const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('vietqr')
-	
-	// Generate VietQR URL
-	const generateQRUrl = () => {
-		const baseUrl = 'https://img.vietqr.io/image'
-		const bankId = paymentInfo.bankName.toLowerCase()
-		const accountNo = paymentInfo.accountNumber
-		const template = paymentInfo.qrTemplate
-		const amountParam = amount ? `&amount=${amount}` : ''
-		const addInfo = encodeURIComponent('Thanh toan Shine Shop')
-		
-		return `${baseUrl}/${bankId}-${accountNo}-${template}.jpg?accountName=${encodeURIComponent(paymentInfo.accountName)}${amountParam}&addInfo=${addInfo}`
-	}
-	
+	const [copied, setCopied] = useState(false)
+
 	const handleCopy = async (text: string) => {
 		try {
 			await navigator.clipboard.writeText(text)
@@ -39,7 +46,7 @@ export default function PaymentPage() {
 			console.error('Failed to copy:', err)
 		}
 	}
-	
+
 	const paymentMethods = [
 		{
 			id: 'vietqr' as PaymentMethod,
@@ -60,11 +67,11 @@ export default function PaymentPage() {
 			color: 'text-indigo-500'
 		}
 	]
-	
+
 	return (
-		<div className="max-w-6xl mx-auto py-8">
+		<div className="max-w-6xl mx-auto py-8 page-transition">
 			<div className="text-center mb-8">
-				<h1 className="text-4xl font-bold">{t('payment')}</h1>
+				<h1 className="text-4xl font-bold jshine-gradient">{t('payment')}</h1>
 				<p className="text-muted-foreground mt-2">
 					Choose your preferred payment method
 				</p>
@@ -88,128 +95,11 @@ export default function PaymentPage() {
 			
 			{/* VietQR Payment */}
 			{selectedMethod === 'vietqr' && (
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-					{/* QR Code Section */}
-					<div>
-						<Card>
-							<CardHeader>
-								<CardTitle>VietQR Payment</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								{/* QR Code */}
-								<div className="relative aspect-square max-w-sm mx-auto rounded-lg overflow-hidden p-4 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500">
-									<div className="absolute inset-1 bg-white rounded">
-										<Image
-											src={generateQRUrl()}
-											alt="Payment QR Code"
-											width={400}
-											height={400}
-											className="w-full h-full object-contain"
-										/>
-									</div>
-								</div>
-								
-								{/* Amount Input */}
-								<div className="space-y-2">
-									<label className="text-sm font-medium">{t('enterAmount')}</label>
-									<div className="flex gap-2">
-										<Input
-											type="number"
-											placeholder="0"
-											value={amount}
-											onChange={(e) => setAmount(e.target.value)}
-											className="flex-1"
-										/>
-										<Button
-											onClick={() => handleCopy(amount || '0')}
-											size="icon"
-											variant={copied ? 'default' : 'outline'}
-											className={`transition-colors ${copied ? 'bg-green-500 hover:bg-green-600' : ''}`}
-										>
-											{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-										</Button>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-					</div>
-					
-					{/* Bank Account Info */}
-					<div>
-						<Card>
-							<CardHeader>
-								<CardTitle>{t('bankAccountInfo')}</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<div className="space-y-3">
-									<div className="flex justify-between items-center p-3 bg-secondary rounded-lg">
-										<div>
-											<p className="text-sm text-muted-foreground">Bank Name</p>
-											<p className="font-medium">{paymentInfo.bankName}</p>
-										</div>
-										<Button
-											onClick={() => handleCopy(paymentInfo.bankName)}
-											size="sm"
-											variant="ghost"
-										>
-											<Copy className="h-4 w-4" />
-										</Button>
-									</div>
-									
-									<div className="flex justify-between items-center p-3 bg-secondary rounded-lg">
-										<div>
-											<p className="text-sm text-muted-foreground">Account Number</p>
-											<p className="font-medium">{paymentInfo.accountNumber}</p>
-										</div>
-										<Button
-											onClick={() => handleCopy(paymentInfo.accountNumber)}
-											size="sm"
-											variant="ghost"
-										>
-											<Copy className="h-4 w-4" />
-										</Button>
-									</div>
-									
-									<div className="flex justify-between items-center p-3 bg-secondary rounded-lg">
-										<div>
-											<p className="text-sm text-muted-foreground">Account Name</p>
-											<p className="font-medium">{paymentInfo.accountName}</p>
-										</div>
-										<Button
-											onClick={() => handleCopy(paymentInfo.accountName)}
-											size="sm"
-											variant="ghost"
-										>
-											<Copy className="h-4 w-4" />
-										</Button>
-									</div>
-									
-									{amount && (
-										<div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg">
-											<div>
-												<p className="text-sm text-muted-foreground">Transfer Amount</p>
-												<p className="font-medium text-lg">{Number(amount).toLocaleString('vi-VN')} VND</p>
-											</div>
-											<Button
-												onClick={() => handleCopy(amount)}
-												size="sm"
-												variant="ghost"
-											>
-												<Copy className="h-4 w-4" />
-											</Button>
-										</div>
-									)}
-								</div>
-								
-								<div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
-									<p className="text-sm text-amber-800 dark:text-amber-200">
-										<strong>Note:</strong> Please include your order number or contact information in the transfer description.
-									</p>
-								</div>
-							</CardContent>
-						</Card>
-					</div>
-				</div>
+				<VietQRPayment
+					accountNumber={paymentInfo.accountNumber}
+					bankName={paymentInfo.bankName}
+					accountName={paymentInfo.accountName}
+				/>
 			)}
 			
 			{/* Wise Payment */}

@@ -33,7 +33,7 @@ export default function SocialPage() {
 	}
 	
 	return (
-		<div className="max-w-4xl mx-auto py-8">
+		<div className="max-w-4xl mx-auto py-8 page-transition">
 			<div className="text-center mb-8">
 				<h1 className="text-4xl font-bold">{t('socialLinks')}</h1>
 				<p className="text-muted-foreground mt-2">
@@ -54,38 +54,35 @@ export default function SocialPage() {
 								{/* Platform Name */}
 								<h3 className="font-semibold text-lg">{link.platform}</h3>
 								
-								{/* Action Buttons */}
-								<div className="flex gap-2 w-full">
+								{/* Action Buttons - Square icon buttons */}
+								<div className="flex gap-3 justify-center">
 									<Button
 										onClick={() => handleCopy(link.url, link.id)}
-										variant="outline"
-										size="sm"
-										className="flex-1"
+										variant={copiedId === link.id ? 'default' : 'outline'}
+										size="icon"
+										className={`h-12 w-12 rounded-lg transition-all ${
+											copiedId === link.id ? 'bg-green-500 hover:bg-green-600' : ''
+										}`}
+										title={copiedId === link.id ? 'Copied!' : t('copyLink')}
 									>
 										{copiedId === link.id ? (
-											<>
-												<Check className="mr-2 h-4 w-4" />
-												Copied!
-											</>
+											<Check className="h-5 w-5" />
 										) : (
-											<>
-												<Copy className="mr-2 h-4 w-4" />
-												{t('copyLink')}
-											</>
+											<Copy className="h-5 w-5" />
 										)}
 									</Button>
 									<Button
 										asChild
-										size="sm"
-										className="flex-1"
+										size="icon"
+										className="h-12 w-12 rounded-lg"
+										title={t('openLink')}
 									>
 										<Link
 											href={link.url}
 											target="_blank"
 											rel="noopener noreferrer"
 										>
-											<ExternalLink className="mr-2 h-4 w-4" />
-											{t('openLink')}
+											<ExternalLink className="h-5 w-5" />
 										</Link>
 									</Button>
 								</div>

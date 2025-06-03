@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Tag } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { formatPrice } from '@/app/lib/utils'
@@ -14,17 +15,44 @@ export default function StorePage() {
 	const { t, language } = useTranslation()
 	const [selectedCategory, setSelectedCategory] = useState('all')
 	const productsRef = useRef<HTMLDivElement>(null)
+	const categoryRef = useRef<HTMLDivElement>(null)
 	
-	// Auto-scroll on page load
+	// Auto-scroll on page load with smooth animation
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			if (productsRef.current) {
-				productsRef.current.scrollIntoView({ 
-					behavior: 'smooth',
-					block: 'start'
-				})
+			if (categoryRef.current) {
+				const yOffset = -120 // Offset to position slightly above the category section
+				const element = categoryRef.current
+				const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+				
+				// Use requestAnimationFrame for smoother animation
+				const startPosition = window.pageYOffset
+				const distance = y - startPosition
+				const duration = 1000 // 1 second
+				let start: number | null = null
+				
+				const animation = (currentTime: number) => {
+					if (start === null) start = currentTime
+					const timeElapsed = currentTime - start
+					const progress = Math.min(timeElapsed / duration, 1)
+					
+					// Easing function for smooth animation
+					const easeInOutCubic = (t: number) => {
+						return t < 0.5 
+							? 4 * t * t * t 
+							: 1 - Math.pow(-2 * t + 2, 3) / 2
+					}
+					
+					window.scrollTo(0, startPosition + distance * easeInOutCubic(progress))
+					
+					if (timeElapsed < duration) {
+						requestAnimationFrame(animation)
+					}
+				}
+				
+				requestAnimationFrame(animation)
 			}
-		}, 500)
+		}, 300)
 		
 		return () => clearTimeout(timer)
 	}, [])
@@ -41,7 +69,7 @@ export default function StorePage() {
 	const sortedProducts = [...filteredProducts].sort((a, b) => a.sortOrder - b.sortOrder)
 	
 	return (
-		<div className="space-y-12 pb-12">
+		<div className="space-y-12 pb-12 page-transition">
 			{/* Hero Section */}
 			<section className="mt-8 text-center space-y-4">
 				<h1 className="text-4xl md:text-6xl font-bold jshine-gradient">
@@ -53,9 +81,9 @@ export default function StorePage() {
 			</section>
 			
 			{/* Products Section */}
-			<section ref={productsRef} className="space-y-6">
+			<section className="space-y-6">
 				{/* Category Filter */}
-				<div className="flex flex-wrap gap-2 justify-center">
+				<div ref={categoryRef} className="flex flex-wrap gap-2 justify-center">
 					{categories.map((category) => (
 						<Button
 							key={category}
@@ -69,8 +97,8 @@ export default function StorePage() {
 					))}
 				</div>
 				
-				{/* Product Grid */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+				{/* Product Grid - Updated for 5 columns on Full HD */}
+				<div ref={productsRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-5">
 					{sortedProducts.map((product) => (
 						<Link key={product.id} href={`/store/product/${product.slug}`}>
 							<ProductCard product={product} language={language} />
@@ -133,24 +161,29 @@ function ProductCard({ product, language }: ProductCardProps) {
 				transition: 'transform 0.1s ease-out'
 			}}
 		>
-			<Card className="overflow-hidden h-full border-0 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+			<Card className="overflow-hidden h-full border border-border/50 dark:border-primary/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:border-primary/50 dark:hover:border-primary/40 dark:bg-card/80">
 				{/* 16:9 Aspect Ratio Container */}
 				<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
 					<Image
 						src={product.image}
 						alt={product.name}
 						fill
-						className="object-cover"
-						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+						className="object-cover transition-transform duration-300 group-hover:scale-105"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
 					/>
 					{/* Overlay gradient on hover */}
 					<div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 ${isHovered ? 'opacity-100' : ''}`} />
 				</div>
-				<CardContent className="p-4 relative z-10 bg-background">
-					<h3 className="font-semibold line-clamp-2 mb-2">{product.name}</h3>
-					<p className="text-lg font-bold bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-						{formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US')}
-					</p>
+				<CardContent className="p-3 relative z-10 bg-background dark:bg-card/90">
+					<h3 className="font-semibold text-sm truncate mb-1" title={product.name}>
+						{product.name}
+					</h3>
+					<div className="flex items-center justify-end gap-1">
+						<Tag className="h-3.5 w-3.5 text-primary/70" />
+						<p className="text-lg font-bold bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+							{formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US')}
+						</p>
+					</div>
 				</CardContent>
 			</Card>
 			{/* Dynamic shadow based on hover position */}

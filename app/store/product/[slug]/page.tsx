@@ -37,15 +37,15 @@ export default function ProductPage({ params }: ProductPageProps) {
 	}
 	
 	return (
-		<div className="max-w-7xl mx-auto py-8">
+		<div className="max-w-7xl mx-auto py-8 page-transition">
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-				{/* Product Image */}
-				<div className="aspect-square relative rounded-lg overflow-hidden">
+				{/* Product Image - Updated with better aspect ratio handling */}
+				<div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 shadow-lg">
 					<Image
 						src={product.image}
 						alt={product.name}
 						fill
-						className="object-cover"
+						className="object-contain p-4"
 						sizes="(max-width: 1024px) 100vw, 50vw"
 						priority
 					/>
@@ -68,7 +68,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 									<label className="text-sm font-medium">{option.name}</label>
 									{option.type === 'select' ? (
 										<select
-											className="w-full p-2 border rounded-md"
+											className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 transition-colors"
 											onChange={(e) => handleOptionChange(option.id, e.target.value)}
 											defaultValue=""
 										>
@@ -80,7 +80,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 									) : (
 										<div className="space-y-2">
 											{option.values.map((value) => (
-												<label key={value} className="flex items-center space-x-2">
+												<label key={value} className="flex items-center space-x-2 cursor-pointer hover:text-primary transition-colors">
 													<input
 														type="radio"
 														name={option.id}
@@ -103,7 +103,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 						<Button
 							asChild
 							size="lg"
-							className="flex-1"
+							className="flex-1 hover:scale-105 transition-all duration-200 bg-primary hover:bg-primary/90 dark:bg-primary/80 dark:hover:bg-primary"
 						>
 							<Link
 								href={siteConfig.contactLinks.facebook}
@@ -118,7 +118,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 							asChild
 							size="lg"
 							variant="outline"
-							className="flex-1"
+							className="flex-1 hover:scale-105 transition-all duration-200 dark:border-primary/50 dark:hover:bg-primary/20"
 						>
 							<Link
 								href={siteConfig.contactLinks.whatsapp}
@@ -135,33 +135,39 @@ export default function ProductPage({ params }: ProductPageProps) {
 			
 			{/* Description and Related Articles */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
-				{/* Description */}
+				{/* Description - Always show */}
 				<div className="lg:col-span-2">
-					<Card>
+					<Card className="dark:bg-card/80 dark:border-primary/20">
 						<CardHeader>
 							<CardTitle>{t('productDetails')}</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<p className="text-muted-foreground whitespace-pre-wrap">
-								{product.description}
-							</p>
+							{product.description ? (
+								<p className="text-muted-foreground whitespace-pre-wrap">
+									{product.description}
+								</p>
+							) : (
+								<p className="text-muted-foreground/50 italic">
+									{language === 'vi' ? 'Chưa có mô tả cho sản phẩm này' : 'No description available for this product'}
+								</p>
+							)}
 						</CardContent>
 					</Card>
 				</div>
 				
-				{/* Related Articles */}
-				{relatedArticles.length > 0 && (
-					<div>
-						<Card>
-							<CardHeader>
-								<CardTitle>{t('relatedArticles')}</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-3">
-								{relatedArticles.map((article) => (
+				{/* Related Articles - Always show */}
+				<div>
+					<Card className="dark:bg-card/80 dark:border-primary/20">
+						<CardHeader>
+							<CardTitle>{t('relatedArticles')}</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-3">
+							{relatedArticles.length > 0 ? (
+								relatedArticles.map((article) => (
 									<Link
 										key={article.id}
 										href={`/faq/${article.slug}`}
-										className="block p-3 rounded-md hover:bg-accent transition-colors"
+										className="block p-3 rounded-md hover:bg-accent dark:hover:bg-primary/20 transition-all duration-200"
 									>
 										<h4 className="font-medium line-clamp-2">{article.title}</h4>
 										<div className="flex items-center mt-1 text-sm text-muted-foreground">
@@ -169,11 +175,15 @@ export default function ProductPage({ params }: ProductPageProps) {
 											{t('readMore')}
 										</div>
 									</Link>
-								))}
-							</CardContent>
-						</Card>
-					</div>
-				)}
+								))
+							) : (
+								<p className="text-muted-foreground/50 italic text-center py-4">
+									{language === 'vi' ? 'Không có bài viết liên quan' : 'No related articles available'}
+								</p>
+							)}
+						</CardContent>
+					</Card>
+				</div>
 			</div>
 		</div>
 	)

@@ -1,76 +1,62 @@
-# Deployment Instructions for Cloudflare Pages
+# Deployment Instructions for Shine Shop
 
-## Prerequisites
-- A GitHub account
-- A Cloudflare account
-- Git installed on your machine
+## Cloudflare Pages Deployment
 
-## Steps to Deploy
+### Prerequisites
+- GitHub account
+- Cloudflare account
+- Repository with the Shine Shop site code
 
-### 1. Push to GitHub
-```bash
-# Add your GitHub repository as origin
-git remote add origin https://github.com/YOUR_USERNAME/shineshop-website.git
+### Setup Steps
 
-# Push your code
-git push -u origin main
-```
+1. **Push your code to GitHub**
+   ```bash
+   git add .
+   git commit -m "feat: prepare for cloudflare pages deployment"
+   git push origin main
+   ```
 
-### 2. Connect to Cloudflare Pages
+2. **Connect to Cloudflare Pages**
+   - Log in to your Cloudflare dashboard
+   - Navigate to Pages
+   - Click "Create a project"
+   - Select "Connect to Git"
+   - Authorize Cloudflare to access your GitHub repositories
+   - Select the repository containing the Shine Shop site
 
-1. Log in to your [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. Go to **Workers & Pages** > **Create application** > **Pages**
-3. Select **Connect to Git**
-4. Choose your GitHub account and select the `shineshop-website` repository
-5. Click **Begin setup**
+3. **Configure Build Settings**
+   - Set the following build configuration:
+     - Production branch: `main`
+     - Build command: `npm run export`
+     - Build output directory: `out`
+     - Node.js version: `20`
 
-### 3. Configure Build Settings
+4. **Environment Variables**
+   - No additional environment variables are required for the basic deployment
 
-Use these settings in Cloudflare Pages:
+5. **Deploy**
+   - Click "Save and Deploy"
+   - Cloudflare will automatically build and deploy your site
 
-- **Framework preset**: Next.js
-- **Build command**: `npm run build`
-- **Build output directory**: `.next`
-- **Root directory**: `/` (leave empty)
-- **Environment variables**: None required
+### Important Notes
 
-### 4. Deploy
+- The `/admin` route is protected and will not be accessible in production
+- All static assets are optimized for Cloudflare's CDN
+- The site uses static export for maximum performance
+- The theme switch animation works in both production and development
 
-1. Click **Save and Deploy**
-2. Wait for the build to complete (usually 2-5 minutes)
-3. Your site will be available at `https://shineshop-website.pages.dev`
+### Updating the Site
 
-### 5. Custom Domain (Optional)
+To update the site after making changes:
 
-To use a custom domain:
+1. Make your changes locally
+2. Test in development mode with `npm run dev`
+3. Commit and push your changes to GitHub
+4. Cloudflare Pages will automatically detect the changes and redeploy
 
-1. Go to your Pages project settings
-2. Click **Custom domains**
-3. Add your domain
-4. Follow the DNS configuration instructions
+### Troubleshooting
 
-## Automatic Deployments
-
-After the initial setup, every push to the `main` branch will automatically trigger a new deployment.
-
-## Build Issues
-
-If you encounter build issues:
-
-1. Check the build logs in Cloudflare Pages dashboard
-2. Ensure all dependencies are listed in `package.json`
-3. Try building locally first with `npm run build`
-
-## Local Testing
-
-Before deploying, always test locally:
-
-```bash
-# Build the project
-npm run build
-
-# Test the production build
-npm start
-```
-
-Visit `http://localhost:3000` to test the production build locally. 
+- If images are not displaying, check that they exist in the `/public` directory
+- If the theme switch is not working, check browser console for errors
+- If routes are not working, verify the `_routes.json` configuration
+- For any other issues, check the Cloudflare Pages build logs 
