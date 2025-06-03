@@ -30,7 +30,7 @@ export default function StorePage() {
 	}, [])
 	
 	// Get unique categories
-	const categories = ['all', ...new Set(products.map(p => p.category))]
+	const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))]
 	
 	// Filter products by category
 	const filteredProducts = selectedCategory === 'all' 
@@ -73,27 +73,95 @@ export default function StorePage() {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 					{sortedProducts.map((product) => (
 						<Link key={product.id} href={`/store/product/${product.slug}`}>
-							<Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 card-3d h-full">
-								<div className="aspect-square relative overflow-hidden">
-									<Image
-										src={product.image}
-										alt={product.name}
-										fill
-										className="object-cover hover:scale-105 transition-transform duration-300"
-										sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-									/>
-								</div>
-								<CardContent className="p-4">
-									<h3 className="font-semibold line-clamp-2">{product.name}</h3>
-									<p className="text-lg font-bold text-primary mt-2">
-										{formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US')}
-									</p>
-								</CardContent>
-							</Card>
+							<ProductCard product={product} language={language} />
 						</Link>
 					))}
 				</div>
 			</section>
+		</div>
+	)
+}
+
+interface ProductCardProps {
+	product: {
+		id: string
+		name: string
+		price: number
+		image: string
+	}
+	language: string
+}
+
+function ProductCard({ product, language }: ProductCardProps) {
+	const cardRef = useRef<HTMLDivElement>(null)
+	const [transform, setTransform] = useState('')
+	const [isHovered, setIsHovered] = useState(false)
+	
+	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+		if (!cardRef.current) return
+		
+		const rect = cardRef.current.getBoundingClientRect()
+		const x = e.clientX - rect.left
+		const y = e.clientY - rect.top
+		const centerX = rect.width / 2
+		const centerY = rect.height / 2
+		
+		const rotateX = ((y - centerY) / centerY) * -10
+		const rotateY = ((x - centerX) / centerX) * 10
+		
+		setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`)
+	}
+	
+	const handleMouseLeave = () => {
+		setTransform('')
+		setIsHovered(false)
+	}
+	
+	const handleMouseEnter = () => {
+		setIsHovered(true)
+	}
+	
+	return (
+		<div 
+			ref={cardRef}
+			className="relative group"
+			onMouseMove={handleMouseMove}
+			onMouseLeave={handleMouseLeave}
+			onMouseEnter={handleMouseEnter}
+			style={{
+				transform: transform,
+				transition: 'transform 0.1s ease-out'
+			}}
+		>
+			<Card className="overflow-hidden h-full border-0 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+				{/* 16:9 Aspect Ratio Container */}
+				<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+					<Image
+						src={product.image}
+						alt={product.name}
+						fill
+						className="object-cover"
+						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+					/>
+					{/* Overlay gradient on hover */}
+					<div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 ${isHovered ? 'opacity-100' : ''}`} />
+				</div>
+				<CardContent className="p-4 relative z-10 bg-background">
+					<h3 className="font-semibold line-clamp-2 mb-2">{product.name}</h3>
+					<p className="text-lg font-bold bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+						{formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US')}
+					</p>
+				</CardContent>
+			</Card>
+			{/* Dynamic shadow based on hover position */}
+			<div 
+				className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+				style={{
+					background: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, transparent 70%)',
+					transform: 'translateZ(-20px) scale(0.95)',
+					filter: 'blur(20px)'
+				}}
+			/>
 		</div>
 	)
 } 

@@ -41,6 +41,8 @@ export interface PaymentInfo {
 	accountNumber: string
 	accountName: string
 	qrTemplate: string
+	wiseEmail: string
+	paypalEmail: string
 }
 
 export interface SiteConfig {

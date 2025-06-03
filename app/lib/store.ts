@@ -92,7 +92,9 @@ export const useStore = create<StoreState>()(
 				bankName: 'VietcomBank',
 				accountNumber: '1234567890',
 				accountName: 'SHINE SHOP',
-				qrTemplate: 'compact'
+				qrTemplate: 'compact',
+				wiseEmail: 'payment@shineshop.org',
+				paypalEmail: 'paypal@shineshop.org'
 			},
 			setPaymentInfo: (info) => set({ paymentInfo: info }),
 			

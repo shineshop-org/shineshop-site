@@ -68,6 +68,8 @@ export default function AdminDashboardPage() {
 		bankName: paymentInfo.bankName,
 		accountNumber: paymentInfo.accountNumber,
 		accountName: paymentInfo.accountName,
+		wiseEmail: paymentInfo.wiseEmail,
+		paypalEmail: paymentInfo.paypalEmail,
 		tosContent: tosContent
 	})
 	
@@ -142,7 +144,9 @@ export default function AdminDashboardPage() {
 			...paymentInfo,
 			bankName: settingsForm.bankName,
 			accountNumber: settingsForm.accountNumber,
-			accountName: settingsForm.accountName
+			accountName: settingsForm.accountName,
+			wiseEmail: settingsForm.wiseEmail,
+			paypalEmail: settingsForm.paypalEmail
 		})
 		
 		setTosContent(settingsForm.tosContent)
@@ -344,6 +348,10 @@ export default function AdminDashboardPage() {
 									onChange={(e) => setSettingsForm({...settingsForm, whatsappLink: e.target.value})}
 								/>
 							</div>
+						</div>
+						
+						<h3 className="text-lg font-semibold mt-6">Payment Information</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div className="space-y-2">
 								<label className="text-sm font-medium">Bank Name</label>
 								<Input
@@ -365,7 +373,24 @@ export default function AdminDashboardPage() {
 									onChange={(e) => setSettingsForm({...settingsForm, accountName: e.target.value})}
 								/>
 							</div>
+							<div className="space-y-2">
+								<label className="text-sm font-medium">Wise Email</label>
+								<Input
+									type="email"
+									value={settingsForm.wiseEmail}
+									onChange={(e) => setSettingsForm({...settingsForm, wiseEmail: e.target.value})}
+								/>
+							</div>
+							<div className="space-y-2">
+								<label className="text-sm font-medium">PayPal Email</label>
+								<Input
+									type="email"
+									value={settingsForm.paypalEmail}
+									onChange={(e) => setSettingsForm({...settingsForm, paypalEmail: e.target.value})}
+								/>
+							</div>
 						</div>
+						
 						<div className="space-y-2">
 							<label className="text-sm font-medium">Terms of Service Content</label>
 							<textarea

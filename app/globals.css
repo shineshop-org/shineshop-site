@@ -76,16 +76,6 @@
 	background-clip: text;
 }
 
-/* 3D card hover effect */
-.card-3d {
-	transform-style: preserve-3d;
-	transition: transform 0.3s ease;
-}
-
-.card-3d:hover {
-	transform: rotateY(5deg) rotateX(5deg);
-}
-
 /* Smooth scroll */
 html {
 	scroll-behavior: smooth;
