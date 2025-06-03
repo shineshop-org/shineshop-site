@@ -1,11 +1,7 @@
-'use client'
-
 import React from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Tag } from 'lucide-react'
-import { useStore } from '@/app/lib/store'
-import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import ReactMarkdown from 'react-markdown'
@@ -17,7 +13,6 @@ interface FAQArticlePageProps {
 	}
 }
 
-// This function generates all possible FAQ article paths at build time
 export function generateStaticParams() {
 	return initialFAQArticles.map((article) => ({
 		slug: article.slug,
@@ -25,10 +20,8 @@ export function generateStaticParams() {
 }
 
 export default function FAQArticlePage({ params }: FAQArticlePageProps) {
-	const { faqArticles } = useStore()
-	const { t } = useTranslation()
-	
-	const article = faqArticles.find(a => a.slug === params.slug)
+	// Get the article directly from initialFAQArticles since this is a server component
+	const article = initialFAQArticles.find(a => a.slug === params.slug)
 	
 	if (!article) {
 		notFound()
