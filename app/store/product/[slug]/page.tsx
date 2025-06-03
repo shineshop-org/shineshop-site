@@ -10,11 +10,19 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { formatPrice } from '@/app/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
+import { initialProducts } from '@/app/lib/initial-data'
 
 interface ProductPageProps {
 	params: {
 		slug: string
 	}
+}
+
+// This function generates all possible product paths at build time
+export function generateStaticParams() {
+	return initialProducts.map((product) => ({
+		slug: product.slug,
+	}))
 }
 
 export default function ProductPage({ params }: ProductPageProps) {

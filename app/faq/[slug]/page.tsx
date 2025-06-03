@@ -9,11 +9,19 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import ReactMarkdown from 'react-markdown'
+import { initialFAQArticles } from '@/app/lib/initial-data'
 
 interface FAQArticlePageProps {
 	params: {
 		slug: string
 	}
+}
+
+// This function generates all possible FAQ article paths at build time
+export function generateStaticParams() {
+	return initialFAQArticles.map((article) => ({
+		slug: article.slug,
+	}))
 }
 
 export default function FAQArticlePage({ params }: FAQArticlePageProps) {
