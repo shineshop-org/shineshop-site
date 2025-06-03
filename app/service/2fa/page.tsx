@@ -74,7 +74,7 @@ export default function TwoFactorAuthPage() {
 							onChange={(e) => setSecret(e.target.value)}
 						/>
 						<p className="text-xs text-muted-foreground">
-							Enter the secret key provided by the service you're setting up 2FA for
+							Enter the secret key provided by the service you&apos;re setting up 2FA for
 						</p>
 					</div>
 					
@@ -123,7 +123,7 @@ export default function TwoFactorAuthPage() {
 					
 					<div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
 						<p className="text-sm text-amber-800 dark:text-amber-200">
-							<strong>Security Note:</strong> Never share your secret key with anyone. This tool runs entirely in your browser and doesn't send any data to our servers.
+							<strong>Security Note:</strong> Never share your secret key with anyone. This tool runs entirely in your browser and doesn&apos;t send any data to our servers.
 						</p>
 					</div>
 				</CardContent>
