@@ -1,0 +1,59 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Core Operating Principles
+
+1. **Instruction Reception and Understanding**
+   - Carefully read and interpret user instructions
+   - Ask specific questions when clarification is needed
+   - Clearly identify technical constraints and requirements
+   - Do not perform any operations beyond what is instructed
+
+2. **In-depth Analysis and Planning**
+   ```markdown
+   ## Task Analysis
+   - Purpose: [Final goal of the task]
+   - Technical Requirements: [Technology stack and constraints]
+   - Implementation Steps: [Specific steps]
+   - Risks: [Potential issues]
+   - Quality Standards: [Requirements to meet]
+   ```
+
+3. **Implementation Planning**
+   ```markdown
+   ## Implementation Plan
+   1. [Specific step 1]
+      - Detailed implementation content
+      - Expected challenges and countermeasures
+   2. [Specific step 2]
+      ...
+   ```
+
+4. **Comprehensive Implementation and Verification**
+   - Execute file operations and related processes in optimized complete sequences
+   - Continuously verify against quality standards throughout implementation
+   - Address issues promptly with integrated solutions
+   - Execute processes only within the scope of instructions, without adding extra features or operations
+
+5. **Continuous Feedback**
+   - Regularly report implementation progress
+   - Confirm at critical decision points
+   - Promptly report issues with proposed solutions
+
+## Technology Stack and Constraints
+### Core Technologies
+- TypeScript: ^5.0.0
+- Node.js: ^20.0.0
+### Frontend
+- Next.js: ^15.1.3
+- React: ^19.0.0
+- Tailwind CSS: ^3.4.17
+- shadcn/ui: ^2.1.8
+### Development Tools
+- npm: ^10.0.0
+- ESLint: ^9.0.0
+### Deploy
+- Deploy to Cloudflare Pages (can use `git push` then Cloudflare will auto deploy itself)
+

@@ -1,0 +1,87 @@
+---
+description: Customer requirements for the product/website (what website need to be) from the perspective of an ordinary person with less knowledge of technology, coding - But their requirements must absolutely be implemented.
+globs: 
+alwaysApply: false
+---
+The requirements  below will be written in Vietnamese, please translate them into English (try to understand to right coding way) in the most literal form, then analyze:
+Đây là trang web bán hàng trực tuyến, tập trung vào việc thể hiện list sản phẩm giá tiền, menu, faq, bài viết lưu ý... của cửa hàng chứ không có chức năng thanh toán online, hay đăng nhập tài khoản (trừ trang dành cho admin)
+- Trang cần một trang admin dashboard để dễ chỉnh menu, thêm các bài viết vào các URL, vùng trang nhất định (như thêm sản phẩm vào /store; thêm bài viết vào /faq;...)
+
+- Các trang URL nằm trong domain https://shineshop.org là:
+/store - Chứa các /product/...
+/faq - Chứa các bài viết
+/payment - Chứa thông tin thanh toán mặc định của shop
+/social - Chứa các thông tin liên hệ của shop
+/tos - Chứa điều khoản và dịch vụ của shop - sẽ là một trang riêng
+/service - Chứa các trang con như /2fa (decode mã TOTP), /netflix - Lấy mã Netflix từ Email Outlook, /gpt - lấy mã từ Email Outlook,...
+... sẽ còn bổ sung nếu có
+
+Mô tả chung về giao diện:
+- Có đầy đủ cả lightmode và darkmode
+- Web sẽ có cả tiếng Anh và tiếng Việt
+- Cả 2 bên trái và phải sẽ có một lớp margin nhỏ để trang không bị dính vào cạnh
+- Sử dụng giao diện hiện đại, bo tròn
+- Luôn sẽ có một thanh nav bar luôn nằm trên tất cả các phần tử và nằm trên cùng của trang:
+- Logo sẽ xếp nằm ngoài cùng bên trái thanh nav bar 
+- Từ ngoài cùng bên phải -> trái trên thanh nav bar sẽ là lần lượt các nút:
++ Nút hình tròn với icon dấu "?" là /faq
++ Nút hình tròn với biểu tượng mặt trăng/mặt trời và chuyển giữa darkmode và light mode
++ Nút với dòng chữ "Công cụ" là /service
++ Nút với dòng chữ "Liên hệ" là /social
++ Nút với dòng chữ "Thanh toán" là /payment
++ Nút chuyển ngôn ngữ theo dạng toggle giữa hai lá cờ English (US) và Tiếng Việt
+-  Mọi phần tử đều phải được căn giữa chiều cao của thanh nav bar
+Chi tiết về giao diện của từng trang:
+/store:
+- Khi người dùng truy cập vào shineshop.org tự động chuyển sang https://shineshop.org/store
+- Bên dưới thanh nav bar sẽ là một dòng chữ lớn - có màu gradien JShine (linear-gradient(to right, rgb(18, 194, 233), rgb(196, 113, 237), rgb(246, 79, 89))): được tùy chỉnh theo trang admin dashboard
+- Bên dưới dòng chữ có màu JShin trên sẽ là một câu qoutes nào đó - cũng được tùy chỉnh theo trang admin dashboard
+
+- Dưới hai dòng chữ trên sẽ là phần menu toàn bộ sản phẩm của shop bao gồm các phần tử sau:
++ Một thanh tag có rất nhiều nút bo tròn hiển thị tag phân loại sản phẩm - mặc định là "Tất cả"
++ Bên dưới thanh tag sẽ là tổng hợp sản phẩm được hiển thị theo dạng gallery, mỗi sản phẩm ở gallery sẽ là một card, và mỗi card sẽ có mô tả như sau:
+    + Bo tròn
+    + Từ trên xuống dưới sẽ có một ảnh và một phần hiển thị thông tin, thông tin được hiển thị bao gồm: Tên sản phẩm, giá tiền
+    + Tên sản phẩm sẽ ở dòng trên và giá tiền sẽ ở dòng dưới
+    + Một gallery sẽ chứa số card tùy vào tỉ lệ màn hình, riêng trên điện thoại sẽ là 1 card/hàng
+    + Khi bấm vào một card sẽ ra trang chi tiết sản phẩm với link store/product/... của sản phẩm đó
+    + Mỗi card cũng sẽ có hiệu ứng hover khi di chuột vào thì sẽ hướng theo chuột (3D card hover effect) và cũng có một lớp bóng, ánh sáng như việc di chuyển chuột đến đâu thì sáng đến đó
+
+/product/...:
+- Trang admin dashboard cũng có thể thêm, chỉnh sửa mô tả sản phẩm, giá sản phẩm, các option, bài viết liên quan
+- Giao diện của các sản phẩm ở /product/... chi tiết như sau:
++ Bên trái sẽ là hình ảnh (cùng một phần hình ảnh được hiển thị ở card bên trên), bên phải sẽ là tên sản phẩm, giá sản phẩm, các lựa chọn, option của sản phẩm, một nút có link chứa inbox của shop (chia làm 2 nút Facebook và Whatsapp). Các phần vừa được mô tả sẽ nằm cùng một hàng
++ Bên dưới cũng sẽ có 2 phần, trái là mô tả sản phẩm - bên phải là các bài viết liên quan (các bài viết liên quan được lấy từ faq). Phần mô tả sản phẩm sẽ chiếm 70% hoặc 1 tỉ lệ nào đó hợp lý.
+
+/faq:
+- Trang FAQ cũng sẽ tập hợp các bài viết theo kiểu dạng card và có một thanh search, cố gắng sử dụng, khi bấm vào sẽ dẫn đến các bài viết có link /faq/....
+
+/faq/...:
+- Các bài viết sẽ có cấu trúc, các bài trí dễ đọc với nhiều dạng format chữ (giống markdown) - và khả năng hiển thị ảnh, link,... giống như mấy bài báo
+
+/social:
+- Trang này hiển thị link mạng xã hội, liên lạc ở nhiều nền tảng khác nhau, đơn giản là có những card hình chữ nhật với biểu tượng của mạng xã hội đó bên trong, xếp dưới là các nút như copy link, mở link (ở tab mới) - sử dụng icon để biểu thị
+
+/payment:
+- Trang này hiển thị QR tùy chọn theo API của VietQR, và QR được tùy chọn để có viền có màu JShine và bo tròn bên trên (Qr sẽ ở dạng compact) - có thể đọc dự án cũ nằm ở "C:\Users\Administrator\Documents\shineshop.org" để tham khảo việc này (cẩn thị về phiên bản NodeJS, NextJS và React của dự án - chỉ mang tính học hỏi)
+- Bên trái sẽ là phần QR được hiển thi, dưới QR sẽ là phần điền số tiền (VND) và một nút copy hình vuông dc bo tròn, - khi copy thành công thì nút đó sẽ nháy sáng màu xanh lá
+- Bên phải sẽ là phần thông tin tài khoản ngân hàng (có thể học hỏi dự án cũ C:\Users\Administrator\Documents\shineshop.org)
+
+/tos:
+- Phần này sẽ chỉ có chữ và các loại chữ có thể khác nhau 
+
+
+LƯU Ý: ADMIN DASHBOARD CÓ THỂ CHỈNH SỬA TOÀN BỘ NỘI DUNG HIỂN THỊ Ở TRANG WEB NHƯ THỨ TỰ SORT CỦA CÁC CARD Ở /store, nội dung ở /product, thêm sản phẩm, xóa sản phẩm, thay đổi giá tiền options, thay đổi nội dung TOS, thêm các bài FAQ, chỉnh sửa FAQ, etc ngoại trừ trang /payment
+
+Hãy cho tôi cách truy cập trang admin đơn giản nhưng đủ bảo mật - không phát sinh thêm gì quá phức tạp
+
+
+- Khi mới truy cập vào trang, nó sẽ tự động di chuyển từ từ để kéo chuột xuống đúng chỗ mà bắt đầu thiển thị menu sản phẩm - sao cho thanh tag gần chạm đến một khoảng so với thanh nav bar - đảm bảo khoảng cách cân đối vừa mắt.
+
+
+
+
+- Chi tiết về các trang 
+
+
+Lưu ý: Bạn hoàn toàn có thể thêm một và trang, tính năng hay bất cứ thứ gì giúp các tính năng được khách trên yêu cầu để khiến nó hoạt động mà không ảnh hưởng đến các tính năng khác

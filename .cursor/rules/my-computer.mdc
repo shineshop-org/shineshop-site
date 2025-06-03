@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## My PC properties:
+- Windows 11 24H2
+- nodeJS v22.15.0 
+- wrangler 4.18.0
+
+- powershell 5.1.26100.3624
