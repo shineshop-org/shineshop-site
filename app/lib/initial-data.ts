@@ -14,8 +14,24 @@ export const initialProducts: Product[] = [
 			{
 				id: 'color',
 				name: 'Color',
-				values: ['Black', 'White', 'Blue'],
-				type: 'select'
+				type: 'select',
+				values: [
+					{
+						value: 'Black',
+						price: 1299000,
+						description: 'Classic black color with matte finish'
+					},
+					{
+						value: 'White',
+						price: 1299000,
+						description: 'Clean white design with silver accents'
+					},
+					{
+						value: 'Blue',
+						price: 1399000,
+						description: 'Limited edition navy blue color'
+					}
+				]
 			}
 		],
 		relatedArticles: ['1', '2']
@@ -33,8 +49,24 @@ export const initialProducts: Product[] = [
 			{
 				id: 'size',
 				name: 'Band Size',
-				values: ['Small', 'Medium', 'Large'],
-				type: 'radio'
+				type: 'radio',
+				values: [
+					{
+						value: 'Small',
+						price: 3499000,
+						description: 'Fits wrists 140-160mm'
+					},
+					{
+						value: 'Medium',
+						price: 3499000,
+						description: 'Fits wrists 160-180mm'
+					},
+					{
+						value: 'Large',
+						price: 3599000,
+						description: 'Fits wrists 180-220mm'
+					}
+				]
 			}
 		]
 	},
@@ -61,8 +93,24 @@ export const initialProducts: Product[] = [
 			{
 				id: 'switch',
 				name: 'Switch Type',
-				values: ['Red', 'Blue', 'Brown'],
-				type: 'select'
+				type: 'select',
+				values: [
+					{
+						value: 'Red',
+						price: 1799000,
+						description: 'Linear switches with quick actuation, ideal for gaming'
+					},
+					{
+						value: 'Blue',
+						price: 1899000,
+						description: 'Tactile and clicky switches with audible feedback'
+					},
+					{
+						value: 'Brown',
+						price: 1849000,
+						description: 'Tactile switches with a softer feel, good for typing and gaming'
+					}
+				]
 			}
 		]
 	},

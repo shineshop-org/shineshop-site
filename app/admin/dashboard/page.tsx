@@ -176,7 +176,11 @@ export default function AdminDashboardPage() {
 			id: string;
 			name: string;
 			type: 'select' | 'radio';
-			values: string[];
+			values: {
+				value: string;
+				price: number;
+				description: string;
+			}[];
 		}[],
 		relatedArticles: [] as string[],
 		isLocalized: false
@@ -276,16 +280,12 @@ export default function AdminDashboardPage() {
 	const handleSaveProduct = () => {
 		// Get the lowest price from options if available
 		const optionValues = productForm.options.flatMap(option => 
-			option.values.map(value => {
-				// Try to extract price from format like "Option - $10"
-				const priceMatch = value.match(/.*?[- ]\$?(\d+(?:\.\d+)?)$/)
-				return priceMatch ? parseFloat(priceMatch[1]) : Infinity
-			})
+			option.values.map(value => value.price)
 		)
 		
 		// Set the lowest price found or fallback to 0
 		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => price !== Infinity))
+			? Math.min(...optionValues.filter(price => price !== Infinity && !isNaN(price)))
 			: 0
 			
 		const newProduct: Product = {
@@ -387,7 +387,7 @@ export default function AdminDashboardPage() {
 			id: Date.now().toString(),
 			name: '',
 			type: 'select' as const,
-			values: ['']
+			values: [{ value: '', price: 0, description: '' }]
 		}
 		setProductForm({
 			...productForm,
@@ -407,14 +407,21 @@ export default function AdminDashboardPage() {
 		})
 	}
 	
-	const updateOptionValue = (optionIndex: number, valueIndex: number, value: string) => {
+	const updateOptionValue = (optionIndex: number, valueIndex: number, value: string, field: 'value' | 'price' | 'description' = 'value') => {
 		const updatedOptions = [...productForm.options]
 		const optionValues = [...updatedOptions[optionIndex].values]
-		optionValues[valueIndex] = value
+		
+		// Create a new value object with the updated field
+		optionValues[valueIndex] = {
+			...optionValues[valueIndex],
+			[field]: field === 'price' ? Number(value) || 0 : value
+		}
+		
 		updatedOptions[optionIndex] = {
 			...updatedOptions[optionIndex],
 			values: optionValues
 		}
+		
 		setProductForm({
 			...productForm,
 			options: updatedOptions
@@ -425,7 +432,7 @@ export default function AdminDashboardPage() {
 		const updatedOptions = [...productForm.options]
 		updatedOptions[optionIndex] = {
 			...updatedOptions[optionIndex],
-			values: [...updatedOptions[optionIndex].values, '']
+			values: [...updatedOptions[optionIndex].values, { value: '', price: 0, description: '' }]
 		}
 		setProductForm({
 			...productForm,
@@ -473,14 +480,11 @@ export default function AdminDashboardPage() {
 		}
 		
 		const optionValues = product.options.flatMap(option => 
-			option.values.map(value => {
-				const priceMatch = value.match(/.*?[- ]\$?(\d+(?:\.\d+)?)$/)
-				return priceMatch ? parseFloat(priceMatch[1]) : Infinity
-			})
+			option.values.map(value => value.price)
 		)
 		
 		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => price !== Infinity))
+			? Math.min(...optionValues.filter(price => price !== Infinity && !isNaN(price)))
 			: product.price
 			
 		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
@@ -861,23 +865,54 @@ export default function AdminDashboardPage() {
 														</div>
 														
 														{option.values.map((value, valueIndex) => (
-															<div key={valueIndex} className="flex items-center space-x-2">
-																<Input 
-																	value={value}
-																	onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value)}
-																	placeholder="Option value (e.g., 'Red', 'Small - $10')"
-																	className="flex-1"
-																/>
-																{option.values.length > 1 && (
-																	<Button 
-																		variant="ghost" 
-																		size="sm" 
-																		className="p-0 h-8 w-8 text-destructive"
-																		onClick={() => removeOptionValue(optionIndex, valueIndex)}
-																	>
-																		<Trash2 className="h-4 w-4" />
-																	</Button>
-																)}
+															<div key={valueIndex} className="space-y-3 border p-3 rounded-md mb-3">
+																<div className="flex justify-between items-center">
+																	<h5 className="font-medium text-sm">Option Value {valueIndex + 1}</h5>
+																	{option.values.length > 1 && (
+																		<Button 
+																			variant="ghost" 
+																			size="sm" 
+																			className="p-0 h-8 w-8 text-destructive"
+																			onClick={() => removeOptionValue(optionIndex, valueIndex)}
+																		>
+																			<Trash2 className="h-4 w-4" />
+																		</Button>
+																	)}
+																</div>
+																
+																<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+																	<div className="space-y-2">
+																		<label className="text-xs text-muted-foreground">Value Name</label>
+																		<Input 
+																			value={value.value}
+																			onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'value')}
+																			placeholder="e.g., Red, Small, etc."
+																			className="flex-1"
+																		/>
+																	</div>
+																	
+																	<div className="space-y-2">
+																		<label className="text-xs text-muted-foreground">Price (VND)</label>
+																		<Input 
+																			type="number"
+																			value={value.price}
+																			min="0"
+																			onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'price')}
+																			placeholder="e.g., 100000"
+																			className="flex-1"
+																		/>
+																	</div>
+																</div>
+																
+																<div className="space-y-2">
+																	<label className="text-xs text-muted-foreground">Description</label>
+																	<Input 
+																		value={value.description}
+																		onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'description')}
+																		placeholder="Describe this option value"
+																		className="flex-1"
+																	/>
+																</div>
 															</div>
 														))}
 													</div>

@@ -88,17 +88,39 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 		
 		const optionValues = product.options.flatMap(option => 
-			option.values.map(value => {
-				const priceMatch = value.match(/.*?[- ]\$?(\d+(?:\.\d+)?)$/)
-				return priceMatch ? parseFloat(priceMatch[1]) : Infinity
-			})
+			option.values.map(value => value.price)
 		)
 		
 		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => price !== Infinity))
+			? Math.min(...optionValues.filter(price => !isNaN(price) && isFinite(price)))
 			: product.price
 			
 		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
+	}
+	
+	// Get current selected price based on options
+	const getSelectedPrice = () => {
+		if (!product.options || product.options.length === 0 || Object.keys(selectedOptions).length === 0) {
+			return product.price
+		}
+		
+		// Get price based on selected options
+		let totalPrice = product.price
+		
+		// Find the selected option values and their prices
+		Object.entries(selectedOptions).forEach(([optionId, selectedValue]) => {
+			if (!selectedValue) return
+			
+			const option = product.options?.find(opt => opt.id === optionId)
+			if (option) {
+				const optionValue = option.values.find(val => val.value === selectedValue)
+				if (optionValue) {
+					totalPrice = optionValue.price // Just use the option price directly
+				}
+			}
+		})
+		
+		return totalPrice
 	}
 	
 	// Get the product name based on language and localization settings
@@ -140,7 +162,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					<div>
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
 						<p className="text-2xl font-semibold text-primary mt-4">
-							{formatPrice(getLowestPrice(), 'en-US')}
+							{formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
 					
@@ -151,30 +173,46 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 								<div key={option.id} className="space-y-2">
 									<label className="text-sm font-medium">{option.name}</label>
 									{option.type === 'select' ? (
-										<select
-											className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 transition-colors"
-											value={selectedOptions[option.id] || ''}
-											onChange={(e) => handleOptionChange(option.id, e.target.value)}
-										>
-											<option value="" disabled>Select {option.name}</option>
-											{option.values.map((value) => (
-												<option key={value} value={value}>{value}</option>
-											))}
-										</select>
+										<div className="space-y-2">
+											<select
+												className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 transition-colors"
+												value={selectedOptions[option.id] || ''}
+												onChange={(e) => handleOptionChange(option.id, e.target.value)}
+											>
+												<option value="" disabled>Select {option.name}</option>
+												{option.values.map((value) => (
+													<option key={value.value} value={value.value}>{value.value}</option>
+												))}
+											</select>
+											{selectedOptions[option.id] && (
+												<div>
+													{option.values.map((value) => (
+														value.value === selectedOptions[option.id] && value.description && (
+															<p key={value.value} className="text-sm text-muted-foreground mt-1">{value.description}</p>
+														)
+													))}
+												</div>
+											)}
+										</div>
 									) : (
 										<div className="space-y-2">
 											{option.values.map((value) => (
-												<label key={value} className="flex items-center space-x-2 cursor-pointer hover:text-primary transition-colors">
-													<input
-														type="radio"
-														name={option.id}
-														value={value}
-														checked={selectedOptions[option.id] === value}
-														onChange={() => handleOptionChange(option.id, value)}
-														className="w-4 h-4"
-													/>
-													<span>{value}</span>
-												</label>
+												<div key={value.value} className="mb-2">
+													<label className="flex items-center space-x-2 cursor-pointer hover:text-primary transition-colors">
+														<input
+															type="radio"
+															name={option.id}
+															value={value.value}
+															checked={selectedOptions[option.id] === value.value}
+															onChange={() => handleOptionChange(option.id, value.value)}
+															className="w-4 h-4"
+														/>
+														<span>{value.value}</span>
+													</label>
+													{selectedOptions[option.id] === value.value && value.description && (
+														<p className="text-sm text-muted-foreground ml-6 mt-1">{value.description}</p>
+													)}
+												</div>
 											))}
 										</div>
 									)}

@@ -23,8 +23,14 @@ export interface Product {
 export interface ProductOption {
 	id: string
 	name: string
-	values: string[]
 	type: 'select' | 'radio'
+	values: OptionValue[]
+}
+
+export interface OptionValue {
+	value: string
+	price: number
+	description: string
 }
 
 export interface FAQArticle {
