@@ -22,7 +22,7 @@ export function VietQRPayment({
 	accountNumber, 
 	bankName, 
 	accountName = 'SHINE SHOP',
-	baseQrUrl = 'https://api.vietqr.io/image/970407-MS00T09331707449347-Djwd2Cb.jpg?accountName=SHINE%20SHOP&amount=0&addInfo=SHINE%20SHOP'
+	baseQrUrl = 'https://img.vietqr.io/image/970407-MS00T09331707449347-Djwd2Cb.jpg?accountName=SHINE%20SHOP&amount=0&addInfo=SHINE%20SHOP'
 }: VietQRPaymentProps) {
 	const [amount, setAmount] = useState('')
 	const [formattedAmount, setFormattedAmount] = useState('')

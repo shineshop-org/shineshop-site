@@ -11,6 +11,24 @@ export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const path = request.nextUrl.pathname
   
+  // Add Content Security Policy header to all responses
+  const response = NextResponse.next()
+  
+  // Define Content Security Policy
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io;
+    font-src 'self';
+    connect-src 'self';
+    frame-src 'self';
+    object-src 'none';
+  `.replace(/\s{2,}/g, ' ').trim()
+  
+  // Set the CSP header
+  response.headers.set('Content-Security-Policy', cspHeader)
+  
   // Kiểm tra nếu đường dẫn bắt đầu bằng /admin
   if (path.startsWith('/admin')) {
     // Kiểm tra cookie đặc biệt để kích hoạt trang admin
@@ -37,11 +55,10 @@ export function middleware(request: NextRequest) {
     }
   }
   
-  // Otherwise, continue with the request
-  return NextResponse.next()
+  return response
 }
 
-// Configure the middleware to run only on specific paths
+// Configure the middleware to run on all paths instead of just admin paths
 export const config = {
-  matcher: ['/admin', '/admin/:path*'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 } 
