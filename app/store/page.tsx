@@ -195,15 +195,15 @@ function ProductCard({ product, language }: ProductCardProps) {
 						className="object-cover transition-transform duration-300 group-hover:scale-105"
 						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
 					/>
-					{/* Overlay gradient on hover */}
-					<div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 ${isHovered ? 'opacity-100' : ''}`} />
 				</div>
 				<CardContent className="p-3 relative z-10 bg-background dark:bg-card/90">
 					<h3 className="font-semibold text-sm truncate mb-1" title={product.name}>
 						{product.name}
 					</h3>
 					<div className="flex items-center justify-end gap-1">
-						<Tag className="h-3.5 w-3.5 text-primary/70" />
+						<span className="text-xs text-muted-foreground">
+							{language === 'vi' ? 'chỉ từ' : 'from'}
+						</span>
 						<p className="text-lg font-bold bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
 							{formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US')}
 						</p>
