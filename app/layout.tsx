@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './components/providers'
 import { Navbar } from './components/navbar'
+import { LanguageInitializer } from './components/language-initializer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,6 +21,7 @@ export default function RootLayout({
 		<html lang="en" suppressHydrationWarning>
 			<body className={inter.className}>
 				<Providers>
+					<LanguageInitializer />
 					<Navbar />
 					<main className="min-h-screen pt-16 transition-all duration-200">
 						<div className="container mx-auto px-4">

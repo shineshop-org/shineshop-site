@@ -1,13 +1,22 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/app/components/ui/button'
+import { useStore } from '@/app/lib/store'
 
 export function ThemeSwitch() {
 	const { theme, setTheme } = useTheme()
+	const storeSetTheme = useStore(state => state.setTheme)
 	const [isAnimating, setIsAnimating] = useState(false)
+	
+	// Sync next-themes with our store
+	useEffect(() => {
+		if (theme === 'light' || theme === 'dark') {
+			storeSetTheme(theme)
+		}
+	}, [theme, storeSetTheme])
 
 	const toggleTheme = () => {
 		if (isAnimating) return

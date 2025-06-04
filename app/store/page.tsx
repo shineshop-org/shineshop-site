@@ -18,44 +18,56 @@ export default function StorePage() {
 	const productsRef = useRef<HTMLDivElement>(null)
 	const categoryRef = useRef<HTMLDivElement>(null)
 	
-	// Auto-scroll on page load with smooth animation
+	// Auto-scroll on page load with smooth animation only if user hasn't visited recently
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			if (categoryRef.current) {
-				const yOffset = -120 // Offset to position slightly above the category section
-				const element = categoryRef.current
-				const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
-				
-				// Use requestAnimationFrame for smoother animation
-				const startPosition = window.pageYOffset
-				const distance = y - startPosition
-				const duration = 1000 // 1 second
-				let start: number | null = null
-				
-				const animation = (currentTime: number) => {
-					if (start === null) start = currentTime
-					const timeElapsed = currentTime - start
-					const progress = Math.min(timeElapsed / duration, 1)
-					
-					// Easing function for smooth animation
-					const easeInOutCubic = (t: number) => {
-						return t < 0.5 
-							? 4 * t * t * t 
-							: 1 - Math.pow(-2 * t + 2, 3) / 2
-					}
-					
-					window.scrollTo(0, startPosition + distance * easeInOutCubic(progress))
-					
-					if (timeElapsed < duration) {
-						requestAnimationFrame(animation)
-					}
-				}
-				
-				requestAnimationFrame(animation)
-			}
-		}, 300)
+		const INACTIVITY_THRESHOLD = 30 * 60 * 1000; // 30 minutes in milliseconds
 		
-		return () => clearTimeout(timer)
+		// Check when the user last visited the store page
+		const lastVisitTime = localStorage.getItem('shineshop-last-visit');
+		const currentTime = Date.now();
+		
+		// Update the last visit time
+		localStorage.setItem('shineshop-last-visit', currentTime.toString());
+		
+		// Only scroll if user hasn't visited recently
+		if (!lastVisitTime || (currentTime - parseInt(lastVisitTime)) > INACTIVITY_THRESHOLD) {
+			const timer = setTimeout(() => {
+				if (categoryRef.current) {
+					const yOffset = -120 // Offset to position slightly above the category section
+					const element = categoryRef.current
+					const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+					
+					// Use requestAnimationFrame for smoother animation
+					const startPosition = window.pageYOffset
+					const distance = y - startPosition
+					const duration = 1000 // 1 second
+					let start: number | null = null
+					
+					const animation = (currentTime: number) => {
+						if (start === null) start = currentTime
+						const timeElapsed = currentTime - start
+						const progress = Math.min(timeElapsed / duration, 1)
+						
+						// Easing function for smooth animation
+						const easeInOutCubic = (t: number) => {
+							return t < 0.5 
+								? 4 * t * t * t 
+								: 1 - Math.pow(-2 * t + 2, 3) / 2
+						}
+						
+						window.scrollTo(0, startPosition + distance * easeInOutCubic(progress))
+						
+						if (timeElapsed < duration) {
+							requestAnimationFrame(animation)
+						}
+					}
+					
+					requestAnimationFrame(animation)
+				}
+			}, 300)
+			
+			return () => clearTimeout(timer)
+		}
 	}, [])
 	
 	// Get unique categories
