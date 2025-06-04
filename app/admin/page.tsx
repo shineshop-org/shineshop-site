@@ -96,20 +96,16 @@ export default function AdminLoginPage() {
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={handleLogin} className="space-y-4">
-						<div className="space-y-2">
-							<label className="text-sm font-medium">Mã xác thực</label>
-							<Input
-								type="text"
-								inputMode="numeric"
-								pattern="[0-9]{6}"
-								maxLength={6}
-								value={authCode}
-								onChange={(e) => setAuthCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-								placeholder="Nhập mã 6 số"
-								required
-								className="text-center font-mono text-lg tracking-wider"
-							/>
-						</div>
+						<Input
+							type="text"
+							inputMode="numeric"
+							pattern="[0-9]{6}"
+							maxLength={6}
+							value={authCode}
+							onChange={(e) => setAuthCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+							required
+							className="text-center font-mono text-lg tracking-wider"
+						/>
 						{error && (
 							<p className="text-sm text-destructive text-center">{error}</p>
 						)}
