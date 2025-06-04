@@ -67,16 +67,42 @@
 		@apply bg-background text-foreground;
 	}
 	
-	/* Default short transition for better performance */
+	/* Remove default transitions to reduce initial lag */
 	* {
+		transition: none;
+	}
+	
+	/* Apply transitions only to specific elements that need them */
+	a, button, input, select, textarea {
 		@apply transition-colors duration-200;
 	}
 	
-	/* Enhanced transition for theme switching */
-	.theme-transition * {
-		transition-duration: 1000ms !important;
-		transition-property: background-color, border-color, color, fill, stroke !important;
-		transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+	/* Enhanced transition for theme switching - only target what needs to change */
+	.theme-transition body,
+	.theme-transition div,
+	.theme-transition header,
+	.theme-transition footer,
+	.theme-transition nav,
+	.theme-transition main,
+	.theme-transition section,
+	.theme-transition aside,
+	.theme-transition a,
+	.theme-transition button,
+	.theme-transition h1,
+	.theme-transition h2,
+	.theme-transition h3,
+	.theme-transition h4,
+	.theme-transition h5,
+	.theme-transition h6,
+	.theme-transition p,
+	.theme-transition span,
+	.theme-transition input,
+	.theme-transition select,
+	.theme-transition textarea {
+		transition-duration: 700ms;
+		transition-property: background-color, border-color, color, fill, stroke;
+		transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+		will-change: background-color, border-color, color, fill, stroke;
 	}
 	
 	/* Button transitions */
@@ -95,19 +121,39 @@
 	}
 }
 
-/* JShine gradient with animations */
+/* JShine gradient with improved seamless animation */
 .jshine-gradient {
-	background: linear-gradient(90deg, #06b6d4 0%, #a855f7 50%, #ec4899 100%);
+	background: linear-gradient(
+		to right,
+		#06b6d4, /* cyan */
+		#0ea5e9, /* sky/light blue */
+		#8b5cf6, /* violet */
+		#a855f7, /* purple */
+		#d946ef, /* fuchsia */
+		#ec4899, /* pink */
+		#f43f5e, /* rose */
+		#ef4444, /* red */
+		#f97316, /* orange */
+		#f59e0b, /* amber */
+		#eab308, /* yellow */
+		#84cc16, /* lime */
+		#22c55e, /* green */
+		#10b981, /* emerald */
+		#06b6d4  /* back to cyan for seamless loop */
+	);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
-	background-size: 200% auto;
-	animation: jshine 3s linear infinite;
+	background-size: 1000% 100%;
+	animation: jshine 15s linear infinite;
 }
 
 @keyframes jshine {
-	to {
-		background-position: 200% center;
+	0% {
+		background-position: 0% center;
+	}
+	100% {
+		background-position: 100% center;
 	}
 }
 

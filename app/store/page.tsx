@@ -9,6 +9,7 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { formatPrice } from '@/app/lib/utils'
 import { Card, CardContent } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export default function StorePage() {
 	const { products, siteConfig } = useStore()
@@ -68,6 +69,11 @@ export default function StorePage() {
 	// Sort products by sortOrder
 	const sortedProducts = [...filteredProducts].sort((a, b) => a.sortOrder - b.sortOrder)
 	
+	// Handle category change with animation
+	const handleCategoryChange = (category: string) => {
+		setSelectedCategory(category)
+	}
+	
 	return (
 		<div className="space-y-12 pb-12 page-transition">
 			{/* Hero Section */}
@@ -89,7 +95,7 @@ export default function StorePage() {
 							key={category}
 							variant={selectedCategory === category ? 'default' : 'outline'}
 							size="sm"
-							onClick={() => setSelectedCategory(category)}
+							onClick={() => handleCategoryChange(category)}
 							className="rounded-full"
 						>
 							{category === 'all' ? t('allProducts') : category}
@@ -97,13 +103,31 @@ export default function StorePage() {
 					))}
 				</div>
 				
-				{/* Product Grid - Updated for 5 columns on Full HD */}
+				{/* Product Grid - With animated transitions */}
 				<div ref={productsRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-5">
-					{sortedProducts.map((product) => (
-						<Link key={product.id} href={`/store/product/${product.slug}`}>
-							<ProductCard product={product} language={language} />
-						</Link>
-					))}
+					<AnimatePresence mode="popLayout">
+						{sortedProducts.map((product) => (
+							<motion.div
+								key={product.id}
+								layout
+								initial={{ opacity: 0, scale: 0.8 }}
+								animate={{ opacity: 1, scale: 1 }}
+								exit={{ opacity: 0, scale: 0.8 }}
+								transition={{
+									opacity: { duration: 0.3 },
+									layout: {
+										type: "spring",
+										stiffness: 400,
+										damping: 40
+									}
+								}}
+							>
+								<Link href={`/store/product/${product.slug}`}>
+									<ProductCard product={product} language={language} />
+								</Link>
+							</motion.div>
+						))}
+					</AnimatePresence>
 				</div>
 			</section>
 		</div>
