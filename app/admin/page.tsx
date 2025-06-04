@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Lock } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
 import { ADMIN_CREDENTIALS, createAuthToken, setAuthCookie, getAuthCookie, verifySpecialToken, ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
@@ -85,7 +85,6 @@ export default function AdminLoginPage() {
 					<div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
 						<Lock className="h-6 w-6 text-primary" />
 					</div>
-					<CardTitle className="text-2xl">{t('adminLogin')}</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={handleLogin} className="space-y-4 mt-4">
