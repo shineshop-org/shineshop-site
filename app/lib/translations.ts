@@ -398,4 +398,45 @@ export const translations: Translations = {
 		en: 'Change Password (coming soon)',
 		vi: 'Đổi mật khẩu (sắp có)'
 	},
+	// 2FA page translations
+	secretKey: {
+		en: 'Secret Key',
+		vi: 'Khóa bí mật'
+	},
+	enterSecretKey: {
+		en: 'Enter your 2FA secret key',
+		vi: 'Nhập khóa bí mật 2FA của bạn'
+	},
+	secretKeyDescription: {
+		en: 'Enter the secret key provided by the service you\'re setting up 2FA for',
+		vi: 'Nhập khóa bí mật được cung cấp bởi dịch vụ bạn đang thiết lập 2FA'
+	},
+	totpCode: {
+		en: 'Your TOTP Code',
+		vi: 'Mã TOTP của bạn'
+	},
+	expiresIn: {
+		en: 'Expires in',
+		vi: 'Hết hạn trong'
+	},
+	seconds: {
+		en: 's',
+		vi: 'giây'
+	},
+	copied: {
+		en: 'Copied!',
+		vi: 'Đã sao chép!'
+	},
+	securityNote: {
+		en: 'Security Note',
+		vi: 'Lưu ý bảo mật'
+	},
+	securityNoteText: {
+		en: 'Never share your secret key with anyone. This tool runs entirely in your browser and doesn\'t send any data to our servers.',
+		vi: 'Không bao giờ chia sẻ khóa bí mật của bạn với bất kỳ ai. Công cụ này chạy hoàn toàn trong trình duyệt của bạn và không gửi bất kỳ dữ liệu nào đến máy chủ của chúng tôi.'
+	},
+	generateTotpDesc: {
+		en: 'Generate time-based one-time passwords (TOTP) for two-factor authentication',
+		vi: 'Tạo mật khẩu một lần dựa trên thời gian (TOTP) cho xác thực hai yếu tố'
+	},
 } 

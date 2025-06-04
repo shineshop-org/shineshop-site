@@ -235,3 +235,7 @@ my-next-app/
 
    - API endpoints in `api/[endpoint]/route.ts`
 
+
+## Deploy
+- After implementation work done, use push all code to github to make cloudflare auto deploy!
+

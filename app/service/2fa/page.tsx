@@ -6,14 +6,48 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function TwoFactorAuthPage() {
+	const router = useRouter()
+	const searchParams = useSearchParams()
 	const { t } = useTranslation()
 	const [secret, setSecret] = useState('')
 	const [totpCode, setTotpCode] = useState('')
 	const [timeRemaining, setTimeRemaining] = useState(30)
 	const [copied, setCopied] = useState(false)
 	
+	// Format input to uppercase and remove spaces
+	const formatInput = (input: string) => {
+		return input.toUpperCase().replace(/\s+/g, '')
+	}
+
+	// Set initial secret from URL path or query params if available
+	useEffect(() => {
+		const path = window.location.pathname
+		const match = path.match(/\/service\/2fa\/(.+)/)
+		
+		if (match && match[1]) {
+			try {
+				const decodedSecret = decodeURIComponent(match[1])
+				setSecret(formatInput(decodedSecret))
+			} catch (e) {
+				console.error('Error decoding URL parameter:', e)
+			}
+		}
+	}, [])
+	
+	// Update URL when secret changes
+	useEffect(() => {
+		if (secret) {
+			const newUrl = `/service/2fa/${encodeURIComponent(secret)}`
+			// Use history.replaceState to avoid adding new history entries
+			window.history.replaceState({ path: newUrl }, '', newUrl)
+		} else {
+			window.history.replaceState({ path: '/service/2fa' }, '', '/service/2fa')
+		}
+	}, [secret])
+
 	useEffect(() => {
 		if (secret) {
 			// Simple TOTP generation (in production, use a proper library)
@@ -51,6 +85,11 @@ export default function TwoFactorAuthPage() {
 			}
 		}
 	}
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = formatInput(e.target.value)
+		setSecret(value)
+	}
 	
 	return (
 		<div className="max-w-2xl mx-auto py-8">
@@ -61,33 +100,37 @@ export default function TwoFactorAuthPage() {
 						<CardTitle>{t('twoFactorAuth')}</CardTitle>
 					</div>
 					<CardDescription>
-						Generate time-based one-time passwords (TOTP) for two-factor authentication
+						{t('generateTotpDesc')}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					<div className="space-y-2">
-						<label className="text-sm font-medium">Secret Key</label>
+						<label className="text-sm font-medium">{t('secretKey')}</label>
 						<Input
 							type="text"
-							placeholder="Enter your 2FA secret key"
+							placeholder={t('enterSecretKey')}
 							value={secret}
-							onChange={(e) => setSecret(e.target.value)}
+							onChange={handleInputChange}
 						/>
 						<p className="text-xs text-muted-foreground">
-							Enter the secret key provided by the service you&apos;re setting up 2FA for
+							{t('secretKeyDescription')}
 						</p>
 					</div>
 					
 					{secret && totpCode && (
 						<div className="space-y-4">
-							<div className="text-center p-8 bg-secondary rounded-lg">
-								<p className="text-sm text-muted-foreground mb-2">Your TOTP Code</p>
-								<div className="text-4xl font-mono font-bold tracking-wider">
+							<div 
+								className="text-center p-8 bg-secondary rounded-lg cursor-pointer"
+								onClick={handleCopy}
+								title={t('copy')}
+							>
+								<p className="text-sm text-muted-foreground mb-2">{t('totpCode')}</p>
+								<div className="text-5xl font-mono font-bold tracking-wider">
 									{totpCode.slice(0, 3)} {totpCode.slice(3)}
 								</div>
 								<div className="mt-4 flex items-center justify-center gap-4">
 									<div className="text-sm text-muted-foreground">
-										Expires in: <span className="font-semibold">{timeRemaining}s</span>
+										{t('expiresIn')}: <span className="font-semibold">{timeRemaining}{t('seconds')}</span>
 									</div>
 									<Button
 										size="sm"
@@ -98,12 +141,12 @@ export default function TwoFactorAuthPage() {
 										{copied ? (
 											<>
 												<Check className="mr-2 h-4 w-4" />
-												Copied!
+												{t('copied')}
 											</>
 										) : (
 											<>
 												<Copy className="mr-2 h-4 w-4" />
-												Copy
+												{t('copy')}
 											</>
 										)}
 									</Button>
@@ -123,7 +166,7 @@ export default function TwoFactorAuthPage() {
 					
 					<div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
 						<p className="text-sm text-amber-800 dark:text-amber-200">
-							<strong>Security Note:</strong> Never share your secret key with anyone. This tool runs entirely in your browser and doesn&apos;t send any data to our servers.
+							<strong>{t('securityNote')}:</strong> {t('securityNoteText')}
 						</p>
 					</div>
 				</CardContent>
