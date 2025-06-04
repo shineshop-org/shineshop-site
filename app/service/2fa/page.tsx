@@ -6,10 +6,8 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
-import { useSearchParams } from 'next/navigation'
 
 export default function TwoFactorAuthPage() {
-	const searchParams = useSearchParams()
 	const { t } = useTranslation()
 	const [secret, setSecret] = useState('')
 	const [totpCode, setTotpCode] = useState('')
