@@ -1,0 +1,2 @@
+# Handle dynamic 2FA URLs by serving the main 2FA page
+/service/2fa/* /service/2fa 200 
