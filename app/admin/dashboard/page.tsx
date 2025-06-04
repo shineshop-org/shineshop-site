@@ -6,13 +6,13 @@ import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDo
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs'
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/app/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/app/components/ui/dialog'
 import { Product, FAQArticle } from '@/app/lib/types'
 import { generateSlug } from '@/app/lib/utils'
 import { clearAuthCookie, ADMIN_CREDENTIALS, getAuthCookie, verifySpecialToken, ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs'
 import { Badge } from '@/app/components/ui/badge'
 import { 
 	DndContext, 
@@ -31,6 +31,7 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 
 type TabType = 'products' | 'tos'
 type ProductTabType = 'details' | 'card-order'
@@ -598,9 +599,12 @@ export default function AdminDashboardPage() {
 							
 							{/* Product Dialog */}
 							<Dialog open={productDialog} onOpenChange={setProductDialog}>
-								<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+								<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" aria-describedby="product-dialog-description">
 									<DialogHeader>
 										<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
+										<DialogDescription id="product-dialog-description">
+											{editingProduct ? t('editProductDescription') : t('addProductDescription')}
+										</DialogDescription>
 									</DialogHeader>
 									<div className="space-y-4 py-4">
 										<div className="space-y-2">

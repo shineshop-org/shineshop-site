@@ -103,16 +103,7 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next()
   
   // Define Content Security Policy
-  const cspHeader = `
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' data: https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io https://ik.imagekit.io;
-    font-src 'self';
-    connect-src 'self';
-    frame-src 'self';
-    object-src 'none';
-  `.replace(/\s{2,}/g, ' ').trim()
+  const cspHeader = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io https://ik.imagekit.io; font-src 'self'; connect-src 'self'; frame-src 'self'; object-src 'none';"
   
   // Set security headers
   response.headers.set('Content-Security-Policy', cspHeader)
