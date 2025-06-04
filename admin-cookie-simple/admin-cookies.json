@@ -1,0 +1,24 @@
+[
+  {
+    "name": "shineshop_admin_access",
+    "value": "3be7371c37597a8f3faec0dd7eaf336a:7673135ed3389a84cc2d83d4cdf654a68a4712556621af5d772437ae69c4272d30bfbdaffdc0950cf43f2c024b755b2d08715eb45cbb860b3f5443fea38308212a33552ecdf853b0645268cbef2b0abe759233122f6bed6c72db7b3396cc920f05fc48fecc2a358f6c5fea6f1cd33672e7642e6822e43cf13463a8efb48baebb24336dc999e4d33f6bb02f4e20ea73d88f5c929b71d0c7fc410430758e9b164a",
+    "domain": "",
+    "path": "/",
+    "expires": "2025-06-05T11:33:50.106Z",
+    "maxAge": 86400,
+    "secure": false,
+    "httpOnly": false,
+    "sameSite": "strict"
+  },
+  {
+    "name": "shineshop_admin_auth",
+    "value": "0165f963e3afbec0b64c609cc9493619:ec251c6ca13c72c36fa01daf25c841114f8fefd3d1f3ae7130f40419fa017497bd21a4a6413619810a024aad2a32844bdfe520a75466b46c70e5bf9a472f4f180b8089b6b4fc064fa973359da1728e93",
+    "domain": "",
+    "path": "/",
+    "expires": "2025-06-05T11:33:50.106Z",
+    "maxAge": 86400,
+    "secure": false,
+    "httpOnly": false,
+    "sameSite": "strict"
+  }
+]
