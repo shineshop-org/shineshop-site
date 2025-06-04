@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Shield, Copy, Check } from 'lucide-react'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card'
@@ -13,21 +13,32 @@ export default function TwoFactorAuthPage() {
 	const [totpCode, setTotpCode] = useState('')
 	const [timeRemaining, setTimeRemaining] = useState(30)
 	const [copied, setCopied] = useState(false)
+	const initialLoadRef = useRef(true)
 	
 	// Format input to uppercase and remove spaces
 	const formatInput = (input: string) => {
 		return input.toUpperCase().replace(/\s+/g, '')
 	}
 
-	// Extract secret from URL path
+	// Extract secret from URL path or hash
 	const extractSecretFromUrl = () => {
 		// Only run in browser
 		if (typeof window !== 'undefined') {
 			try {
-				// Get the full URL path
+				// First, check for hash fragment (used in redirects from 404 page)
+				const hash = window.location.hash
+				if (hash && hash.length > 1) {
+					const hashCode = hash.substring(1) // Remove the # character
+					if (hashCode) {
+						console.log('Found code in hash:', hashCode)
+						return formatInput(decodeURIComponent(hashCode))
+					}
+				}
+				
+				// Next, check the URL path
 				const path = window.location.pathname
 				
-				// Check if we're on the 2FA page
+				// Check if we're on the 2FA page with a code in the path
 				if (path.includes('/service/2fa/')) {
 					// Extract everything after the last slash
 					const segments = path.split('/')
@@ -35,6 +46,7 @@ export default function TwoFactorAuthPage() {
 					
 					// Return formatted secret
 					if (lastSegment && lastSegment !== '2fa') {
+						console.log('Found code in URL path:', lastSegment)
 						return formatInput(decodeURIComponent(lastSegment))
 					}
 				}
@@ -45,34 +57,46 @@ export default function TwoFactorAuthPage() {
 		return ''
 	}
 
-	// Set initial secret from URL path if available
+	// Set initial secret from URL path or hash if available
 	useEffect(() => {
-		// Wait for DOM to be fully loaded
-		const timer = setTimeout(() => {
-			const urlSecret = extractSecretFromUrl()
-			if (urlSecret) {
-				setSecret(urlSecret)
-			}
-		}, 100)
+		const urlSecret = extractSecretFromUrl()
+		console.log('URL Secret extracted:', urlSecret)
 		
-		return () => clearTimeout(timer)
+		if (urlSecret) {
+			setSecret(urlSecret)
+			initialLoadRef.current = false
+			
+			// Remove hash if present to clean up the URL
+			if (window.location.hash && typeof window.history.replaceState === 'function') {
+				const newUrl = `/service/2fa/${encodeURIComponent(urlSecret)}`
+				window.history.replaceState({ path: newUrl }, '', newUrl)
+			}
+		}
 	}, [])
 	
-	// Update URL when secret changes, without navigation
+	// Update URL only when secret is manually changed
 	useEffect(() => {
-		if (typeof window !== 'undefined' && secret) {
+		// Skip the first render if secret was loaded from URL
+		if (initialLoadRef.current && secret) {
+			initialLoadRef.current = false
+			return
+		}
+		
+		if (typeof window !== 'undefined') {
 			try {
-				const newUrl = `/service/2fa/${encodeURIComponent(secret)}`
-				// Use history API to update URL without navigation
-				window.history.replaceState({ path: newUrl }, '', newUrl)
+				if (secret) {
+					const newUrl = `/service/2fa/${encodeURIComponent(secret)}`
+					// Use history API to update URL without navigation
+					window.history.replaceState({ path: newUrl }, '', newUrl)
+				} else {
+					// Only reset to base path if secret was explicitly cleared
+					const currentPath = window.location.pathname
+					if (currentPath !== '/service/2fa' && currentPath !== '/service/2fa/') {
+						window.history.replaceState({ path: '/service/2fa' }, '', '/service/2fa')
+					}
+				}
 			} catch (e) {
 				console.error('Error updating URL:', e)
-			}
-		} else if (typeof window !== 'undefined') {
-			// If no secret, set URL back to base 2FA page
-			const currentPath = window.location.pathname
-			if (currentPath !== '/service/2fa' && currentPath !== '/service/2fa/') {
-				window.history.replaceState({ path: '/service/2fa' }, '', '/service/2fa')
 			}
 		}
 	}, [secret])

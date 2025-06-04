@@ -13,9 +13,18 @@ export default function NotFound() {
 		if (typeof window !== 'undefined') {
 			const path = window.location.pathname
 			if (path.startsWith('/service/2fa/')) {
-				// For 2FA paths, redirect to the main page
-				// The client-side code in the 2FA page will handle the code parameter
-				window.location.href = '/service/2fa'
+				// Extract the code from the URL
+				const segments = path.split('/')
+				const code = segments[segments.length - 1]
+				
+				if (code && code !== '2fa') {
+					// For 2FA paths, redirect to the main page with the code
+					// This preserves the code in the URL
+					console.log('Redirecting with code:', code)
+					window.location.replace(`/service/2fa/#${code}`)
+				} else {
+					window.location.replace('/service/2fa')
+				}
 			}
 		}
 	}, [])
