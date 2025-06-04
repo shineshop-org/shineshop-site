@@ -156,7 +156,11 @@ interface ProductCardProps {
 			id: string
 			name: string
 			type: 'select' | 'radio'
-			values: string[]
+			values: {
+				value: string;
+				price: number;
+				description: string;
+			}[];
 		}[]
 		isLocalized?: boolean
 		localizedName?: {
@@ -187,14 +191,11 @@ function ProductCard({ product, language }: ProductCardProps) {
 		}
 		
 		const optionValues = product.options.flatMap(option => 
-			option.values.map(value => {
-				const priceMatch = value.match(/.*?[- ]\$?(\d+(?:\.\d+)?)$/)
-				return priceMatch ? parseFloat(priceMatch[1]) : Infinity
-			})
+			option.values.map(value => value.price)
 		)
 		
 		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => price !== Infinity))
+			? Math.min(...optionValues.filter(price => !isNaN(price) && isFinite(price)))
 			: product.price
 			
 		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
