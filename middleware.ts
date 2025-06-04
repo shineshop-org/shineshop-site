@@ -107,7 +107,7 @@ export function middleware(request: NextRequest) {
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' data: https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io;
+    img-src 'self' data: https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io https://ik.imagekit.io;
     font-src 'self';
     connect-src 'self';
     frame-src 'self';

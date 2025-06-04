@@ -12,6 +12,10 @@ const nextConfig = {
 				protocol: 'https',
 				hostname: 'img.vietqr.io',
 			},
+			{
+				protocol: 'https',
+				hostname: 'ik.imagekit.io',
+			},
 		],
 	},
 	// Disable features not supported in static export
