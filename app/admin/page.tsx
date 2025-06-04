@@ -9,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs'
-import { ADMIN_CREDENTIALS, createAuthToken, setAuthCookie, getAuthCookie, verifySpecialToken, generateHeaderInjectionScript, ADMIN_ACCESS_COOKIE, setAccessCookie } from '@/app/lib/auth'
-import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/alert'
+import { ADMIN_CREDENTIALS, createAuthToken, setAuthCookie, getAuthCookie, verifySpecialToken, generateHeaderInjectionScript, ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
+import { notFound } from 'next/navigation'
 
 export default function AdminLoginPage() {
 	const router = useRouter()
@@ -21,8 +21,8 @@ export default function AdminLoginPage() {
 	const [error, setError] = useState('')
 	const [showAdvanced, setShowAdvanced] = useState(false)
 	const [specialToken, setSpecialToken] = useState('')
-	const [showAccessCookieForm, setShowAccessCookieForm] = useState(false)
 	const [hasAccessCookie, setHasAccessCookie] = useState(false)
+	const [isLoading, setIsLoading] = useState(true)
 	
 	// Kiểm tra cookie đặc biệt khi trang tải lên
 	useEffect(() => {
@@ -35,26 +35,32 @@ export default function AdminLoginPage() {
 		
 		setHasAccessCookie(hasAccess)
 		
-		// Nếu không có cookie đặc biệt, hiển thị form thiết lập cookie
+		// Nếu không có cookie đặc biệt, trả về 404
 		if (!hasAccess) {
-			setShowAccessCookieForm(true)
-		} else {
-			// Nếu có cookie đặc biệt, tiếp tục kiểm tra cookie xác thực
-			const authCookie = getAuthCookie()
-			if (authCookie) {
-				const isValidToken = verifySpecialToken(authCookie)
-				if (isValidToken) {
-					setAdminAuthenticated(true)
-				}
+			// Trì hoãn một chút để đảm bảo hiệu ứng loading trước khi chuyển hướng
+			setTimeout(() => {
+				window.location.href = '/404'
+			}, 100)
+			return
+		}
+		
+		// Nếu có cookie đặc biệt, tiếp tục kiểm tra cookie xác thực
+		const authCookie = getAuthCookie()
+		if (authCookie) {
+			const isValidToken = verifySpecialToken(authCookie)
+			if (isValidToken) {
+				setAdminAuthenticated(true)
 			}
 		}
+		
+		setIsLoading(false)
 	}, [setAdminAuthenticated])
 	
 	useEffect(() => {
-		if (isAdminAuthenticated && hasAccessCookie) {
+		if (isAdminAuthenticated && hasAccessCookie && !isLoading) {
 			router.push('/admin/dashboard')
 		}
-	}, [isAdminAuthenticated, router, hasAccessCookie])
+	}, [isAdminAuthenticated, router, hasAccessCookie, isLoading])
 	
 	const handleLogin = (e: React.FormEvent) => {
 		e.preventDefault()
@@ -90,47 +96,9 @@ export default function AdminLoginPage() {
 		alert('Đã sao chép script vào clipboard!')
 	}
 	
-	const handleApplyAccessCookie = () => {
-		setAccessCookie()
-		setHasAccessCookie(true)
-		setShowAccessCookieForm(false)
-		window.location.reload()
-	}
-	
-	// Nếu không có cookie đặc biệt, hiển thị màn hình thiết lập cookie
-	if (showAccessCookieForm) {
-		return (
-			<div className="min-h-[80vh] flex items-center justify-center">
-				<Card className="w-full max-w-md">
-					<CardHeader className="text-center">
-						<div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-							<Shield className="h-6 w-6 text-red-500" />
-						</div>
-						<CardTitle className="text-2xl">Truy cập bị hạn chế</CardTitle>
-						<CardDescription>Cần cookie đặc biệt để truy cập trang admin</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<Alert className="mb-4 bg-yellow-50 border-yellow-200">
-							<AlertTitle className="text-yellow-800">Chỉ dành cho quản trị viên</AlertTitle>
-							<AlertDescription className="text-yellow-700">
-								Trang này chỉ dành cho quản trị viên được ủy quyền. Bạn cần thiết lập cookie đặc biệt để truy cập.
-							</AlertDescription>
-						</Alert>
-						
-						<p className="text-sm text-gray-500 mb-4">
-							Nếu bạn là quản trị viên được ủy quyền, nhấn nút bên dưới để thiết lập cookie truy cập:
-						</p>
-						
-						<Button 
-							onClick={handleApplyAccessCookie}
-							className="w-full"
-						>
-							Thiết lập cookie đặc biệt
-						</Button>
-					</CardContent>
-				</Card>
-			</div>
-		)
+	// Nếu đang loading hoặc không có cookie đặc biệt, không hiển thị gì
+	if (isLoading || !hasAccessCookie) {
+		return null
 	}
 	
 	return (

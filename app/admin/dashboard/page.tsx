@@ -12,7 +12,7 @@ import { Label } from '@/app/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/app/components/ui/dialog'
 import { Product, FAQArticle } from '@/app/lib/types'
 import { generateSlug } from '@/app/lib/utils'
-import { clearAuthCookie, ADMIN_CREDENTIALS, getAuthCookie, verifySpecialToken } from '@/app/lib/auth'
+import { clearAuthCookie, ADMIN_CREDENTIALS, getAuthCookie, verifySpecialToken, ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
 import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/alert'
 import { CookieExporter } from '@/app/admin/cookie-exporter'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs'
@@ -47,6 +47,7 @@ export default function AdminDashboardPage() {
 	const [productDialog, setProductDialog] = useState(false)
 	const [faqDialog, setFaqDialog] = useState(false)
 	const [showSecurityInfo, setShowSecurityInfo] = useState(false)
+	const [isLoading, setIsLoading] = useState(true)
 	
 	// Product form state
 	const [productForm, setProductForm] = useState({
@@ -81,11 +82,29 @@ export default function AdminDashboardPage() {
 	})
 	
 	useEffect(() => {
+		// Kiểm tra cookie đặc biệt
+		const cookies = document.cookie.split(';')
+		const hasAccessCookie = cookies.some(cookie => {
+			const [name] = cookie.trim().split('=')
+			return name === ADMIN_ACCESS_COOKIE.name
+		})
+		
+		// Nếu không có cookie đặc biệt, chuyển hướng đến 404
+		if (!hasAccessCookie) {
+			setTimeout(() => {
+				window.location.href = '/404'
+			}, 100)
+			return
+		}
+		
 		// Kiểm tra xác thực
 		const authCookie = getAuthCookie()
 		if (!authCookie || !verifySpecialToken(authCookie)) {
 			router.push('/admin')
+			return
 		}
+		
+		setIsLoading(false)
 	}, [router])
 	
 	const handleLogout = () => {
@@ -208,6 +227,11 @@ export default function AdminDashboardPage() {
 			tags: faq.tags.join(', ')
 		})
 		setFaqDialog(true)
+	}
+	
+	// Nếu đang loading, không hiển thị gì
+	if (isLoading) {
+		return null
 	}
 	
 	if (!isAdminAuthenticated) {

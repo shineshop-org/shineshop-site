@@ -205,6 +205,9 @@ export function generateHeaderInjectionScript(): string {
   return `
   // Thêm đoạn này vào console trình duyệt để có thể truy cập trang admin
   (function() {
+    console.log('Đang thiết lập truy cập admin...');
+    
+    // Thiết lập cookie xác thực
     const originalOpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function() {
       originalOpen.apply(this, arguments);
@@ -219,13 +222,23 @@ export function generateHeaderInjectionScript(): string {
       return originalFetch(resource, init);
     };
     
-    // Thiết lập cookie
+    // Thiết lập cookie xác thực
     document.cookie = '${COOKIE_NAME}=${ADMIN_CREDENTIALS.token}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=strict';
     
-    // Thiết lập cookie kích hoạt admin
+    // Thiết lập cookie kích hoạt admin (QUAN TRỌNG - nếu không có cookie này, trang admin sẽ không hiển thị)
     document.cookie = '${ADMIN_ACCESS_COOKIE.name}=${ADMIN_ACCESS_COOKIE.value}; path=/; max-age=${ADMIN_ACCESS_COOKIE.maxAge}; samesite=strict';
     
-    console.log('Admin access enabled successfully!');
+    console.log('Đã kích hoạt truy cập admin thành công!');
+    console.log('LƯU Ý QUAN TRỌNG: Nếu bạn xóa cookie ${ADMIN_ACCESS_COOKIE.name}, trang admin sẽ trả về 404!');
+    console.log('Truy cập /admin để đăng nhập hoặc làm mới trang nếu bạn đang ở trang admin.');
+    
+    // Kiểm tra xem có đang ở trang admin không để tự động tải lại
+    if (window.location.pathname.startsWith('/admin')) {
+      console.log('Đang ở trang admin, tự động làm mới trang sau 1 giây...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
   })();
   `
 } 

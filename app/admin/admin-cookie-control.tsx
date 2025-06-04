@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/app/components/ui/button'
 import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/alert'
 import { Badge } from '@/app/components/ui/badge'
-import { Download, RefreshCw, Shield, XCircle } from 'lucide-react'
+import { Download, RefreshCw, Shield, XCircle, AlertTriangle } from 'lucide-react'
 import { ADMIN_ACCESS_COOKIE, setAccessCookie, generateCookieFile } from '@/app/lib/auth'
 
 export function AdminCookieControl() {
@@ -48,8 +48,11 @@ export function AdminCookieControl() {
 
   // Hàm xóa cookie
   const handleRemoveCookie = () => {
-    document.cookie = `${ADMIN_ACCESS_COOKIE.name}=; path=/; max-age=0`
-    checkCookie()
+    if (confirm('Bạn có chắc chắn muốn xóa cookie đặc biệt? Sau khi xóa, bạn sẽ không thể truy cập trang admin cho đến khi thiết lập lại cookie bằng script hoặc thủ công.')) {
+      document.cookie = `${ADMIN_ACCESS_COOKIE.name}=; path=/; max-age=0`
+      checkCookie()
+      alert('Đã xóa cookie. Lưu ý rằng nếu bạn rời khỏi trang này, bạn sẽ không thể truy cập lại cho đến khi thiết lập lại cookie đặc biệt.')
+    }
   }
 
   // Hàm tải xuống file cookie
@@ -130,6 +133,14 @@ export function AdminCookieControl() {
                 </AlertDescription>
               </Alert>
             )}
+            
+            <Alert className="mt-4 bg-red-50 border-red-100">
+              <AlertTriangle className="h-4 w-4 text-red-700" />
+              <AlertTitle className="text-red-800">Lưu ý quan trọng</AlertTitle>
+              <AlertDescription className="text-red-700">
+                Trang admin sẽ trả về lỗi 404 khi không có cookie đặc biệt. Nếu bạn xóa cookie này, bạn sẽ không thể truy cập trang admin cho đến khi thiết lập lại cookie thông qua script hoặc thủ công.
+              </AlertDescription>
+            </Alert>
             
             <div className="mt-4 space-y-2">
               <div className="text-xs text-muted-foreground">
