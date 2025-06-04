@@ -244,18 +244,18 @@ export default function AdminDashboardPage() {
 				<div className="container flex h-16 items-center px-4 sm:px-6">
 					<div className="flex items-center gap-2 font-semibold">
 						<Shield className="h-5 w-5" />
-						<span>ShineShop Admin</span>
+						<span>{t('adminDashboard')}</span>
 					</div>
 					<nav className="ml-auto flex items-center space-x-4">
 						<Button variant="ghost" size="icon" asChild>
 							<a href="/" target="_blank">
 								<Home className="h-5 w-5" />
-								<span className="sr-only">Trang chủ</span>
+								<span className="sr-only">{t('home')}</span>
 							</a>
 						</Button>
 						<Button variant="ghost" size="icon" onClick={handleLogout}>
 							<LogOut className="h-5 w-5" />
-							<span className="sr-only">Đăng xuất</span>
+							<span className="sr-only">{t('logout')}</span>
 						</Button>
 					</nav>
 				</div>
@@ -270,7 +270,7 @@ export default function AdminDashboardPage() {
 						onClick={() => setActiveTab('overview')}
 					>
 						<Home className="mr-2 h-4 w-4" />
-						Tổng quan
+						{t('overview')}
 					</Button>
 					<Button 
 						variant={activeTab === 'content' ? 'default' : 'ghost'} 
@@ -278,7 +278,7 @@ export default function AdminDashboardPage() {
 						onClick={() => setActiveTab('content')}
 					>
 						<FileText className="mr-2 h-4 w-4" />
-						Nội dung
+						{t('content')}
 					</Button>
 					<Button 
 						variant={activeTab === 'products' ? 'default' : 'ghost'} 
@@ -286,7 +286,7 @@ export default function AdminDashboardPage() {
 						onClick={() => setActiveTab('products')}
 					>
 						<ShoppingBag className="mr-2 h-4 w-4" />
-						Sản phẩm
+						{t('products')}
 					</Button>
 					<Button 
 						variant={activeTab === 'settings' ? 'default' : 'ghost'} 
@@ -294,7 +294,7 @@ export default function AdminDashboardPage() {
 						onClick={() => setActiveTab('settings')}
 					>
 						<Settings className="mr-2 h-4 w-4" />
-						Cài đặt
+						{t('settings')}
 					</Button>
 					<Button 
 						variant={activeTab === 'security' ? 'default' : 'ghost'} 
@@ -302,7 +302,7 @@ export default function AdminDashboardPage() {
 						onClick={() => setActiveTab('security')}
 					>
 						<Lock className="mr-2 h-4 w-4" />
-						Bảo mật
+						{t('security')}
 					</Button>
 				</div>
 				
@@ -310,12 +310,12 @@ export default function AdminDashboardPage() {
 				<div className="flex-1">
 					{activeTab === 'overview' && (
 						<div className="grid gap-4">
-							<h1 className="text-2xl font-bold tracking-tight">Tổng quan</h1>
+							<h1 className="text-2xl font-bold tracking-tight">{t('overview')}</h1>
 							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 								<Card>
 									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 										<CardTitle className="text-sm font-medium">
-											Tổng số sản phẩm
+											{t('totalProducts')}
 										</CardTitle>
 										<ShoppingBag className="h-4 w-4 text-muted-foreground" />
 									</CardHeader>
@@ -333,9 +333,9 @@ export default function AdminDashboardPage() {
 					
 					{activeTab === 'content' && (
 						<div className="grid gap-4">
-							<h1 className="text-2xl font-bold tracking-tight">Quản lý nội dung</h1>
+							<h1 className="text-2xl font-bold tracking-tight">{t('content')}</h1>
 							<p className="text-muted-foreground">
-								Quản lý nội dung trang web (đang phát triển).
+								{t('contentDescription')}
 							</p>
 						</div>
 					)}
@@ -343,10 +343,10 @@ export default function AdminDashboardPage() {
 					{activeTab === 'products' && (
 						<div className="space-y-4">
 							<div className="flex justify-between items-center">
-								<h2 className="text-xl font-semibold">Products Management</h2>
+								<h2 className="text-xl font-semibold">{t('productsManagement')}</h2>
 								<Button onClick={() => setProductDialog(true)}>
 									<Plus className="mr-2 h-4 w-4" />
-									Add Product
+									{t('addProduct')}
 								</Button>
 							</div>
 							
@@ -385,7 +385,7 @@ export default function AdminDashboardPage() {
 													onClick={() => openProductEdit(product)}
 												>
 													<Edit className="mr-2 h-3 w-3" />
-													Edit
+													{t('edit')}
 												</Button>
 												<Button 
 													variant="outline" 
@@ -398,7 +398,7 @@ export default function AdminDashboardPage() {
 													}}
 												>
 													<Trash2 className="mr-2 h-3 w-3" />
-													Delete
+													{t('delete')}
 												</Button>
 											</div>
 										</CardContent>
@@ -410,18 +410,18 @@ export default function AdminDashboardPage() {
 							<Dialog open={productDialog} onOpenChange={setProductDialog}>
 								<DialogContent>
 									<DialogHeader>
-										<DialogTitle>{editingProduct ? 'Edit Product' : 'Add Product'}</DialogTitle>
+										<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
 									</DialogHeader>
 									<div className="space-y-4 py-4">
 										<div className="space-y-2">
-											<label>Name</label>
+											<label>{t('name')}</label>
 											<Input 
 												value={productForm.name} 
 												onChange={(e) => setProductForm({...productForm, name: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Price</label>
+											<label>{t('price')}</label>
 											<Input 
 												type="number" 
 												value={productForm.price} 
@@ -429,7 +429,7 @@ export default function AdminDashboardPage() {
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Description</label>
+											<label>{t('description')}</label>
 											<textarea 
 												className="w-full p-2 border rounded-md min-h-[100px]"
 												value={productForm.description} 
@@ -437,21 +437,21 @@ export default function AdminDashboardPage() {
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Image URL</label>
+											<label>{t('imageURL')}</label>
 											<Input 
 												value={productForm.image} 
 												onChange={(e) => setProductForm({...productForm, image: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Category</label>
+											<label>{t('category')}</label>
 											<Input 
 												value={productForm.category} 
 												onChange={(e) => setProductForm({...productForm, category: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Sort Order</label>
+											<label>{t('sortOrder')}</label>
 											<Input 
 												type="number" 
 												value={productForm.sortOrder} 
@@ -460,8 +460,8 @@ export default function AdminDashboardPage() {
 										</div>
 									</div>
 									<DialogFooter>
-										<Button variant="outline" onClick={() => setProductDialog(false)}>Cancel</Button>
-										<Button onClick={handleSaveProduct}>Save</Button>
+										<Button variant="outline" onClick={() => setProductDialog(false)}>{t('cancel')}</Button>
+										<Button onClick={handleSaveProduct}>{t('save')}</Button>
 									</DialogFooter>
 								</DialogContent>
 							</Dialog>
@@ -471,10 +471,10 @@ export default function AdminDashboardPage() {
 					{activeTab === 'faq' && (
 						<div className="space-y-4">
 							<div className="flex justify-between items-center">
-								<h2 className="text-xl font-semibold">FAQ Management</h2>
+								<h2 className="text-xl font-semibold">{t('faqManagement')}</h2>
 								<Button onClick={() => setFaqDialog(true)}>
 									<Plus className="mr-2 h-4 w-4" />
-									Add FAQ
+									{t('addFAQ')}
 								</Button>
 							</div>
 							
@@ -531,18 +531,18 @@ export default function AdminDashboardPage() {
 							<Dialog open={faqDialog} onOpenChange={setFaqDialog}>
 								<DialogContent>
 									<DialogHeader>
-										<DialogTitle>{editingFAQ ? 'Edit FAQ' : 'Add FAQ'}</DialogTitle>
+										<DialogTitle>{editingFAQ ? t('editFAQ') : t('addFAQ')}</DialogTitle>
 									</DialogHeader>
 									<div className="space-y-4 py-4">
 										<div className="space-y-2">
-											<label>Title</label>
+											<label>{t('title')}</label>
 											<Input 
 												value={faqForm.title} 
 												onChange={(e) => setFaqForm({...faqForm, title: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Content</label>
+											<label>{t('content')}</label>
 											<textarea 
 												className="w-full p-2 border rounded-md min-h-[150px]"
 												value={faqForm.content} 
@@ -550,14 +550,14 @@ export default function AdminDashboardPage() {
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Category</label>
+											<label>{t('category')}</label>
 											<Input 
 												value={faqForm.category} 
 												onChange={(e) => setFaqForm({...faqForm, category: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label>Tags (comma separated)</label>
+											<label>{t('tags')}</label>
 											<Input 
 												value={faqForm.tags} 
 												onChange={(e) => setFaqForm({...faqForm, tags: e.target.value})}
@@ -565,8 +565,8 @@ export default function AdminDashboardPage() {
 										</div>
 									</div>
 									<DialogFooter>
-										<Button variant="outline" onClick={() => setFaqDialog(false)}>Cancel</Button>
-										<Button onClick={handleSaveFAQ}>Save</Button>
+										<Button variant="outline" onClick={() => setFaqDialog(false)}>{t('cancel')}</Button>
+										<Button onClick={handleSaveFAQ}>{t('save')}</Button>
 									</DialogFooter>
 								</DialogContent>
 							</Dialog>
@@ -575,23 +575,23 @@ export default function AdminDashboardPage() {
 					
 					{activeTab === 'settings' && (
 						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">Site Settings</h2>
+							<h2 className="text-xl font-semibold">{t('siteSettings')}</h2>
 							
 							<div className="space-y-4">
 								<Card>
 									<CardHeader>
-										<CardTitle>Hero Section</CardTitle>
+										<CardTitle>{t('heroSection')}</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-4">
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Hero Title</label>
+											<label className="text-sm font-medium">{t('heroTitle')}</label>
 											<Input 
 												value={settingsForm.heroTitle} 
 												onChange={(e) => setSettingsForm({...settingsForm, heroTitle: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Hero Quote</label>
+											<label className="text-sm font-medium">{t('heroQuote')}</label>
 											<Input 
 												value={settingsForm.heroQuote} 
 												onChange={(e) => setSettingsForm({...settingsForm, heroQuote: e.target.value})}
@@ -602,18 +602,18 @@ export default function AdminDashboardPage() {
 								
 								<Card>
 									<CardHeader>
-										<CardTitle>Contact Links</CardTitle>
+										<CardTitle>{t('contactLinks')}</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-4">
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Facebook Link</label>
+											<label className="text-sm font-medium">{t('facebookLink')}</label>
 											<Input 
 												value={settingsForm.facebookLink} 
 												onChange={(e) => setSettingsForm({...settingsForm, facebookLink: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">WhatsApp Link</label>
+											<label className="text-sm font-medium">{t('whatsappLink')}</label>
 											<Input 
 												value={settingsForm.whatsappLink} 
 												onChange={(e) => setSettingsForm({...settingsForm, whatsappLink: e.target.value})}
@@ -624,39 +624,39 @@ export default function AdminDashboardPage() {
 								
 								<Card>
 									<CardHeader>
-										<CardTitle>Payment Information</CardTitle>
+										<CardTitle>{t('paymentInformation')}</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-4">
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Bank Name</label>
+											<label className="text-sm font-medium">{t('bankName')}</label>
 											<Input 
 												value={settingsForm.bankName} 
 												onChange={(e) => setSettingsForm({...settingsForm, bankName: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Account Number</label>
+											<label className="text-sm font-medium">{t('accountNumber')}</label>
 											<Input 
 												value={settingsForm.accountNumber} 
 												onChange={(e) => setSettingsForm({...settingsForm, accountNumber: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Account Name</label>
+											<label className="text-sm font-medium">{t('accountName')}</label>
 											<Input 
 												value={settingsForm.accountName} 
 												onChange={(e) => setSettingsForm({...settingsForm, accountName: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Wise Email</label>
+											<label className="text-sm font-medium">{t('wiseEmail')}</label>
 											<Input 
 												value={settingsForm.wiseEmail} 
 												onChange={(e) => setSettingsForm({...settingsForm, wiseEmail: e.target.value})}
 											/>
 										</div>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">PayPal Email</label>
+											<label className="text-sm font-medium">{t('paypalEmail')}</label>
 											<Input 
 												value={settingsForm.paypalEmail} 
 												onChange={(e) => setSettingsForm({...settingsForm, paypalEmail: e.target.value})}
@@ -667,11 +667,11 @@ export default function AdminDashboardPage() {
 								
 								<Card>
 									<CardHeader>
-										<CardTitle>Terms of Service</CardTitle>
+										<CardTitle>{t('termsOfService')}</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">TOS Content</label>
+											<label className="text-sm font-medium">{t('tosContent')}</label>
 											<textarea 
 												className="w-full p-2 border rounded-md min-h-[200px]"
 												value={settingsForm.tosContent} 
@@ -682,7 +682,7 @@ export default function AdminDashboardPage() {
 								</Card>
 								
 								<div className="flex justify-end">
-									<Button onClick={handleSaveSettings}>Save All Settings</Button>
+									<Button onClick={handleSaveSettings}>{t('saveAllSettings')}</Button>
 								</div>
 							</div>
 						</div>
@@ -690,45 +690,44 @@ export default function AdminDashboardPage() {
 					
 					{activeTab === 'security' && (
 						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">Bảo mật</h2>
+							<h2 className="text-xl font-semibold">{t('security')}</h2>
 							
 							<div className="space-y-6">
 								<CookieExporter />
 								
 								<Card>
 									<CardHeader>
-										<CardTitle>Hướng dẫn bảo mật</CardTitle>
+										<CardTitle>{t('securityInstructions')}</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-4">
 										<Alert>
-											<AlertTitle>Quan trọng</AlertTitle>
+											<AlertTitle>{t('important')}</AlertTitle>
 											<AlertDescription>
-												Cookie đặc biệt là cần thiết để truy cập trang admin. Nếu bạn xóa cookie này, 
-												bạn sẽ không thể truy cập trang admin cho đến khi thiết lập lại cookie.
+												{t('specialCookieDescription')}
 											</AlertDescription>
 										</Alert>
 										
 										<div className="space-y-2">
-											<h3 className="font-medium">Bảo mật trang admin</h3>
+											<h3 className="font-medium">{t('adminSecurityInstructions')}</h3>
 											<p className="text-sm text-gray-600">
-												Trang admin được bảo vệ bằng nhiều lớp bảo mật để đảm bảo rằng chỉ những người có quyền mới có thể truy cập:
+												{t('adminSecurityInstructionsDescription')}
 											</p>
 											<ul className="list-disc pl-5 text-sm space-y-1 text-gray-600">
-												<li>Cookie đặc biệt là bắt buộc để trang admin xuất hiện</li>
-												<li>Xác thực tên đăng nhập/mật khẩu</li>
-												<li>Yêu cầu header đặc biệt cho API</li>
-												<li>Cookie xác thực phiên làm việc</li>
-												<li>Mã hóa dữ liệu bảo mật</li>
+												<li>{t('specialCookieRequired')}</li>
+												<li>{t('loginAuthentication')}</li>
+												<li>{t('apiHeader')}</li>
+												<li>{t('sessionCookie')}</li>
+												<li>{t('dataEncryption')}</li>
 											</ul>
 										</div>
 										
 										<div className="space-y-2">
-											<h3 className="font-medium">Lưu ý quan trọng</h3>
+											<h3 className="font-medium">{t('importantNotes')}</h3>
 											<ul className="list-disc pl-5 text-sm space-y-1 text-gray-600">
-												<li>Lưu trữ tệp cookie ở nơi an toàn</li>
-												<li>Không chia sẻ cookie với người không có thẩm quyền</li>
-												<li>Đăng xuất khi không sử dụng</li>
-												<li>Không sử dụng trang admin trên thiết bị công cộng</li>
+												<li>{t('storeCookie')}</li>
+												<li>{t('shareCookie')}</li>
+												<li>{t('logout')}</li>
+												<li>{t('publicDevice')}</li>
 											</ul>
 										</div>
 									</CardContent>
@@ -741,27 +740,27 @@ export default function AdminDashboardPage() {
 										<CardHeader>
 											<CardTitle className="text-lg flex items-center gap-2">
 												<Lock className="h-5 w-5" />
-												Xác thực
+												{t('authentication')}
 											</CardTitle>
 											<CardDescription>
-												Quản lý tài khoản và xác thực đăng nhập
+												{t('accountAuthentication')}
 											</CardDescription>
 										</CardHeader>
 										<CardContent>
 											<div className="space-y-4">
 												<div className="space-y-2">
-													<Label htmlFor="username">Tên đăng nhập</Label>
+													<Label htmlFor="username">{t('username')}</Label>
 													<Input id="username" value="admin" readOnly />
 												</div>
 												<div className="space-y-2">
-													<Label htmlFor="password">Mật khẩu</Label>
+													<Label htmlFor="password">{t('password')}</Label>
 													<Input id="password" type="password" value="********" readOnly />
 												</div>
 											</div>
 										</CardContent>
 										<CardFooter>
 											<Button variant="outline" className="w-full" disabled>
-												Đổi mật khẩu (sắp có)
+												{t('changePassword')}
 											</Button>
 										</CardFooter>
 									</Card>

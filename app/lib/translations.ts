@@ -103,6 +103,20 @@ export const translations: Translations = {
 		vi: 'Lấy mã GPT từ Email'
 	},
 	
+	// 404 Page
+	pageNotFound: {
+		en: 'Page Not Found',
+		vi: 'Không tìm thấy trang'
+	},
+	pageNotFoundDesc: {
+		en: 'The page you are looking for doesn\'t exist or has been moved.',
+		vi: 'Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển.'
+	},
+	returnHome: {
+		en: 'Return Home',
+		vi: 'Trở về trang chủ'
+	},
+	
 	// Admin
 	adminLogin: {
 		en: 'Admin Login',
@@ -161,5 +175,227 @@ export const translations: Translations = {
 	search: {
 		en: 'Search',
 		vi: 'Tìm kiếm'
-	}
+	},
+	
+	// Admin dashboard
+	adminDashboard: {
+		en: 'ShineShop Admin',
+		vi: 'ShineShop Admin'
+	},
+	home: {
+		en: 'Home',
+		vi: 'Trang chủ'
+	},
+	overview: {
+		en: 'Overview',
+		vi: 'Tổng quan'
+	},
+	content: {
+		en: 'Content',
+		vi: 'Nội dung'
+	},
+	contentDescription: {
+		en: 'Manage website content (in development).',
+		vi: 'Quản lý nội dung trang web (đang phát triển).'
+	},
+	products: {
+		en: 'Products',
+		vi: 'Sản phẩm'
+	},
+	settings: {
+		en: 'Settings',
+		vi: 'Cài đặt'
+	},
+	security: {
+		en: 'Security',
+		vi: 'Bảo mật'
+	},
+	totalProducts: {
+		en: 'Total Products',
+		vi: 'Tổng số sản phẩm'
+	},
+	productsManagement: {
+		en: 'Products Management',
+		vi: 'Quản lý sản phẩm'
+	},
+	addProduct: {
+		en: 'Add Product',
+		vi: 'Thêm sản phẩm'
+	},
+	editProduct: {
+		en: 'Edit Product',
+		vi: 'Chỉnh sửa sản phẩm'
+	},
+	name: {
+		en: 'Name',
+		vi: 'Tên'
+	},
+	price: {
+		en: 'Price',
+		vi: 'Giá'
+	},
+	description: {
+		en: 'Description',
+		vi: 'Mô tả'
+	},
+	imageURL: {
+		en: 'Image URL',
+		vi: 'URL hình ảnh'
+	},
+	category: {
+		en: 'Category',
+		vi: 'Danh mục'
+	},
+	sortOrder: {
+		en: 'Sort Order',
+		vi: 'Thứ tự sắp xếp'
+	},
+	faqManagement: {
+		en: 'FAQ Management',
+		vi: 'Quản lý FAQ'
+	},
+	addFAQ: {
+		en: 'Add FAQ',
+		vi: 'Thêm FAQ'
+	},
+	editFAQ: {
+		en: 'Edit FAQ',
+		vi: 'Chỉnh sửa FAQ'
+	},
+	title: {
+		en: 'Title',
+		vi: 'Tiêu đề'
+	},
+	tags: {
+		en: 'Tags (comma separated)',
+		vi: 'Thẻ (phân cách bằng dấu phẩy)'
+	},
+	siteSettings: {
+		en: 'Site Settings',
+		vi: 'Cài đặt trang web'
+	},
+	heroSection: {
+		en: 'Hero Section',
+		vi: 'Phần giới thiệu'
+	},
+	heroTitle: {
+		en: 'Hero Title',
+		vi: 'Tiêu đề giới thiệu'
+	},
+	heroQuote: {
+		en: 'Hero Quote',
+		vi: 'Trích dẫn giới thiệu'
+	},
+	contactLinks: {
+		en: 'Contact Links',
+		vi: 'Liên kết liên hệ'
+	},
+	facebookLink: {
+		en: 'Facebook Link',
+		vi: 'Liên kết Facebook'
+	},
+	whatsappLink: {
+		en: 'WhatsApp Link',
+		vi: 'Liên kết WhatsApp'
+	},
+	paymentInformation: {
+		en: 'Payment Information',
+		vi: 'Thông tin thanh toán'
+	},
+	bankName: {
+		en: 'Bank Name',
+		vi: 'Tên ngân hàng'
+	},
+	accountNumber: {
+		en: 'Account Number',
+		vi: 'Số tài khoản'
+	},
+	accountName: {
+		en: 'Account Name',
+		vi: 'Tên tài khoản'
+	},
+	wiseEmail: {
+		en: 'Wise Email',
+		vi: 'Email Wise'
+	},
+	paypalEmail: {
+		en: 'PayPal Email',
+		vi: 'Email PayPal'
+	},
+	tosContent: {
+		en: 'TOS Content',
+		vi: 'Nội dung điều khoản dịch vụ'
+	},
+	saveAllSettings: {
+		en: 'Save All Settings',
+		vi: 'Lưu tất cả cài đặt'
+	},
+	securityInstructions: {
+		en: 'Security Instructions',
+		vi: 'Hướng dẫn bảo mật'
+	},
+	important: {
+		en: 'Important',
+		vi: 'Quan trọng'
+	},
+	specialCookieDescription: {
+		en: 'Special cookie is required to access admin page. If you delete this cookie, you will not be able to access the admin page until you set it up again.',
+		vi: 'Cookie đặc biệt là cần thiết để truy cập trang admin. Nếu bạn xóa cookie này, bạn sẽ không thể truy cập trang admin cho đến khi thiết lập lại cookie.'
+	},
+	adminSecurityInstructions: {
+		en: 'Admin Page Security',
+		vi: 'Bảo mật trang Admin'
+	},
+	adminSecurityInstructionsDescription: {
+		en: 'The admin page is protected by multiple layers of security to ensure that only authorized users can access it:',
+		vi: 'Trang admin được bảo vệ bằng nhiều lớp bảo mật để đảm bảo rằng chỉ những người có quyền mới có thể truy cập:'
+	},
+	specialCookieRequired: {
+		en: 'Special cookie is required for admin page to appear',
+		vi: 'Cookie đặc biệt là bắt buộc để trang admin xuất hiện'
+	},
+	loginAuthentication: {
+		en: 'Username/password authentication',
+		vi: 'Xác thực tên đăng nhập/mật khẩu'
+	},
+	apiHeader: {
+		en: 'Special header required for API',
+		vi: 'Yêu cầu header đặc biệt cho API'
+	},
+	sessionCookie: {
+		en: 'Session authentication cookie',
+		vi: 'Cookie xác thực phiên làm việc'
+	},
+	dataEncryption: {
+		en: 'Encrypted security data',
+		vi: 'Mã hóa dữ liệu bảo mật'
+	},
+	importantNotes: {
+		en: 'Important Notes',
+		vi: 'Lưu ý quan trọng'
+	},
+	storeCookie: {
+		en: 'Store cookie file in a secure location',
+		vi: 'Lưu trữ tệp cookie ở nơi an toàn'
+	},
+	shareCookie: {
+		en: 'Do not share cookie with unauthorized individuals',
+		vi: 'Không chia sẻ cookie với người không có thẩm quyền'
+	},
+	publicDevice: {
+		en: 'Do not use admin page on public devices',
+		vi: 'Không sử dụng trang admin trên thiết bị công cộng'
+	},
+	authentication: {
+		en: 'Authentication',
+		vi: 'Xác thực'
+	},
+	accountAuthentication: {
+		en: 'Manage account and login authentication',
+		vi: 'Quản lý tài khoản và xác thực đăng nhập'
+	},
+	changePassword: {
+		en: 'Change Password (coming soon)',
+		vi: 'Đổi mật khẩu (sắp có)'
+	},
 } 
