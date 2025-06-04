@@ -2,23 +2,18 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, FileText, Link2, Settings, LogOut, Plus, Edit, Trash2, Info, Shield, Lock, Home, ShoppingBag } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/app/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
-import { Label } from '@/app/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/app/components/ui/dialog'
-import { Product, FAQArticle } from '@/app/lib/types'
+import { Product } from '@/app/lib/types'
 import { generateSlug } from '@/app/lib/utils'
 import { clearAuthCookie, ADMIN_CREDENTIALS, getAuthCookie, verifySpecialToken, ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
-import { Alert, AlertTitle, AlertDescription } from '@/app/components/ui/alert'
-import { CookieExporter } from '@/app/admin/cookie-exporter'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs'
-import { AdminCookieControl } from '@/app/admin/admin-cookie-control'
 
-type TabType = 'overview' | 'content' | 'products' | 'faq' | 'social' | 'settings' | 'security'
+type TabType = 'products' | 'tos'
 
 export default function AdminDashboardPage() {
 	const router = useRouter()
@@ -29,25 +24,15 @@ export default function AdminDashboardPage() {
 		addProduct,
 		updateProduct,
 		deleteProduct,
-		faqArticles,
-		addFaqArticle,
-		updateFaqArticle,
-		deleteFaqArticle,
-		siteConfig,
-		setSiteConfig,
-		paymentInfo,
-		setPaymentInfo,
 		tosContent,
 		setTosContent
 	} = useStore()
 	const { t } = useTranslation()
 	const [activeTab, setActiveTab] = useState<TabType>('products')
 	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-	const [editingFAQ, setEditingFAQ] = useState<FAQArticle | null>(null)
 	const [productDialog, setProductDialog] = useState(false)
-	const [faqDialog, setFaqDialog] = useState(false)
-	const [showSecurityInfo, setShowSecurityInfo] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
+	const [tosForm, setTosForm] = useState(tosContent)
 	
 	// Product form state
 	const [productForm, setProductForm] = useState({
@@ -56,29 +41,13 @@ export default function AdminDashboardPage() {
 		description: '',
 		image: '',
 		category: '',
-		sortOrder: '1'
-	})
-	
-	// FAQ form state
-	const [faqForm, setFaqForm] = useState({
-		title: '',
-		content: '',
-		category: '',
-		tags: ''
-	})
-	
-	// Settings form state
-	const [settingsForm, setSettingsForm] = useState({
-		heroTitle: siteConfig.heroTitle,
-		heroQuote: siteConfig.heroQuote,
-		facebookLink: siteConfig.contactLinks.facebook,
-		whatsappLink: siteConfig.contactLinks.whatsapp,
-		bankName: paymentInfo.bankName,
-		accountNumber: paymentInfo.accountNumber,
-		accountName: paymentInfo.accountName,
-		wiseEmail: paymentInfo.wiseEmail,
-		paypalEmail: paymentInfo.paypalEmail,
-		tosContent: tosContent
+		sortOrder: '1',
+		options: [] as {
+			id: string;
+			name: string;
+			type: 'select' | 'radio';
+			values: string[];
+		}[]
 	})
 	
 	useEffect(() => {
@@ -121,9 +90,9 @@ export default function AdminDashboardPage() {
 			description: productForm.description,
 			image: productForm.image,
 			category: productForm.category,
-			slug: generateSlug(productForm.name),
+			slug: editingProduct?.slug || generateSlug(productForm.name),
 			sortOrder: Number(productForm.sortOrder),
-			options: editingProduct?.options || [],
+			options: productForm.options,
 			relatedArticles: editingProduct?.relatedArticles || []
 		}
 		
@@ -140,56 +109,10 @@ export default function AdminDashboardPage() {
 		useStore.getState().syncDataToServer()
 	}
 	
-	const handleSaveFAQ = () => {
-		const newFAQ: FAQArticle = {
-			id: editingFAQ?.id || Date.now().toString(),
-			title: faqForm.title,
-			content: faqForm.content,
-			category: faqForm.category,
-			slug: generateSlug(faqForm.title),
-			tags: faqForm.tags.split(',').map(tag => tag.trim()),
-			createdAt: editingFAQ?.createdAt || new Date(),
-			updatedAt: new Date()
-		}
-		
-		if (editingFAQ) {
-			updateFaqArticle(editingFAQ.id, newFAQ)
-		} else {
-			addFaqArticle(newFAQ)
-		}
-		
-		setFaqDialog(false)
-		resetFAQForm()
-		
-		// Force sync to ensure data is saved
+	const handleSaveTos = () => {
+		setTosContent(tosForm)
 		useStore.getState().syncDataToServer()
-	}
-	
-	const handleSaveSettings = () => {
-		setSiteConfig({
-			heroTitle: settingsForm.heroTitle,
-			heroQuote: settingsForm.heroQuote,
-			contactLinks: {
-				facebook: settingsForm.facebookLink,
-				whatsapp: settingsForm.whatsappLink
-			}
-		})
-		
-		setPaymentInfo({
-			...paymentInfo,
-			bankName: settingsForm.bankName,
-			accountNumber: settingsForm.accountNumber,
-			accountName: settingsForm.accountName,
-			wiseEmail: settingsForm.wiseEmail,
-			paypalEmail: settingsForm.paypalEmail
-		})
-		
-		setTosContent(settingsForm.tosContent)
-		
-		// Force sync to ensure data is saved
-		useStore.getState().syncDataToServer()
-		
-		alert('Đã lưu cài đặt thành công!')
+		alert('Điều khoản dịch vụ đã được cập nhật!')
 	}
 	
 	const resetProductForm = () => {
@@ -199,19 +122,10 @@ export default function AdminDashboardPage() {
 			description: '',
 			image: '',
 			category: '',
-			sortOrder: '1'
+			sortOrder: '1',
+			options: []
 		})
 		setEditingProduct(null)
-	}
-	
-	const resetFAQForm = () => {
-		setFaqForm({
-			title: '',
-			content: '',
-			category: '',
-			tags: ''
-		})
-		setEditingFAQ(null)
 	}
 	
 	const openProductEdit = (product: Product) => {
@@ -222,20 +136,84 @@ export default function AdminDashboardPage() {
 			description: product.description,
 			image: product.image,
 			category: product.category,
-			sortOrder: product.sortOrder.toString()
+			sortOrder: product.sortOrder.toString(),
+			options: product.options || []
 		})
 		setProductDialog(true)
 	}
 	
-	const openFAQEdit = (faq: FAQArticle) => {
-		setEditingFAQ(faq)
-		setFaqForm({
-			title: faq.title,
-			content: faq.content,
-			category: faq.category,
-			tags: faq.tags.join(', ')
+	const addOptionField = () => {
+		const newOption = {
+			id: Date.now().toString(),
+			name: '',
+			type: 'select' as const,
+			values: ['']
+		}
+		setProductForm({
+			...productForm,
+			options: [...productForm.options, newOption]
 		})
-		setFaqDialog(true)
+	}
+	
+	const updateOption = (index: number, field: string, value: any) => {
+		const updatedOptions = [...productForm.options]
+		updatedOptions[index] = {
+			...updatedOptions[index],
+			[field]: value
+		}
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	const updateOptionValue = (optionIndex: number, valueIndex: number, value: string) => {
+		const updatedOptions = [...productForm.options]
+		const optionValues = [...updatedOptions[optionIndex].values]
+		optionValues[valueIndex] = value
+		updatedOptions[optionIndex] = {
+			...updatedOptions[optionIndex],
+			values: optionValues
+		}
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	const addValueToOption = (optionIndex: number) => {
+		const updatedOptions = [...productForm.options]
+		updatedOptions[optionIndex] = {
+			...updatedOptions[optionIndex],
+			values: [...updatedOptions[optionIndex].values, '']
+		}
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	const removeOption = (index: number) => {
+		const updatedOptions = [...productForm.options]
+		updatedOptions.splice(index, 1)
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	const removeOptionValue = (optionIndex: number, valueIndex: number) => {
+		const updatedOptions = [...productForm.options]
+		const optionValues = [...updatedOptions[optionIndex].values]
+		optionValues.splice(valueIndex, 1)
+		updatedOptions[optionIndex] = {
+			...updatedOptions[optionIndex],
+			values: optionValues
+		}
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
 	}
 	
 	// Nếu đang loading, không hiển thị gì
@@ -249,114 +227,48 @@ export default function AdminDashboardPage() {
 	
 	return (
 		<div className="flex flex-col min-h-screen">
-			<header className="border-b">
-				<div className="container flex h-16 items-center px-4 sm:px-6">
-					<div className="flex items-center gap-2 font-semibold">
-						<Shield className="h-5 w-5" />
-						<span>{t('adminDashboard')}</span>
-					</div>
-					<nav className="ml-auto flex items-center space-x-4">
-						<Button variant="ghost" size="icon" asChild>
-							<a href="/" target="_blank">
-								<Home className="h-5 w-5" />
-								<span className="sr-only">{t('home')}</span>
-							</a>
-						</Button>
-						<Button variant="ghost" size="icon" onClick={handleLogout}>
-							<LogOut className="h-5 w-5" />
-							<span className="sr-only">{t('logout')}</span>
-						</Button>
-					</nav>
+			<div className="container flex h-16 items-center px-4 sm:px-6 justify-between">
+				<div className="flex items-center gap-2 font-semibold">
+					<Shield className="h-5 w-5" />
+					<span>{t('adminDashboard')}</span>
 				</div>
-			</header>
+				<nav className="flex items-center space-x-4">
+					<Button variant="ghost" size="icon" asChild>
+						<a href="/" target="_blank">
+							<Home className="h-5 w-5" />
+							<span className="sr-only">{t('home')}</span>
+						</a>
+					</Button>
+					<Button variant="ghost" size="icon" onClick={handleLogout}>
+						<LogOut className="h-5 w-5" />
+						<span className="sr-only">{t('logout')}</span>
+					</Button>
+				</nav>
+			</div>
 			
 			<div className="container grid flex-1 gap-6 md:grid-cols-[200px_1fr] py-6">
 				{/* Sidebar */}
 				<div className="flex flex-col gap-2">
 					<Button 
-						variant={activeTab === 'overview' ? 'default' : 'ghost'} 
-						className="justify-start" 
-						onClick={() => setActiveTab('overview')}
-					>
-						<Home className="mr-2 h-4 w-4" />
-						{t('overview')}
-					</Button>
-					<Button 
-						variant={activeTab === 'content' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('content')}
-					>
-						<FileText className="mr-2 h-4 w-4" />
-						{t('content')}
-					</Button>
-					<Button 
 						variant={activeTab === 'products' ? 'default' : 'ghost'} 
 						className="justify-start"
 						onClick={() => setActiveTab('products')}
 					>
-						<ShoppingBag className="mr-2 h-4 w-4" />
+						<Home className="mr-2 h-4 w-4" />
 						{t('products')}
 					</Button>
 					<Button 
-						variant={activeTab === 'faq' ? 'default' : 'ghost'} 
+						variant={activeTab === 'tos' ? 'default' : 'ghost'} 
 						className="justify-start"
-						onClick={() => setActiveTab('faq')}
+						onClick={() => setActiveTab('tos')}
 					>
-						<FileText className="mr-2 h-4 w-4" />
-						{t('faq')}
-					</Button>
-					<Button 
-						variant={activeTab === 'settings' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('settings')}
-					>
-						<Settings className="mr-2 h-4 w-4" />
-						{t('settings')}
-					</Button>
-					<Button 
-						variant={activeTab === 'security' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('security')}
-					>
-						<Lock className="mr-2 h-4 w-4" />
-						{t('security')}
+						<Home className="mr-2 h-4 w-4" />
+						{t('termsOfService')}
 					</Button>
 				</div>
 				
 				{/* Main Content */}
 				<div className="flex-1">
-					{activeTab === 'overview' && (
-						<div className="grid gap-4">
-							<h1 className="text-2xl font-bold tracking-tight">{t('overview')}</h1>
-							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-								<Card>
-									<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-										<CardTitle className="text-sm font-medium">
-											{t('totalProducts')}
-										</CardTitle>
-										<ShoppingBag className="h-4 w-4 text-muted-foreground" />
-									</CardHeader>
-									<CardContent>
-										<div className="text-2xl font-bold">12</div>
-										<p className="text-xs text-muted-foreground">
-											+2 trong tháng này
-										</p>
-									</CardContent>
-								</Card>
-								{/* Các thẻ thống kê khác có thể được thêm vào đây */}
-							</div>
-						</div>
-					)}
-					
-					{activeTab === 'content' && (
-						<div className="grid gap-4">
-							<h1 className="text-2xl font-bold tracking-tight">{t('content')}</h1>
-							<p className="text-muted-foreground">
-								{t('contentDescription')}
-							</p>
-						</div>
-					)}
-					
 					{activeTab === 'products' && (
 						<div className="space-y-4">
 							<div className="flex justify-between items-center">
@@ -425,7 +337,7 @@ export default function AdminDashboardPage() {
 							
 							{/* Product Dialog */}
 							<Dialog open={productDialog} onOpenChange={setProductDialog}>
-								<DialogContent>
+								<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
 									<DialogHeader>
 										<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
 									</DialogHeader>
@@ -448,7 +360,7 @@ export default function AdminDashboardPage() {
 										<div className="space-y-2">
 											<label>{t('description')}</label>
 											<textarea 
-												className="w-full p-2 border rounded-md min-h-[100px]"
+												className="w-full p-2 border rounded-md min-h-[200px]"
 												value={productForm.description} 
 												onChange={(e) => setProductForm({...productForm, description: e.target.value})}
 											/>
@@ -475,6 +387,93 @@ export default function AdminDashboardPage() {
 												onChange={(e) => setProductForm({...productForm, sortOrder: e.target.value})}
 											/>
 										</div>
+										
+										{/* Product Options */}
+										<div className="space-y-4 border-t pt-4">
+											<div className="flex justify-between items-center">
+												<h3 className="text-lg font-semibold">{t('productOptions')}</h3>
+												<Button 
+													size="sm" 
+													variant="outline" 
+													onClick={addOptionField}
+												>
+													<Plus className="w-4 h-4 mr-1" /> {t('addOption')}
+												</Button>
+											</div>
+											
+											{productForm.options.map((option, optionIndex) => (
+												<div key={option.id} className="border rounded-md p-4 space-y-3">
+													<div className="flex items-center justify-between">
+														<h4 className="font-medium">Option {optionIndex + 1}</h4>
+														<Button 
+															variant="ghost" 
+															size="sm" 
+															className="h-8 w-8 p-0 text-destructive"
+															onClick={() => removeOption(optionIndex)}
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
+													</div>
+													
+													<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+														<div className="space-y-2">
+															<label className="text-sm font-medium">{t('optionName')}</label>
+															<Input 
+																value={option.name} 
+																onChange={(e) => updateOption(optionIndex, 'name', e.target.value)}
+																placeholder="Color, Size, etc."
+															/>
+														</div>
+														
+														<div className="space-y-2">
+															<label className="text-sm font-medium">{t('optionType')}</label>
+															<select 
+																className="w-full p-2 border rounded-md"
+																value={option.type}
+																onChange={(e) => updateOption(optionIndex, 'type', e.target.value)}
+															>
+																<option value="select">Dropdown Select</option>
+																<option value="radio">Radio Button</option>
+															</select>
+														</div>
+													</div>
+													
+													<div className="space-y-2">
+														<div className="flex justify-between items-center">
+															<label className="text-sm font-medium">{t('optionValues')}</label>
+															<Button 
+																variant="ghost" 
+																size="sm"
+																onClick={() => addValueToOption(optionIndex)}
+															>
+																<Plus className="h-3 w-3 mr-1" /> {t('addValue')}
+															</Button>
+														</div>
+														
+														{option.values.map((value, valueIndex) => (
+															<div key={valueIndex} className="flex items-center space-x-2">
+																<Input 
+																	value={value}
+																	onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value)}
+																	placeholder="Option value"
+																	className="flex-1"
+																/>
+																{option.values.length > 1 && (
+																	<Button 
+																		variant="ghost" 
+																		size="sm" 
+																		className="p-0 h-8 w-8 text-destructive"
+																		onClick={() => removeOptionValue(optionIndex, valueIndex)}
+																	>
+																		<Trash2 className="h-4 w-4" />
+																	</Button>
+																)}
+															</div>
+														))}
+													</div>
+												</div>
+											))}
+										</div>
 									</div>
 									<DialogFooter>
 										<Button variant="outline" onClick={() => setProductDialog(false)}>{t('cancel')}</Button>
@@ -485,302 +484,28 @@ export default function AdminDashboardPage() {
 						</div>
 					)}
 					
-					{activeTab === 'faq' && (
-						<div className="space-y-4">
-							<div className="flex justify-between items-center">
-								<h2 className="text-xl font-semibold">{t('faqManagement')}</h2>
-								<Button onClick={() => setFaqDialog(true)}>
-									<Plus className="mr-2 h-4 w-4" />
-									{t('addFAQ')}
-								</Button>
-							</div>
-							
-							{/* FAQ List */}
-							<div className="space-y-4">
-								{faqArticles.map((faq) => (
-									<Card key={faq.id}>
-										<CardHeader>
-											<div className="flex justify-between items-start">
-												<div>
-													<CardTitle>{faq.title}</CardTitle>
-													<div className="flex mt-2 space-x-2">
-														{faq.tags.map((tag) => (
-															<span 
-																key={tag} 
-																className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary"
-															>
-																{tag}
-															</span>
-														))}
-													</div>
-												</div>
-												<div className="flex space-x-2">
-													<Button 
-														variant="ghost" 
-														size="sm"
-														onClick={() => openFAQEdit(faq)}
-													>
-														<Edit className="h-4 w-4" />
-													</Button>
-													<Button 
-														variant="ghost" 
-														size="sm"
-														className="text-destructive hover:text-destructive"
-														onClick={() => {
-															if (confirm('Are you sure you want to delete this FAQ?')) {
-																deleteFaqArticle(faq.id)
-															}
-														}}
-													>
-														<Trash2 className="h-4 w-4" />
-													</Button>
-												</div>
-											</div>
-										</CardHeader>
-										<CardContent>
-											<p className="text-muted-foreground whitespace-pre-wrap">{faq.content}</p>
-										</CardContent>
-									</Card>
-								))}
-							</div>
-							
-							{/* FAQ Dialog */}
-							<Dialog open={faqDialog} onOpenChange={setFaqDialog}>
-								<DialogContent>
-									<DialogHeader>
-										<DialogTitle>{editingFAQ ? t('editFAQ') : t('addFAQ')}</DialogTitle>
-									</DialogHeader>
-									<div className="space-y-4 py-4">
-										<div className="space-y-2">
-											<label>{t('title')}</label>
-											<Input 
-												value={faqForm.title} 
-												onChange={(e) => setFaqForm({...faqForm, title: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label>{t('content')}</label>
-											<textarea 
-												className="w-full p-2 border rounded-md min-h-[150px]"
-												value={faqForm.content} 
-												onChange={(e) => setFaqForm({...faqForm, content: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label>{t('category')}</label>
-											<Input 
-												value={faqForm.category} 
-												onChange={(e) => setFaqForm({...faqForm, category: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label>{t('tags')}</label>
-											<Input 
-												value={faqForm.tags} 
-												onChange={(e) => setFaqForm({...faqForm, tags: e.target.value})}
-											/>
-										</div>
-									</div>
-									<DialogFooter>
-										<Button variant="outline" onClick={() => setFaqDialog(false)}>{t('cancel')}</Button>
-										<Button onClick={handleSaveFAQ}>{t('save')}</Button>
-									</DialogFooter>
-								</DialogContent>
-							</Dialog>
-						</div>
-					)}
-					
-					{activeTab === 'settings' && (
+					{activeTab === 'tos' && (
 						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">{t('siteSettings')}</h2>
-							
+							<h2 className="text-xl font-semibold">{t('termsOfService')}</h2>
 							<div className="space-y-4">
 								<Card>
 									<CardHeader>
-										<CardTitle>{t('heroSection')}</CardTitle>
-									</CardHeader>
-									<CardContent className="space-y-4">
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('heroTitle')}</label>
-											<Input 
-												value={settingsForm.heroTitle} 
-												onChange={(e) => setSettingsForm({...settingsForm, heroTitle: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('heroQuote')}</label>
-											<Input 
-												value={settingsForm.heroQuote} 
-												onChange={(e) => setSettingsForm({...settingsForm, heroQuote: e.target.value})}
-											/>
-										</div>
-									</CardContent>
-								</Card>
-								
-								<Card>
-									<CardHeader>
-										<CardTitle>{t('contactLinks')}</CardTitle>
-									</CardHeader>
-									<CardContent className="space-y-4">
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('facebookLink')}</label>
-											<Input 
-												value={settingsForm.facebookLink} 
-												onChange={(e) => setSettingsForm({...settingsForm, facebookLink: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('whatsappLink')}</label>
-											<Input 
-												value={settingsForm.whatsappLink} 
-												onChange={(e) => setSettingsForm({...settingsForm, whatsappLink: e.target.value})}
-											/>
-										</div>
-									</CardContent>
-								</Card>
-								
-								<Card>
-									<CardHeader>
-										<CardTitle>{t('paymentInformation')}</CardTitle>
-									</CardHeader>
-									<CardContent className="space-y-4">
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('bankName')}</label>
-											<Input 
-												value={settingsForm.bankName} 
-												onChange={(e) => setSettingsForm({...settingsForm, bankName: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('accountNumber')}</label>
-											<Input 
-												value={settingsForm.accountNumber} 
-												onChange={(e) => setSettingsForm({...settingsForm, accountNumber: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('accountName')}</label>
-											<Input 
-												value={settingsForm.accountName} 
-												onChange={(e) => setSettingsForm({...settingsForm, accountName: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('wiseEmail')}</label>
-											<Input 
-												value={settingsForm.wiseEmail} 
-												onChange={(e) => setSettingsForm({...settingsForm, wiseEmail: e.target.value})}
-											/>
-										</div>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('paypalEmail')}</label>
-											<Input 
-												value={settingsForm.paypalEmail} 
-												onChange={(e) => setSettingsForm({...settingsForm, paypalEmail: e.target.value})}
-											/>
-										</div>
-									</CardContent>
-								</Card>
-								
-								<Card>
-									<CardHeader>
-										<CardTitle>{t('termsOfService')}</CardTitle>
+										<CardTitle>{t('editTOS')}</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<div className="space-y-2">
 											<label className="text-sm font-medium">{t('tosContent')}</label>
 											<textarea 
-												className="w-full p-2 border rounded-md min-h-[200px]"
-												value={settingsForm.tosContent} 
-												onChange={(e) => setSettingsForm({...settingsForm, tosContent: e.target.value})}
+												className="w-full p-2 border rounded-md min-h-[400px]"
+												value={tosForm} 
+												onChange={(e) => setTosForm(e.target.value)}
 											/>
 										</div>
 									</CardContent>
 								</Card>
 								
 								<div className="flex justify-end">
-									<Button onClick={handleSaveSettings}>{t('saveAllSettings')}</Button>
-								</div>
-							</div>
-						</div>
-					)}
-					
-					{activeTab === 'security' && (
-						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">{t('security')}</h2>
-							
-							<div className="space-y-6">
-								<CookieExporter />
-								
-								<Card>
-									<CardHeader>
-										<CardTitle>{t('securityInstructions')}</CardTitle>
-									</CardHeader>
-									<CardContent className="space-y-4">
-										<Alert>
-											<AlertTitle>{t('important')}</AlertTitle>
-											<AlertDescription>
-												{t('specialCookieDescription')}
-											</AlertDescription>
-										</Alert>
-										
-										<div className="space-y-2">
-											<h3 className="font-medium">{t('adminSecurityInstructions')}</h3>
-											<p className="text-sm text-gray-600">
-												{t('adminSecurityInstructionsDescription')}
-											</p>
-											<ul className="list-disc pl-5 text-sm space-y-1 text-gray-600">
-												<li>{t('specialCookieRequired')}</li>
-												<li>{t('loginAuthentication')}</li>
-												<li>{t('apiHeader')}</li>
-												<li>{t('sessionCookie')}</li>
-												<li>{t('dataEncryption')}</li>
-											</ul>
-										</div>
-										
-										<div className="space-y-2">
-											<h3 className="font-medium">{t('importantNotes')}</h3>
-											<ul className="list-disc pl-5 text-sm space-y-1 text-gray-600">
-												<li>{t('storeCookie')}</li>
-												<li>{t('shareCookie')}</li>
-												<li>{t('logout')}</li>
-												<li>{t('publicDevice')}</li>
-											</ul>
-										</div>
-									</CardContent>
-								</Card>
-								
-								<div className="grid gap-4 md:grid-cols-2">
-									<AdminCookieControl />
-									
-									<Card>
-										<CardHeader>
-											<CardTitle className="text-lg flex items-center gap-2">
-												<Lock className="h-5 w-5" />
-												{t('authentication')}
-											</CardTitle>
-											<CardDescription>
-												{t('accountAuthentication')}
-											</CardDescription>
-										</CardHeader>
-										<CardContent>
-											<div className="space-y-4">
-												<div className="space-y-2">
-													<Label htmlFor="username">{t('username')}</Label>
-													<Input id="username" value="admin" readOnly />
-												</div>
-												<div className="space-y-2">
-													<Label htmlFor="password">{t('password')}</Label>
-													<Input id="password" type="password" value="********" readOnly />
-												</div>
-											</div>
-										</CardContent>
-										<CardFooter>
-											<Button variant="outline" className="w-full" disabled>
-												{t('changePassword')}
-											</Button>
-										</CardFooter>
-									</Card>
+									<Button onClick={handleSaveTos}>{t('saveTOS')}</Button>
 								</div>
 							</div>
 						</div>
