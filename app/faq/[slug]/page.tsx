@@ -17,6 +17,13 @@ interface FAQArticlePageProps {
 	}
 }
 
+// This function runs at build time to generate the static paths
+export function generateStaticParams() {
+	return initialFAQArticles.map((article) => ({
+		slug: article.slug,
+	}))
+}
+
 export default function FAQArticlePage({ params }: FAQArticlePageProps) {
 	const { faqArticles } = useStore()
 	const [article, setArticle] = useState<FAQArticle | null>(null)

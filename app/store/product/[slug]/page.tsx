@@ -18,6 +18,13 @@ interface ProductPageProps {
 	}
 }
 
+// This function runs at build time to generate the static paths
+export function generateStaticParams() {
+	return initialProducts.map((product) => ({
+		slug: product.slug,
+	}))
+}
+
 export default function ProductPage({ params }: ProductPageProps) {
 	const { products, faqArticles } = useStore()
 	const [product, setProduct] = useState<Product | null>(null)
