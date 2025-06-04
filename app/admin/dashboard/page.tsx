@@ -161,7 +161,15 @@ export default function AdminDashboardPage() {
 	// Product form state
 	const [productForm, setProductForm] = useState({
 		name: '',
+		localizedName: {
+			en: '',
+			vi: ''
+		},
 		description: '',
+		localizedDescription: {
+			en: '',
+			vi: ''
+		},
 		image: '',
 		category: '',
 		options: [] as {
@@ -170,7 +178,8 @@ export default function AdminDashboardPage() {
 			type: 'select' | 'radio';
 			values: string[];
 		}[],
-		relatedArticles: [] as string[]
+		relatedArticles: [] as string[],
+		isLocalized: false
 	})
 	
 	useEffect(() => {
@@ -292,6 +301,19 @@ export default function AdminDashboardPage() {
 			relatedArticles: selectedArticles
 		}
 		
+		// Add localization if enabled
+		if (productForm.isLocalized) {
+			newProduct.isLocalized = true
+			newProduct.localizedName = {
+				en: productForm.localizedName.en || productForm.name,
+				vi: productForm.localizedName.vi || productForm.name
+			}
+			newProduct.localizedDescription = {
+				en: productForm.localizedDescription.en || productForm.description,
+				vi: productForm.localizedDescription.vi || productForm.description
+			}
+		}
+		
 		if (editingProduct) {
 			updateProduct(editingProduct.id, newProduct)
 		} else {
@@ -314,11 +336,20 @@ export default function AdminDashboardPage() {
 	const resetProductForm = () => {
 		setProductForm({
 			name: '',
+			localizedName: {
+				en: '',
+				vi: ''
+			},
 			description: '',
+			localizedDescription: {
+				en: '',
+				vi: ''
+			},
 			image: '',
 			category: '',
 			options: [],
-			relatedArticles: []
+			relatedArticles: [],
+			isLocalized: false
 		})
 		setSelectedArticles([])
 		setEditingProduct(null)
@@ -326,14 +357,27 @@ export default function AdminDashboardPage() {
 	
 	const openProductEdit = (product: Product) => {
 		setEditingProduct(product)
-		setProductForm({
+		
+		// Initialize form with existing product data
+		const formData = {
 			name: product.name,
+			localizedName: product.localizedName || {
+				en: product.name,
+				vi: product.name
+			},
 			description: product.description,
+			localizedDescription: product.localizedDescription || {
+				en: product.description,
+				vi: product.description
+			},
 			image: product.image,
 			category: product.category,
 			options: product.options || [],
-			relatedArticles: product.relatedArticles || []
-		})
+			relatedArticles: product.relatedArticles || [],
+			isLocalized: product.isLocalized || false
+		}
+		
+		setProductForm(formData)
 		setSelectedArticles(product.relatedArticles || [])
 		setProductDialog(true)
 	}
@@ -665,12 +709,59 @@ export default function AdminDashboardPage() {
 										</DialogDescription>
 									</DialogHeader>
 									<div className="space-y-4 py-4">
+										<div className="flex items-center space-x-2 mb-4 pb-4 border-b">
+											<input
+												type="checkbox"
+												id="isLocalized"
+												className="h-4 w-4"
+												checked={productForm.isLocalized}
+												onChange={(e) => setProductForm({...productForm, isLocalized: e.target.checked})}
+											/>
+											<label htmlFor="isLocalized" className="font-medium">{t('enableLocalization')}</label>
+										</div>
 										<div className="space-y-2">
 											<label>{t('name')}</label>
-											<Input 
-												value={productForm.name} 
-												onChange={(e) => setProductForm({...productForm, name: e.target.value})}
-											/>
+											{!productForm.isLocalized ? (
+												<Input 
+													value={productForm.name} 
+													onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+												/>
+											) : (
+												<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+													<div>
+														<div className="flex items-center mb-1">
+															<VietnamFlag />
+															<span className="ml-2 text-sm font-medium">Vietnamese</span>
+														</div>
+														<Input 
+															value={productForm.localizedName.vi} 
+															onChange={(e) => setProductForm({
+																...productForm, 
+																localizedName: {
+																	...productForm.localizedName,
+																	vi: e.target.value
+																}
+															})}
+														/>
+													</div>
+													<div>
+														<div className="flex items-center mb-1">
+															<USFlag />
+															<span className="ml-2 text-sm font-medium">English</span>
+														</div>
+														<Input 
+															value={productForm.localizedName.en} 
+															onChange={(e) => setProductForm({
+																...productForm, 
+																localizedName: {
+																	...productForm.localizedName,
+																	en: e.target.value
+																}
+															})}
+														/>
+													</div>
+												</div>
+											)}
 										</div>
 										<div className="space-y-2">
 											<label>{t('imageURL')}</label>
@@ -786,12 +877,53 @@ export default function AdminDashboardPage() {
 										{/* Description - Markdown */}
 										<div className="space-y-2 border-t pt-4">
 											<label>{t('description')} <span className="text-xs text-muted-foreground">(Markdown)</span></label>
-											<textarea 
-												className="w-full p-2 border rounded-md min-h-[200px]"
-												value={productForm.description} 
-												onChange={(e) => setProductForm({...productForm, description: e.target.value})}
-												placeholder="Product description in Markdown format..."
-											/>
+											{!productForm.isLocalized ? (
+												<textarea 
+													className="w-full p-2 border rounded-md min-h-[200px]"
+													value={productForm.description} 
+													onChange={(e) => setProductForm({...productForm, description: e.target.value})}
+													placeholder="Product description in Markdown format..."
+												/>
+											) : (
+												<div className="grid grid-cols-1 gap-4">
+													<div>
+														<div className="flex items-center mb-1">
+															<VietnamFlag />
+															<span className="ml-2 text-sm font-medium">Vietnamese</span>
+														</div>
+														<textarea 
+															className="w-full p-2 border rounded-md min-h-[200px]"
+															value={productForm.localizedDescription.vi} 
+															onChange={(e) => setProductForm({
+																...productForm, 
+																localizedDescription: {
+																	...productForm.localizedDescription,
+																	vi: e.target.value
+																}
+															})}
+															placeholder="Mô tả sản phẩm bằng tiếng Việt (định dạng Markdown)..."
+														/>
+													</div>
+													<div>
+														<div className="flex items-center mb-1">
+															<USFlag />
+															<span className="ml-2 text-sm font-medium">English</span>
+														</div>
+														<textarea 
+															className="w-full p-2 border rounded-md min-h-[200px]"
+															value={productForm.localizedDescription.en} 
+															onChange={(e) => setProductForm({
+																...productForm, 
+																localizedDescription: {
+																	...productForm.localizedDescription,
+																	en: e.target.value
+																}
+															})}
+															placeholder="Product description in English (Markdown format)..."
+														/>
+													</div>
+												</div>
+											)}
 										</div>
 										
 										{/* Related Articles */}

@@ -10,6 +10,7 @@ import { initialFAQArticles } from '@/app/lib/initial-data'
 import { formatPrice } from '@/app/lib/utils'
 import { useStore } from '@/app/lib/store'
 import { Product, FAQArticle } from '@/app/lib/types'
+import { useTranslation } from '@/app/hooks/use-translations'
 import ReactMarkdown from 'react-markdown'
 
 interface ProductClientProps {
@@ -18,7 +19,8 @@ interface ProductClientProps {
 }
 
 export default function ProductClient({ slug, initialProduct }: ProductClientProps) {
-	const { products, faqArticles } = useStore()
+	const { products, faqArticles, language } = useStore()
+	const { t } = useTranslation()
 	const [product, setProduct] = useState<Product>(initialProduct)
 	const [relatedArticles, setRelatedArticles] = useState<FAQArticle[]>([])
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
@@ -99,6 +101,22 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
 	}
 	
+	// Get the product name based on language and localization settings
+	const getProductName = () => {
+		if (product.isLocalized && product.localizedName) {
+			return product.localizedName[language as 'en' | 'vi'] || product.name
+		}
+		return product.name
+	}
+	
+	// Get the product description based on language and localization settings
+	const getProductDescription = () => {
+		if (product.isLocalized && product.localizedDescription) {
+			return product.localizedDescription[language as 'en' | 'vi'] || product.description
+		}
+		return product.description
+	}
+	
 	return (
 		<div className="max-w-7xl mx-auto py-8 page-transition">
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -108,7 +126,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
 						<Image
 							src={product.image}
-							alt={product.name}
+							alt={getProductName()}
 							fill
 							className="object-cover"
 							sizes="(max-width: 1024px) 100vw, 50vw"
@@ -120,7 +138,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				{/* Product Info */}
 				<div className="space-y-6">
 					<div>
-						<h1 className="text-3xl font-bold">{product.name}</h1>
+						<h1 className="text-3xl font-bold">{getProductName()}</h1>
 						<p className="text-2xl font-semibold text-primary mt-4">
 							{formatPrice(getLowestPrice(), 'en-US')}
 						</p>
@@ -206,13 +224,13 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				<div className="lg:col-span-2">
 					<Card className="dark:bg-card/80 dark:border-primary/20">
 						<CardHeader>
-							<CardTitle>Product Details</CardTitle>
+							<CardTitle>{t('productDetails')}</CardTitle>
 						</CardHeader>
 						<CardContent>
-							{product.description ? (
+							{getProductDescription() ? (
 								<div className="prose dark:prose-invert prose-sm max-w-none">
 									<ReactMarkdown>
-										{product.description}
+										{getProductDescription()}
 									</ReactMarkdown>
 								</div>
 							) : (
@@ -228,7 +246,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				<div>
 					<Card className="dark:bg-card/80 dark:border-primary/20">
 						<CardHeader>
-							<CardTitle>Related Articles</CardTitle>
+							<CardTitle>{t('relatedArticles')}</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-3">
 							{relatedArticles.length > 0 ? (

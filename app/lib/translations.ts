@@ -517,4 +517,24 @@ export const translations: Translations = {
 		en: 'Add prices to options with format: "Option - $price" (e.g. "Red - $10")',
 		vi: 'Thêm giá cho tùy chọn với định dạng: "Tùy chọn - $giá" (vd: "Đỏ - $10")'
 	},
+	enableLocalization: {
+		en: 'Enable separate content for English and Vietnamese',
+		vi: 'Bật nội dung riêng cho tiếng Anh và tiếng Việt'
+	},
+	vietnameseVersion: {
+		en: 'Vietnamese Version',
+		vi: 'Phiên bản tiếng Việt'
+	},
+	englishVersion: {
+		en: 'English Version',
+		vi: 'Phiên bản tiếng Anh'
+	},
+	addProductDescription: {
+		en: 'Add a new product to your store',
+		vi: 'Thêm sản phẩm mới vào cửa hàng của bạn'
+	},
+	editProductDescription: {
+		en: 'Edit existing product details',
+		vi: 'Chỉnh sửa chi tiết sản phẩm hiện có'
+	},
 } 

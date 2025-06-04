@@ -146,6 +146,11 @@ interface ProductCardProps {
 			type: 'select' | 'radio'
 			values: string[]
 		}[]
+		isLocalized?: boolean
+		localizedName?: {
+			en: string
+			vi: string
+		}
 	}
 	language: string
 }
@@ -154,6 +159,14 @@ function ProductCard({ product, language }: ProductCardProps) {
 	const cardRef = useRef<HTMLDivElement>(null)
 	const [transform, setTransform] = useState('')
 	const [isHovered, setIsHovered] = useState(false)
+	
+	// Get the product name based on language and localization settings
+	const getProductName = () => {
+		if (product.isLocalized && product.localizedName) {
+			return product.localizedName[language as 'en' | 'vi'] || product.name
+		}
+		return product.name
+	}
 	
 	// Calculate lowest price from options
 	const getLowestPrice = () => {
@@ -216,15 +229,15 @@ function ProductCard({ product, language }: ProductCardProps) {
 				<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
 					<Image
 						src={product.image}
-						alt={product.name}
+						alt={getProductName()}
 						fill
 						className="object-cover transition-transform duration-300 group-hover:scale-105"
 						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
 					/>
 				</div>
 				<CardContent className="p-3 relative z-10 bg-background dark:bg-card/90">
-					<h3 className="font-semibold text-sm truncate mb-1" title={product.name}>
-						{product.name}
+					<h3 className="font-semibold text-sm truncate mb-1" title={getProductName()}>
+						{getProductName()}
 					</h3>
 					<div className="flex items-center justify-end gap-1">
 						<span className="text-xs text-muted-foreground self-center">

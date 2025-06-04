@@ -1,14 +1,23 @@
 export interface Product {
 	id: string
 	name: string
+	localizedName?: {
+		en: string
+		vi: string
+	}
 	price: number
 	description: string
+	localizedDescription?: {
+		en: string
+		vi: string
+	}
 	image: string
 	category: string
 	options?: ProductOption[]
 	relatedArticles?: string[]
 	slug: string
 	sortOrder: number
+	isLocalized?: boolean
 }
 
 export interface ProductOption {
