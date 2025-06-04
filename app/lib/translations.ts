@@ -453,6 +453,14 @@ export const translations: Translations = {
 		en: 'Adjust the display order of product cards. Products with lower numbers will be displayed first.',
 		vi: 'Điều chỉnh thứ tự hiển thị của thẻ sản phẩm. Sản phẩm có số thứ tự thấp hơn sẽ được hiển thị trước.'
 	},
+	dragAndDropInstructions: {
+		en: 'Drag and drop products to reorder them. Changes will be saved automatically.',
+		vi: 'Kéo và thả sản phẩm để sắp xếp lại. Thay đổi sẽ được lưu tự động.'
+	},
+	savingChanges: {
+		en: 'Saving changes',
+		vi: 'Đang lưu thay đổi'
+	},
 	editCardSortOrder: {
 		en: 'Edit Card Display Order',
 		vi: 'Chỉnh sửa thứ tự hiển thị thẻ'

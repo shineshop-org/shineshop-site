@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -14,9 +14,81 @@ import { generateSlug } from '@/app/lib/utils'
 import { clearAuthCookie, ADMIN_CREDENTIALS, getAuthCookie, verifySpecialToken, ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs'
 import { Badge } from '@/app/components/ui/badge'
+import { 
+	DndContext, 
+	closestCenter, 
+	KeyboardSensor, 
+	PointerSensor, 
+	useSensor, 
+	useSensors,
+	DragEndEvent
+} from '@dnd-kit/core'
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	useSortable,
+	verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 type TabType = 'products' | 'tos'
 type ProductTabType = 'details' | 'card-order'
+
+// Sortable item component for drag and drop
+function SortableProductItem({ product, getLowestPrice }: { product: Product; getLowestPrice: (product: Product) => number }) {
+	const { t } = useTranslation()
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+	} = useSortable({ id: product.id })
+	
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+	}
+	
+	return (
+		<div 
+			ref={setNodeRef}
+			style={style}
+			className="flex items-center justify-between border p-3 rounded-md bg-background hover:bg-accent/50 cursor-grab active:cursor-grabbing"
+		>
+			<div className="flex items-center gap-3">
+				<button
+					className="touch-none h-8 w-8 flex items-center justify-center text-muted-foreground"
+					{...attributes}
+					{...listeners}
+				>
+					<GripVertical className="h-4 w-4" />
+				</button>
+				<div 
+					className="h-10 w-10 rounded bg-center bg-cover" 
+					style={{ backgroundImage: `url(${product.image})` }}
+				/>
+				<div>
+					<p className="font-medium">{product.name}</p>
+					<p className="text-xs text-muted-foreground">
+						{product.category}
+					</p>
+				</div>
+			</div>
+			<div className="flex-shrink-0">
+				<p className="text-primary font-semibold">
+					{new Intl.NumberFormat('vi-VN', { 
+						style: 'currency', 
+						currency: 'VND',
+						minimumFractionDigits: 0,
+						maximumFractionDigits: 0
+					}).format(getLowestPrice(product))}
+				</p>
+			</div>
+		</div>
+	)
+}
 
 export default function AdminDashboardPage() {
 	const router = useRouter()
@@ -36,10 +108,31 @@ export default function AdminDashboardPage() {
 	const [productTab, setProductTab] = useState<ProductTabType>('details')
 	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 	const [productDialog, setProductDialog] = useState(false)
-	const [cardOrderDialog, setCardOrderDialog] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 	const [tosForm, setTosForm] = useState(tosContent)
 	const [selectedArticles, setSelectedArticles] = useState<string[]>([])
+	const [sortableProducts, setSortableProducts] = useState<Product[]>([])
+	const [isSaving, setIsSaving] = useState(false)
+	
+	// Setup sensors for drag and drop
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				distance: 8, // 8px movement required before drag starts
+			},
+		}),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		})
+	)
+	
+	// Update sortable products when products change
+	useEffect(() => {
+		if (products.length > 0) {
+			// Sort products by sortOrder
+			setSortableProducts([...products].sort((a, b) => a.sortOrder - b.sortOrder))
+		}
+	}, [products])
 	
 	// Product form state
 	const [productForm, setProductForm] = useState({
@@ -55,15 +148,6 @@ export default function AdminDashboardPage() {
 		}[],
 		relatedArticles: [] as string[]
 	})
-	
-	// Sort order form
-	const [sortOrderForm, setOrderForm] = useState({
-		id: '',
-		sortOrder: 1
-	})
-	
-	// Check for duplicate sort orders
-	const [sortOrderError, setSortOrderError] = useState('')
 	
 	useEffect(() => {
 		// Kiểm tra cookie đặc biệt
@@ -106,29 +190,50 @@ export default function AdminDashboardPage() {
 		router.push('/admin')
 	}
 	
-	const openCardOrderEdit = (product: Product) => {
-		setOrderForm({
-			id: product.id,
-			sortOrder: product.sortOrder || 1
-		})
-		setCardOrderDialog(true)
+	// Handle drag end event
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event
+		
+		if (over && active.id !== over.id) {
+			setSortableProducts((items) => {
+				// Find the indices of the items
+				const oldIndex = items.findIndex((item) => item.id === active.id)
+				const newIndex = items.findIndex((item) => item.id === over.id)
+				
+				// Create a new array with the items in the new order
+				const newItems = arrayMove(items, oldIndex, newIndex)
+				
+				// Update sort orders
+				updateProductOrders(newItems)
+				
+				return newItems
+			})
+		}
 	}
 	
-	const handleSaveSortOrder = () => {
-		// Check if the sort order already exists
-		const isDuplicate = products.some(p => 
-			p.id !== sortOrderForm.id && p.sortOrder === sortOrderForm.sortOrder
-		)
+	// Update product sort orders after drag and drop
+	const updateProductOrders = async (sortedProducts: Product[]) => {
+		setIsSaving(true)
 		
-		if (isDuplicate) {
-			setSortOrderError(t('sortOrderExists'))
-			return
+		try {
+			// Update each product with new sort order (1, 2, 3, etc.)
+			for (let i = 0; i < sortedProducts.length; i++) {
+				const product = sortedProducts[i]
+				if (product.sortOrder !== i + 1) {
+					updateProduct(product.id, { 
+						...product,
+						sortOrder: i + 1 
+					})
+				}
+			}
+			
+			// Sync to server
+			await useStore.getState().syncDataToServer()
+		} catch (error) {
+			console.error("Error updating product orders:", error)
+		} finally {
+			setIsSaving(false)
 		}
-		
-		// Update product sort order
-		updateProduct(sortOrderForm.id, { sortOrder: sortOrderForm.sortOrder })
-		setCardOrderDialog(false)
-		setSortOrderError('')
 	}
 	
 	const handleSaveProduct = () => {
@@ -445,7 +550,7 @@ export default function AdminDashboardPage() {
 								</TabsContent>
 								
 								<TabsContent value="card-order" className="mt-6">
-									{/* Product Cards Order Tab */}
+									{/* Product Cards Order Tab - With Drag and Drop */}
 									<div className="space-y-6">
 										<Card>
 											<CardHeader>
@@ -456,46 +561,35 @@ export default function AdminDashboardPage() {
 											</CardHeader>
 											<CardContent>
 												<p className="text-sm text-muted-foreground mb-4">
-													{t('productCardsOrderDescription')}
+													{t('dragAndDropInstructions')}
 												</p>
 												
-												<div className="grid grid-cols-1 gap-2">
-													{products
-														.sort((a, b) => a.sortOrder - b.sortOrder)
-														.map((product) => (
-															<div key={product.id} className="flex items-center justify-between border p-3 rounded-md">
-																<div className="flex items-center gap-3">
-																	<div 
-																		className="h-10 w-10 rounded bg-center bg-cover" 
-																		style={{ backgroundImage: `url(${product.image})` }}
-																	/>
-																	<div>
-																		<p className="font-medium">{product.name}</p>
-																		<p className="text-xs text-muted-foreground">
-																			{t('sortOrder')}: {product.sortOrder}
-																		</p>
-																	</div>
-																</div>
-																<div className="flex items-center gap-2">
-																	<p className="text-primary font-semibold">
-																		{new Intl.NumberFormat('vi-VN', { 
-																			style: 'currency', 
-																			currency: 'VND',
-																			minimumFractionDigits: 0,
-																			maximumFractionDigits: 0
-																		}).format(getLowestPrice(product))}
-																	</p>
-																	<Button 
-																		variant="ghost" 
-																		size="icon" 
-																		onClick={() => openCardOrderEdit(product)}
-																	>
-																		<Edit className="h-4 w-4" />
-																	</Button>
-																</div>
-															</div>
-														))}
-												</div>
+												{isSaving && (
+													<p className="text-sm text-primary mb-4">
+														{t('savingChanges')}...
+													</p>
+												)}
+												
+												<DndContext
+													sensors={sensors}
+													collisionDetection={closestCenter}
+													onDragEnd={handleDragEnd}
+												>
+													<SortableContext
+														items={sortableProducts.map(product => product.id)}
+														strategy={verticalListSortingStrategy}
+													>
+														<div className="grid grid-cols-1 gap-2">
+															{sortableProducts.map((product) => (
+																<SortableProductItem
+																	key={product.id}
+																	product={product}
+																	getLowestPrice={getLowestPrice}
+																/>
+															))}
+														</div>
+													</SortableContext>
+												</DndContext>
 											</CardContent>
 										</Card>
 									</div>
@@ -665,41 +759,6 @@ export default function AdminDashboardPage() {
 									<DialogFooter>
 										<Button variant="outline" onClick={() => setProductDialog(false)}>{t('cancel')}</Button>
 										<Button onClick={handleSaveProduct}>{t('save')}</Button>
-									</DialogFooter>
-								</DialogContent>
-							</Dialog>
-							
-							{/* Sort Order Dialog */}
-							<Dialog open={cardOrderDialog} onOpenChange={setCardOrderDialog}>
-								<DialogContent className="sm:max-w-md">
-									<DialogHeader>
-										<DialogTitle>{t('editCardSortOrder')}</DialogTitle>
-									</DialogHeader>
-									<div className="space-y-4 py-4">
-										<div className="space-y-2">
-											<label>{t('sortOrder')}</label>
-											<Input 
-												type="number" 
-												min="1"
-												value={sortOrderForm.sortOrder} 
-												onChange={(e) => {
-													setOrderForm({...sortOrderForm, sortOrder: parseInt(e.target.value) || 1})
-													setSortOrderError('')
-												}}
-											/>
-											{sortOrderError && (
-												<p className="text-sm text-destructive mt-1">{sortOrderError}</p>
-											)}
-											<p className="text-xs text-muted-foreground mt-2">
-												{t('sortOrderHint')}
-											</p>
-										</div>
-									</div>
-									<DialogFooter>
-										<Button variant="outline" onClick={() => setCardOrderDialog(false)}>
-											{t('cancel')}
-										</Button>
-										<Button onClick={handleSaveSortOrder}>{t('save')}</Button>
 									</DialogFooter>
 								</DialogContent>
 							</Dialog>
