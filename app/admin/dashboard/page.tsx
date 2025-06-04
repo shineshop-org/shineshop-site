@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -91,6 +91,27 @@ function SortableProductItem({ product, getLowestPrice }: { product: Product; ge
 	)
 }
 
+// Flag SVG Components
+const VietnamFlag = () => (
+	<svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<rect width="24" height="16" fill="#DA251D"/>
+		<path d="M12 3L13.2 6.6H17L14 8.8L15.2 12.4L12 10.2L8.8 12.4L10 8.8L7 6.6H10.8L12 3Z" fill="#FFFF00"/>
+	</svg>
+)
+
+const USFlag = () => (
+	<svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<rect width="24" height="16" fill="#B22234"/>
+		<rect y="1.23" width="24" height="1.23" fill="white"/>
+		<rect y="3.69" width="24" height="1.23" fill="white"/>
+		<rect y="6.15" width="24" height="1.23" fill="white"/>
+		<rect y="8.62" width="24" height="1.23" fill="white"/>
+		<rect y="11.08" width="24" height="1.23" fill="white"/>
+		<rect y="13.54" width="24" height="1.23" fill="white"/>
+		<rect width="9.6" height="8.62" fill="#3C3B6E"/>
+	</svg>
+)
+
 export default function AdminDashboardPage() {
 	const router = useRouter()
 	const { 
@@ -102,7 +123,9 @@ export default function AdminDashboardPage() {
 		deleteProduct,
 		tosContent,
 		setTosContent,
-		faqArticles
+		faqArticles,
+		language,
+		setLanguage
 	} = useStore()
 	const { t } = useTranslation()
 	const [activeTab, setActiveTab] = useState<TabType>('products')
@@ -189,6 +212,10 @@ export default function AdminDashboardPage() {
 		clearAuthCookie()
 		setAdminAuthenticated(false)
 		router.push('/admin')
+	}
+	
+	const toggleLanguage = () => {
+		setLanguage(language === 'en' ? 'vi' : 'en')
 	}
 	
 	// Handle drag end event
@@ -442,6 +469,26 @@ export default function AdminDashboardPage() {
 						<LogOut className="h-5 w-5" />
 						<span className="sr-only">{t('logout')}</span>
 					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={toggleLanguage}
+						className="flex items-center gap-2 px-3 py-1.5 h-9 w-20 rounded-full border-2 hover:border-primary transition-all duration-200"
+					>
+						<div className="flex items-center gap-2 justify-center w-full">
+							{language === 'en' ? (
+								<>
+									<USFlag />
+									<span className="font-medium">EN</span>
+								</>
+							) : (
+								<>
+									<VietnamFlag />
+									<span className="font-medium">VN</span>
+								</>
+							)}
+						</div>
+					</Button>
 				</nav>
 			</div>
 			
@@ -464,6 +511,17 @@ export default function AdminDashboardPage() {
 						<Home className="mr-2 h-4 w-4" />
 						{t('termsOfService')}
 					</Button>
+					
+					<div className="mt-auto pt-4 border-t">
+						<Button
+							variant="outline"
+							className="w-full justify-start"
+							onClick={toggleLanguage}
+						>
+							<Globe className="mr-2 h-4 w-4" />
+							{language === 'en' ? t('switchToVietnamese') : t('switchToEnglish')}
+						</Button>
+					</div>
 				</div>
 				
 				{/* Main Content */}

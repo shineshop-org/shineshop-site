@@ -186,6 +186,18 @@ export const translations: Translations = {
 		en: 'Home',
 		vi: 'Trang chủ'
 	},
+	switchToEnglish: {
+		en: 'Switch to English',
+		vi: 'Chuyển sang tiếng Anh'
+	},
+	switchToVietnamese: {
+		en: 'Switch to Vietnamese',
+		vi: 'Chuyển sang tiếng Việt'
+	},
+	languageSettings: {
+		en: 'Language Settings',
+		vi: 'Cài đặt ngôn ngữ'
+	},
 	overview: {
 		en: 'Overview',
 		vi: 'Tổng quan'
