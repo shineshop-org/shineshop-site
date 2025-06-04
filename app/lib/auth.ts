@@ -15,7 +15,7 @@ const HEADER_VALUE = 'sh1n3sh0p-s3cr3t-k3y-9d7f61a3'
 export const ADMIN_ACCESS_COOKIE = {
   name: 'shineshop_admin_access',
   value: generateAccessToken(),
-  maxAge: 30 * 24 * 60 * 60 // 30 ngày
+  maxAge: 24 * 60 * 60 // 24 giờ thay vì 30 ngày
 }
 
 // Admin credentials
@@ -62,8 +62,8 @@ export function verifyAccessToken(token: string): boolean {
       return false
     }
     
-    // Kiểm tra hạn token (30 ngày)
-    const expiryTime = payload.timestamp + (30 * 24 * 60 * 60 * 1000)
+    // Kiểm tra hạn token (24 giờ)
+    const expiryTime = payload.timestamp + (24 * 60 * 60 * 1000)
     if (new Date().getTime() > expiryTime) {
       return false
     }
@@ -105,8 +105,8 @@ export function verifySpecialToken(token: string): boolean {
       return false
     }
     
-    // Kiểm tra token có hết hạn không (30 ngày)
-    const expiryTime = payload.timestamp + (30 * 24 * 60 * 60 * 1000)
+    // Kiểm tra token có hết hạn không (24 giờ)
+    const expiryTime = payload.timestamp + (24 * 60 * 60 * 1000)
     if (new Date().getTime() > expiryTime) {
       return false
     }
@@ -155,7 +155,7 @@ export function verifyAuthToken(token: string): boolean {
 // Thiết lập cookie bảo mật
 export function setAuthCookie(token: string): void {
   // Thiết lập cookie với httpOnly và secure (trong môi trường production)
-  document.cookie = `${COOKIE_NAME}=${token}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=strict${window.location.protocol === 'https:' ? '; secure' : ''}`
+  document.cookie = `${COOKIE_NAME}=${token}; path=/; max-age=${24 * 60 * 60}; samesite=strict${window.location.protocol === 'https:' ? '; secure' : ''}`
 }
 
 // Lấy token từ cookie
