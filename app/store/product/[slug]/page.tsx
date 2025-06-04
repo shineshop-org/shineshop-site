@@ -1,5 +1,7 @@
-import React from 'react'
-import { notFound } from 'next/navigation'
+'use client'
+
+import React, { useEffect, useState } from 'react'
+import { notFound, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Facebook, MessageCircle, ExternalLink } from 'lucide-react'
@@ -7,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/ca
 import { Button } from '@/app/components/ui/button'
 import { initialProducts, initialFAQArticles } from '@/app/lib/initial-data'
 import { formatPrice } from '@/app/lib/utils'
+import { useStore } from '@/app/lib/store'
+import { Product, FAQArticle } from '@/app/lib/types'
 
 interface ProductPageProps {
 	params: {
@@ -14,23 +18,55 @@ interface ProductPageProps {
 	}
 }
 
-export function generateStaticParams() {
-	return initialProducts.map((product) => ({
-		slug: product.slug,
-	}))
-}
-
 export default function ProductPage({ params }: ProductPageProps) {
-	// Get data directly from initial data since this is a server component
-	const product = initialProducts.find(p => p.slug === params.slug)
+	const { products, faqArticles } = useStore()
+	const [product, setProduct] = useState<Product | null>(null)
+	const [relatedArticles, setRelatedArticles] = useState<FAQArticle[]>([])
+	const router = useRouter()
 	
+	useEffect(() => {
+		// Try to find the product in the store first
+		const storeProduct = products.find(p => p.slug === params.slug)
+		
+		if (storeProduct) {
+			setProduct(storeProduct)
+			
+			// Find related articles
+			if (storeProduct.relatedArticles && storeProduct.relatedArticles.length > 0) {
+				const related = faqArticles.filter(article => 
+					storeProduct.relatedArticles?.includes(article.id)
+				)
+				setRelatedArticles(related)
+			}
+		} else {
+			// Fallback to initial data if not found in store
+			const initialProduct = initialProducts.find(p => p.slug === params.slug)
+			
+			if (initialProduct) {
+				setProduct(initialProduct)
+				
+				// Find related articles from initial data
+				if (initialProduct.relatedArticles) {
+					const related = initialFAQArticles.filter(article => 
+						initialProduct.relatedArticles?.includes(article.id)
+					)
+					setRelatedArticles(related)
+				}
+			} else {
+				// Product not found at all
+				router.push('/404')
+			}
+		}
+	}, [params.slug, products, faqArticles, router])
+	
+	// Show loading state while fetching product
 	if (!product) {
-		notFound()
+		return (
+			<div className="max-w-7xl mx-auto py-8 flex justify-center items-center min-h-[50vh]">
+				<p>Loading product...</p>
+			</div>
+		)
 	}
-	
-	const relatedArticles = product.relatedArticles
-		? initialFAQArticles.filter(article => product.relatedArticles?.includes(article.id))
-		: []
 	
 	return (
 		<div className="max-w-7xl mx-auto py-8 page-transition">

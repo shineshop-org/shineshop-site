@@ -220,6 +220,7 @@ my-next-app/
 │   │   ├── api/           # API related
 │   │   └── utils/         # Common functions
 │   └── styles/            # Style definitions
+...
 ```
 ## Important Constraints
 1. **Restricted Files**

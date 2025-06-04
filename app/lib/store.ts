@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Language, Product, FAQArticle, SocialLink, PaymentInfo, SiteConfig } from './types'
+import { initialProducts, initialFAQArticles, initialSocialLinks } from './initial-data'
 
 interface StoreState {
 	// Language
@@ -45,11 +46,14 @@ interface StoreState {
 	// Admin
 	isAdminAuthenticated: boolean
 	setAdminAuthenticated: (authenticated: boolean) => void
+
+	// Sync with server (backup to prevent data loss)
+	syncDataToServer: () => void
 }
 
 export const useStore = create<StoreState>()(
 	persist(
-		(set) => ({
+		(set, get) => ({
 			// Language
 			language: 'vi',
 			setLanguage: (language) => set({ language }),
@@ -59,29 +63,53 @@ export const useStore = create<StoreState>()(
 			setTheme: (theme) => set({ theme }),
 			
 			// Products
-			products: [],
+			products: initialProducts,
 			setProducts: (products) => set({ products }),
-			addProduct: (product) => set((state) => ({ products: [...state.products, product] })),
-			updateProduct: (id, product) => set((state) => ({
-				products: state.products.map((p) => p.id === id ? { ...p, ...product } : p)
-			})),
-			deleteProduct: (id) => set((state) => ({
-				products: state.products.filter((p) => p.id !== id)
-			})),
+			addProduct: (product) => {
+				set((state) => ({ products: [...state.products, product] }))
+				// Try to sync after changes
+				setTimeout(() => get().syncDataToServer(), 500)
+			},
+			updateProduct: (id, product) => {
+				set((state) => ({
+					products: state.products.map((p) => p.id === id ? { ...p, ...product } : p)
+				}))
+				// Try to sync after changes
+				setTimeout(() => get().syncDataToServer(), 500)
+			},
+			deleteProduct: (id) => {
+				set((state) => ({
+					products: state.products.filter((p) => p.id !== id)
+				}))
+				// Try to sync after changes
+				setTimeout(() => get().syncDataToServer(), 500)
+			},
 			
 			// FAQ Articles
-			faqArticles: [],
+			faqArticles: initialFAQArticles,
 			setFaqArticles: (articles) => set({ faqArticles: articles }),
-			addFaqArticle: (article) => set((state) => ({ faqArticles: [...state.faqArticles, article] })),
-			updateFaqArticle: (id, article) => set((state) => ({
-				faqArticles: state.faqArticles.map((a) => a.id === id ? { ...a, ...article } : a)
-			})),
-			deleteFaqArticle: (id) => set((state) => ({
-				faqArticles: state.faqArticles.filter((a) => a.id !== id)
-			})),
+			addFaqArticle: (article) => {
+				set((state) => ({ faqArticles: [...state.faqArticles, article] }))
+				// Try to sync after changes
+				setTimeout(() => get().syncDataToServer(), 500)
+			},
+			updateFaqArticle: (id, article) => {
+				set((state) => ({
+					faqArticles: state.faqArticles.map((a) => a.id === id ? { ...a, ...article } : a)
+				}))
+				// Try to sync after changes
+				setTimeout(() => get().syncDataToServer(), 500)
+			},
+			deleteFaqArticle: (id) => {
+				set((state) => ({
+					faqArticles: state.faqArticles.filter((a) => a.id !== id)
+				}))
+				// Try to sync after changes
+				setTimeout(() => get().syncDataToServer(), 500)
+			},
 			
 			// Social Links
-			socialLinks: [],
+			socialLinks: initialSocialLinks,
 			setSocialLinks: (links) => set({ socialLinks: links }),
 			updateSocialLink: (id, link) => set((state) => ({
 				socialLinks: state.socialLinks.map((l) => l.id === id ? { ...l, ...link } : l)
@@ -116,9 +144,30 @@ export const useStore = create<StoreState>()(
 			// Admin
 			isAdminAuthenticated: false,
 			setAdminAuthenticated: (authenticated) => set({ isAdminAuthenticated: authenticated }),
+
+			// Sync data to server 
+			syncDataToServer: () => {
+				try {
+					// We're just making sure data is properly saved to localStorage
+					// In a real implementation, this could call an API endpoint
+					const state = get()
+					// Force localStorage update by creating a backup manually
+					localStorage.setItem('shineshop-backup', JSON.stringify({
+						products: state.products,
+						faqArticles: state.faqArticles,
+						socialLinks: state.socialLinks,
+						paymentInfo: state.paymentInfo,
+						siteConfig: state.siteConfig,
+						tosContent: state.tosContent,
+						timestamp: new Date().toISOString()
+					}))
+				} catch (error) {
+					console.error('Failed to sync data:', error)
+				}
+			}
 		}),
 		{
-			name: 'shineshop-storage-v2',
+			name: 'shineshop-storage-v3', // Updated version to avoid conflicts
 			storage: createJSONStorage(() => localStorage),
 			partialize: (state) => ({
 				language: state.language,

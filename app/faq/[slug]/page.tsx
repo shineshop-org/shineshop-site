@@ -1,11 +1,15 @@
-import React from 'react'
-import { notFound } from 'next/navigation'
+'use client'
+
+import React, { useEffect, useState } from 'react'
+import { notFound, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Tag } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import ReactMarkdown from 'react-markdown'
 import { initialFAQArticles } from '@/app/lib/initial-data'
+import { useStore } from '@/app/lib/store'
+import { FAQArticle } from '@/app/lib/types'
 
 interface FAQArticlePageProps {
 	params: {
@@ -13,18 +17,37 @@ interface FAQArticlePageProps {
 	}
 }
 
-export function generateStaticParams() {
-	return initialFAQArticles.map((article) => ({
-		slug: article.slug,
-	}))
-}
-
 export default function FAQArticlePage({ params }: FAQArticlePageProps) {
-	// Get the article directly from initialFAQArticles since this is a server component
-	const article = initialFAQArticles.find(a => a.slug === params.slug)
+	const { faqArticles } = useStore()
+	const [article, setArticle] = useState<FAQArticle | null>(null)
+	const router = useRouter()
 	
+	useEffect(() => {
+		// Try to find the article in the store first
+		const storeArticle = faqArticles.find(a => a.slug === params.slug)
+		
+		if (storeArticle) {
+			setArticle(storeArticle)
+		} else {
+			// Fallback to initial data if not found in store
+			const initialArticle = initialFAQArticles.find(a => a.slug === params.slug)
+			
+			if (initialArticle) {
+				setArticle(initialArticle)
+			} else {
+				// Article not found at all
+				router.push('/404')
+			}
+		}
+	}, [params.slug, faqArticles, router])
+	
+	// Show loading state while fetching article
 	if (!article) {
-		notFound()
+		return (
+			<div className="max-w-4xl mx-auto py-8 flex justify-center items-center min-h-[50vh]">
+				<p>Loading article...</p>
+			</div>
+		)
 	}
 	
 	return (

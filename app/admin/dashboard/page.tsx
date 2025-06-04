@@ -135,6 +135,9 @@ export default function AdminDashboardPage() {
 		
 		setProductDialog(false)
 		resetProductForm()
+		
+		// Force sync to ensure data is saved
+		useStore.getState().syncDataToServer()
 	}
 	
 	const handleSaveFAQ = () => {
@@ -157,6 +160,9 @@ export default function AdminDashboardPage() {
 		
 		setFaqDialog(false)
 		resetFAQForm()
+		
+		// Force sync to ensure data is saved
+		useStore.getState().syncDataToServer()
 	}
 	
 	const handleSaveSettings = () => {
@@ -179,6 +185,9 @@ export default function AdminDashboardPage() {
 		})
 		
 		setTosContent(settingsForm.tosContent)
+		
+		// Force sync to ensure data is saved
+		useStore.getState().syncDataToServer()
 		
 		alert('Đã lưu cài đặt thành công!')
 	}
@@ -287,6 +296,14 @@ export default function AdminDashboardPage() {
 					>
 						<ShoppingBag className="mr-2 h-4 w-4" />
 						{t('products')}
+					</Button>
+					<Button 
+						variant={activeTab === 'faq' ? 'default' : 'ghost'} 
+						className="justify-start"
+						onClick={() => setActiveTab('faq')}
+					>
+						<FileText className="mr-2 h-4 w-4" />
+						{t('faq')}
 					</Button>
 					<Button 
 						variant={activeTab === 'settings' ? 'default' : 'ghost'} 
