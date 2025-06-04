@@ -67,9 +67,16 @@
 		@apply bg-background text-foreground;
 	}
 	
-	/* Smooth transitions for theme switching */
+	/* Default short transition for better performance */
 	* {
 		@apply transition-colors duration-200;
+	}
+	
+	/* Enhanced transition for theme switching */
+	.theme-transition * {
+		transition-duration: 1000ms !important;
+		transition-property: background-color, border-color, color, fill, stroke !important;
+		transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
 	}
 	
 	/* Button transitions */
