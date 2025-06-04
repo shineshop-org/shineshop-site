@@ -90,7 +90,7 @@ export function Navbar() {
 								alt="Shine Shop"
 								width={40}
 								height={40}
-								className="h-10 w-10"
+								className="h-auto w-auto max-h-10"
 								priority
 							/>
 						</div>
