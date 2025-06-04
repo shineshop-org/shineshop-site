@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { HelpCircle } from 'lucide-react'
@@ -34,8 +34,32 @@ const USFlag = () => (
 export function Navbar() {
 	const { language, setLanguage } = useStore()
 	const { t } = useTranslation()
-	const { resolvedTheme } = useTheme()
-	const isDarkTheme = resolvedTheme === 'dark'
+	const { theme, resolvedTheme } = useTheme()
+	const [currentTheme, setCurrentTheme] = useState('light')
+	
+	useEffect(() => {
+		// Set the initial theme
+		const isDark = resolvedTheme === 'dark'
+		setCurrentTheme(isDark ? 'dark' : 'light')
+		
+		// Create an observer for theme changes
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.attributeName === 'class') {
+					const isDarkNow = document.documentElement.classList.contains('dark')
+					setCurrentTheme(isDarkNow ? 'dark' : 'light')
+				}
+			})
+		})
+		
+		// Start observing theme changes
+		observer.observe(document.documentElement, { attributes: true })
+		
+		// Cleanup
+		return () => observer.disconnect()
+	}, [resolvedTheme])
+	
+	const isDarkTheme = currentTheme === 'dark'
 	
 	const toggleLanguage = () => {
 		setLanguage(language === 'en' ? 'vi' : 'en')
