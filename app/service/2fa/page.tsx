@@ -6,10 +6,9 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 export default function TwoFactorAuthPage() {
-	const router = useRouter()
 	const searchParams = useSearchParams()
 	const { t } = useTranslation()
 	const [secret, setSecret] = useState('')
@@ -22,29 +21,49 @@ export default function TwoFactorAuthPage() {
 		return input.toUpperCase().replace(/\s+/g, '')
 	}
 
-	// Set initial secret from URL path or query params if available
-	useEffect(() => {
-		const path = window.location.pathname
-		const match = path.match(/\/service\/2fa\/(.+)/)
-		
-		if (match && match[1]) {
+	// Extract secret from URL path
+	const extractSecretFromUrl = () => {
+		// Only run in browser
+		if (typeof window !== 'undefined') {
 			try {
-				const decodedSecret = decodeURIComponent(match[1])
-				setSecret(formatInput(decodedSecret))
+				const path = window.location.pathname
+				const segments = path.split('/')
+				
+				// Check if there's a path segment after /service/2fa/
+				if (segments.length > 3 && segments[1] === 'service' && segments[2] === '2fa') {
+					const urlSecret = segments[3]
+					if (urlSecret) {
+						return formatInput(decodeURIComponent(urlSecret))
+					}
+				}
 			} catch (e) {
-				console.error('Error decoding URL parameter:', e)
+				console.error('Error extracting secret from URL:', e)
 			}
+		}
+		return ''
+	}
+
+	// Set initial secret from URL path if available
+	useEffect(() => {
+		const urlSecret = extractSecretFromUrl()
+		if (urlSecret) {
+			setSecret(urlSecret)
 		}
 	}, [])
 	
-	// Update URL when secret changes
+	// Update URL when secret changes, without navigation
 	useEffect(() => {
-		if (secret) {
-			const newUrl = `/service/2fa/${encodeURIComponent(secret)}`
-			// Use history.replaceState to avoid adding new history entries
-			window.history.replaceState({ path: newUrl }, '', newUrl)
-		} else {
-			window.history.replaceState({ path: '/service/2fa' }, '', '/service/2fa')
+		if (typeof window !== 'undefined') {
+			try {
+				if (secret) {
+					const newUrl = `/service/2fa/${encodeURIComponent(secret)}`
+					window.history.replaceState({ path: newUrl }, '', newUrl)
+				} else {
+					window.history.replaceState({ path: '/service/2fa' }, '', '/service/2fa')
+				}
+			} catch (e) {
+				console.error('Error updating URL:', e)
+			}
 		}
 	}, [secret])
 
