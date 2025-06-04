@@ -8,6 +8,7 @@ import { useStore } from '@/app/lib/store'
 import { Button } from '@/app/components/ui/button'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { ThemeSwitch } from '@/app/components/theme-switch'
+import { useTheme } from 'next-themes'
 
 // Flag SVG Components
 const VietnamFlag = () => (
@@ -33,6 +34,8 @@ const USFlag = () => (
 export function Navbar() {
 	const { language, setLanguage } = useStore()
 	const { t } = useTranslation()
+	const { resolvedTheme } = useTheme()
+	const isDarkTheme = resolvedTheme === 'dark'
 	
 	const toggleLanguage = () => {
 		setLanguage(language === 'en' ? 'vi' : 'en')
@@ -47,7 +50,7 @@ export function Navbar() {
 						{/* Wide logo for large screens */}
 						<div className="hidden lg:block">
 							<Image
-								src="/newLogo_noBackground_Color_wide.png"
+								src={isDarkTheme ? "/logo-wide-dark-mode.png" : "/logo-wide-light-mode.png"}
 								alt="Shine Shop"
 								width={120}
 								height={40}
@@ -59,7 +62,7 @@ export function Navbar() {
 						{/* Square logo for small screens */}
 						<div className="lg:hidden">
 							<Image
-								src="/newLogo_noBackground_Color.png"
+								src={isDarkTheme ? "/logo-dark-mode.png" : "/logo-light-mode.png"}
 								alt="Shine Shop"
 								width={40}
 								height={40}
