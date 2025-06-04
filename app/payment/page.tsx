@@ -104,48 +104,61 @@ export default function PaymentPage() {
 			
 			{/* Wise Payment */}
 			{selectedMethod === 'wise' && (
-				<div className="max-w-2xl mx-auto">
+				<div className="max-w-6xl mx-auto">
 					<Card>
 						<CardHeader>
 							<CardTitle className="text-center">Wise Transfer</CardTitle>
 						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="text-center p-8 bg-green-50 dark:bg-green-950 rounded-lg">
-								<Globe className="h-16 w-16 text-green-500 mx-auto mb-4" />
-								<h3 className="text-xl font-semibold mb-2">International Transfer via Wise</h3>
-								<p className="text-muted-foreground mb-4">Fast, secure, and low-cost international transfers</p>
-							</div>
-							
-							<div className="space-y-3">
-								<div className="p-4 bg-secondary rounded-lg">
-									<p className="text-sm text-muted-foreground mb-1">Email</p>
-									<div className="flex justify-between items-center">
-										<p className="font-medium">{paymentInfo.wiseEmail}</p>
-										<Button
-											onClick={() => handleCopy(paymentInfo.wiseEmail)}
-											size="sm"
-											variant="ghost"
-										>
-											<Copy className="h-4 w-4" />
-										</Button>
+						<CardContent>
+							<div className="flex flex-col md:flex-row gap-6">
+								{/* QR Code on the left */}
+								<div className="flex-1 flex flex-col items-center justify-center p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+									<div className="relative w-48 h-48 mb-3">
+										<Image
+											src="/wise-qr.png"
+											alt="Wise QR Code"
+											fill
+											className="object-contain"
+											unoptimized
+										/>
+									</div>
+									<p className="text-sm text-center text-muted-foreground">Scan QR code to transfer</p>
+								</div>
+								
+								{/* Transfer Information on the right */}
+								<div className="flex-1 space-y-4">
+									<div className="space-y-3">
+										<div className="p-4 bg-secondary rounded-lg">
+											<p className="text-sm text-muted-foreground mb-1">Email</p>
+											<div className="flex justify-between items-center">
+												<p className="font-medium">{paymentInfo.wiseEmail}</p>
+												<Button
+													onClick={() => handleCopy(paymentInfo.wiseEmail)}
+													size="sm"
+													variant="ghost"
+												>
+													<Copy className="h-4 w-4" />
+												</Button>
+											</div>
+										</div>
+										
+										<div className="p-4 bg-secondary rounded-lg">
+											<p className="text-sm text-muted-foreground mb-1">Currency</p>
+											<p className="font-medium">USD, EUR, GBP accepted</p>
+										</div>
+										
+										<div className="p-4 bg-secondary rounded-lg">
+											<p className="text-sm text-muted-foreground mb-1">Processing Time</p>
+											<p className="font-medium">Usually within 24 hours</p>
+										</div>
+									</div>
+									
+									<div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+										<p className="text-sm text-blue-800 dark:text-blue-200">
+											<strong>Instructions:</strong> Send payment to the email above using Wise. Include your order number in the reference field.
+										</p>
 									</div>
 								</div>
-								
-								<div className="p-4 bg-secondary rounded-lg">
-									<p className="text-sm text-muted-foreground mb-1">Currency</p>
-									<p className="font-medium">USD, EUR, GBP accepted</p>
-								</div>
-								
-								<div className="p-4 bg-secondary rounded-lg">
-									<p className="text-sm text-muted-foreground mb-1">Processing Time</p>
-									<p className="font-medium">Usually within 24 hours</p>
-								</div>
-							</div>
-							
-							<div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-								<p className="text-sm text-blue-800 dark:text-blue-200">
-									<strong>Instructions:</strong> Send payment to the email above using Wise. Include your order number in the reference field.
-								</p>
 							</div>
 						</CardContent>
 					</Card>
@@ -154,55 +167,61 @@ export default function PaymentPage() {
 			
 			{/* PayPal Payment */}
 			{selectedMethod === 'paypal' && (
-				<div className="max-w-2xl mx-auto">
+				<div className="max-w-6xl mx-auto">
 					<Card>
 						<CardHeader>
 							<CardTitle className="text-center">PayPal Payment</CardTitle>
 						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="text-center p-8 bg-indigo-50 dark:bg-indigo-950 rounded-lg">
-								<div className="w-32 h-32 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-									<span className="text-white text-4xl font-bold">PP</span>
+						<CardContent>
+							<div className="flex flex-col md:flex-row gap-6">
+								{/* QR Code on the left */}
+								<div className="flex-1 flex flex-col items-center justify-center p-4 bg-indigo-50 dark:bg-indigo-950 rounded-lg">
+									<div className="relative w-48 h-48 mb-3">
+										<Image
+											src="/paypal-qr.png"
+											alt="PayPal QR Code"
+											fill
+											className="object-contain"
+											unoptimized
+										/>
+									</div>
+									<p className="text-sm text-center text-muted-foreground">Scan QR code to pay with PayPal</p>
 								</div>
-								<h3 className="text-xl font-semibold mb-2">Pay with PayPal</h3>
-								<p className="text-muted-foreground mb-4">Secure payment protected by PayPal</p>
-							</div>
-							
-							<div className="space-y-3">
-								<div className="p-4 bg-secondary rounded-lg">
-									<p className="text-sm text-muted-foreground mb-1">PayPal Email</p>
-									<div className="flex justify-between items-center">
-										<p className="font-medium">{paymentInfo.paypalEmail}</p>
-										<Button
-											onClick={() => handleCopy(paymentInfo.paypalEmail)}
-											size="sm"
-											variant="ghost"
-										>
-											<Copy className="h-4 w-4" />
-										</Button>
+								
+								{/* Transfer Information on the right */}
+								<div className="flex-1 space-y-4">
+									<div className="space-y-3">
+										<div className="p-4 bg-secondary rounded-lg">
+											<p className="text-sm text-muted-foreground mb-1">PayPal Email</p>
+											<div className="flex justify-between items-center">
+												<p className="font-medium">{paymentInfo.paypalEmail}</p>
+												<Button
+													onClick={() => handleCopy(paymentInfo.paypalEmail)}
+													size="sm"
+													variant="ghost"
+												>
+													<Copy className="h-4 w-4" />
+												</Button>
+											</div>
+										</div>
+										
+										<div className="p-4 bg-secondary rounded-lg">
+											<p className="text-sm text-muted-foreground mb-1">Payment Type</p>
+											<p className="font-medium">Friends & Family or Goods & Services</p>
+										</div>
+										
+										<div className="p-4 bg-secondary rounded-lg">
+											<p className="text-sm text-muted-foreground mb-1">Accepted Currencies</p>
+											<p className="font-medium">All major currencies</p>
+										</div>
+									</div>
+									
+									<div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+										<p className="text-sm text-purple-800 dark:text-purple-200">
+											<strong>Note:</strong> Please include your order details in the PayPal note section. Buyer protection available.
+										</p>
 									</div>
 								</div>
-								
-								<div className="p-4 bg-secondary rounded-lg">
-									<p className="text-sm text-muted-foreground mb-1">Payment Type</p>
-									<p className="font-medium">Friends & Family or Goods & Services</p>
-								</div>
-								
-								<div className="p-4 bg-secondary rounded-lg">
-									<p className="text-sm text-muted-foreground mb-1">Accepted Currencies</p>
-									<p className="font-medium">All major currencies</p>
-								</div>
-							</div>
-							
-							<Button className="w-full" size="lg">
-								<DollarSign className="mr-2 h-5 w-5" />
-								Send Payment via PayPal
-							</Button>
-							
-							<div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
-								<p className="text-sm text-purple-800 dark:text-purple-200">
-									<strong>Note:</strong> Please include your order details in the PayPal note section. Buyer protection available.
-								</p>
 							</div>
 						</CardContent>
 					</Card>

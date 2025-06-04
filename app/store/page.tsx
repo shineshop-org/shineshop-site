@@ -201,7 +201,7 @@ function ProductCard({ product, language }: ProductCardProps) {
 						{product.name}
 					</h3>
 					<div className="flex items-center justify-end gap-1">
-						<span className="text-xs text-muted-foreground">
+						<span className="text-xs text-muted-foreground self-end mb-0.5">
 							{language === 'vi' ? 'chỉ từ' : 'from'}
 						</span>
 						<p className="text-lg font-bold bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
