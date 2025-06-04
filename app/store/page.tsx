@@ -140,6 +140,12 @@ interface ProductCardProps {
 		name: string
 		price: number
 		image: string
+		options?: {
+			id: string
+			name: string
+			type: 'select' | 'radio'
+			values: string[]
+		}[]
 	}
 	language: string
 }
@@ -148,6 +154,26 @@ function ProductCard({ product, language }: ProductCardProps) {
 	const cardRef = useRef<HTMLDivElement>(null)
 	const [transform, setTransform] = useState('')
 	const [isHovered, setIsHovered] = useState(false)
+	
+	// Calculate lowest price from options
+	const getLowestPrice = () => {
+		if (!product.options || product.options.length === 0) {
+			return product.price
+		}
+		
+		const optionValues = product.options.flatMap(option => 
+			option.values.map(value => {
+				const priceMatch = value.match(/.*?[- ]\$?(\d+(?:\.\d+)?)$/)
+				return priceMatch ? parseFloat(priceMatch[1]) : Infinity
+			})
+		)
+		
+		const lowestPrice = optionValues.length > 0 
+			? Math.min(...optionValues.filter(price => price !== Infinity))
+			: product.price
+			
+		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
+	}
 	
 	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
 		if (!cardRef.current) return
@@ -205,7 +231,7 @@ function ProductCard({ product, language }: ProductCardProps) {
 							{language === 'vi' ? 'chỉ từ' : 'from'}
 						</span>
 						<p className="text-lg font-bold bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-							{formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US')}
+							{formatPrice(getLowestPrice(), language === 'vi' ? 'vi-VN' : 'en-US')}
 						</p>
 					</div>
 				</CardContent>

@@ -439,4 +439,62 @@ export const translations: Translations = {
 		en: 'Generate time-based one-time passwords (TOTP) for two-factor authentication',
 		vi: 'Tạo mật khẩu một lần dựa trên thời gian (TOTP) cho xác thực hai yếu tố'
 	},
+	
+	// Product card order
+	productCards: {
+		en: 'Product Cards',
+		vi: 'Thẻ sản phẩm'
+	},
+	productCardsOrder: {
+		en: 'Product Cards Order',
+		vi: 'Thứ tự thẻ sản phẩm'  
+	},
+	productCardsOrderDescription: {
+		en: 'Adjust the display order of product cards. Products with lower numbers will be displayed first.',
+		vi: 'Điều chỉnh thứ tự hiển thị của thẻ sản phẩm. Sản phẩm có số thứ tự thấp hơn sẽ được hiển thị trước.'
+	},
+	editCardSortOrder: {
+		en: 'Edit Card Display Order',
+		vi: 'Chỉnh sửa thứ tự hiển thị thẻ'
+	},
+	sortOrderExists: {
+		en: 'This sort order is already used by another product',
+		vi: 'Thứ tự này đã được sử dụng bởi sản phẩm khác'
+	},
+	sortOrderHint: {
+		en: 'Lower numbers will be displayed first in the store',
+		vi: 'Số thứ tự thấp hơn sẽ được hiển thị trước trong cửa hàng'
+	},
+	moreOptions: {
+		en: 'more options',
+		vi: 'tùy chọn khác'
+	},
+	productOptions: {
+		en: 'Product Options',
+		vi: 'Tùy chọn sản phẩm'
+	},
+	addOption: {
+		en: 'Add Option',
+		vi: 'Thêm tùy chọn'
+	},
+	optionName: {
+		en: 'Option Name',
+		vi: 'Tên tùy chọn'
+	},
+	optionType: {
+		en: 'Option Type',
+		vi: 'Loại tùy chọn'
+	},
+	optionValues: {
+		en: 'Option Values',
+		vi: 'Giá trị tùy chọn'
+	},
+	addValue: {
+		en: 'Add Value',
+		vi: 'Thêm giá trị'
+	},
+	optionPriceFormat: {
+		en: 'Add prices to options with format: "Option - $price" (e.g. "Red - $10")',
+		vi: 'Thêm giá cho tùy chọn với định dạng: "Tùy chọn - $giá" (vd: "Đỏ - $10")'
+	},
 } 

@@ -10,6 +10,7 @@ import { initialFAQArticles } from '@/app/lib/initial-data'
 import { formatPrice } from '@/app/lib/utils'
 import { useStore } from '@/app/lib/store'
 import { Product, FAQArticle } from '@/app/lib/types'
+import ReactMarkdown from 'react-markdown'
 
 interface ProductClientProps {
 	slug: string
@@ -20,6 +21,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const { products, faqArticles } = useStore()
 	const [product, setProduct] = useState<Product>(initialProduct)
 	const [relatedArticles, setRelatedArticles] = useState<FAQArticle[]>([])
+	const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
 	
 	useEffect(() => {
 		// Try to find the product in the store
@@ -28,6 +30,17 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		// Update with store data if available
 		if (storeProduct) {
 			setProduct(storeProduct)
+			
+			// Initialize selected options
+			if (storeProduct.options && storeProduct.options.length > 0) {
+				const initialOptions: Record<string, string> = {}
+				storeProduct.options.forEach(option => {
+					if (option.values.length > 0) {
+						initialOptions[option.id] = ''
+					}
+				})
+				setSelectedOptions(initialOptions)
+			}
 			
 			// Find related articles from store
 			if (storeProduct.relatedArticles && storeProduct.relatedArticles.length > 0) {
@@ -44,8 +57,47 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				)
 				setRelatedArticles(related)
 			}
+			
+			// Initialize selected options for initial product
+			if (initialProduct.options && initialProduct.options.length > 0) {
+				const initialOptions: Record<string, string> = {}
+				initialProduct.options.forEach(option => {
+					if (option.values.length > 0) {
+						initialOptions[option.id] = ''
+					}
+				})
+				setSelectedOptions(initialOptions)
+			}
 		}
 	}, [slug, products, faqArticles, initialProduct])
+	
+	// Handle option selection
+	const handleOptionChange = (optionId: string, value: string) => {
+		setSelectedOptions(prev => ({
+			...prev,
+			[optionId]: value
+		}))
+	}
+	
+	// Extract the lowest price from product options
+	const getLowestPrice = () => {
+		if (!product.options || product.options.length === 0) {
+			return product.price
+		}
+		
+		const optionValues = product.options.flatMap(option => 
+			option.values.map(value => {
+				const priceMatch = value.match(/.*?[- ]\$?(\d+(?:\.\d+)?)$/)
+				return priceMatch ? parseFloat(priceMatch[1]) : Infinity
+			})
+		)
+		
+		const lowestPrice = optionValues.length > 0 
+			? Math.min(...optionValues.filter(price => price !== Infinity))
+			: product.price
+			
+		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
+	}
 	
 	return (
 		<div className="max-w-7xl mx-auto py-8 page-transition">
@@ -70,7 +122,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					<div>
 						<h1 className="text-3xl font-bold">{product.name}</h1>
 						<p className="text-2xl font-semibold text-primary mt-4">
-							{formatPrice(product.price, 'en-US')}
+							{formatPrice(getLowestPrice(), 'en-US')}
 						</p>
 					</div>
 					
@@ -83,7 +135,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									{option.type === 'select' ? (
 										<select
 											className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 transition-colors"
-											defaultValue=""
+											value={selectedOptions[option.id] || ''}
+											onChange={(e) => handleOptionChange(option.id, e.target.value)}
 										>
 											<option value="" disabled>Select {option.name}</option>
 											{option.values.map((value) => (
@@ -98,6 +151,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 														type="radio"
 														name={option.id}
 														value={value}
+														checked={selectedOptions[option.id] === value}
+														onChange={() => handleOptionChange(option.id, value)}
 														className="w-4 h-4"
 													/>
 													<span>{value}</span>
@@ -155,9 +210,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						</CardHeader>
 						<CardContent>
 							{product.description ? (
-								<p className="text-muted-foreground whitespace-pre-wrap">
-									{product.description}
-								</p>
+								<div className="prose dark:prose-invert prose-sm max-w-none">
+									<ReactMarkdown>
+										{product.description}
+									</ReactMarkdown>
+								</div>
 							) : (
 								<p className="text-muted-foreground/50 italic">
 									No description available for this product
@@ -182,7 +239,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 										className="block p-3 rounded-md hover:bg-accent dark:hover:bg-primary/20 transition-all duration-200"
 									>
 										<h4 className="font-medium line-clamp-2">{article.title}</h4>
-										<div className="flex items-center mt-1 text-sm text-muted-foreground">
+										<p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+											{article.content.substring(0, 100)}...
+										</p>
+										<div className="flex items-center mt-2 text-sm text-muted-foreground">
 											<ExternalLink className="mr-1 h-3 w-3" />
 											Read More
 										</div>
