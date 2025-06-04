@@ -36,6 +36,15 @@ export interface FAQArticle {
 	createdAt: Date
 	updatedAt: Date
 	tags: string[]
+	isLocalized?: boolean
+	localizedTitle?: {
+		en: string
+		vi: string
+	}
+	localizedContent?: {
+		en: string
+		vi: string
+	}
 }
 
 export interface SocialLink {

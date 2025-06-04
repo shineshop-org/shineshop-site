@@ -194,6 +194,10 @@ export const translations: Translations = {
 		en: 'Switch to Vietnamese',
 		vi: 'Chuyển sang tiếng Việt'
 	},
+	currentlyEditing: {
+		en: 'Currently editing',
+		vi: 'Đang chỉnh sửa'
+	},
 	languageSettings: {
 		en: 'Language Settings',
 		vi: 'Cài đặt ngôn ngữ'

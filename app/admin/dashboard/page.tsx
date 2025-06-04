@@ -563,7 +563,9 @@ export default function AdminDashboardPage() {
 							onClick={toggleLanguage}
 						>
 							<Globe className="mr-2 h-4 w-4" />
-							{language === 'en' ? t('switchToVietnamese') : t('switchToEnglish')}
+							{language === 'en' 
+								? <span className="flex items-center"><VietnamFlag className="mr-1" /> {t('switchToVietnamese')}</span> 
+								: <span className="flex items-center"><USFlag className="mr-1" /> {t('switchToEnglish')}</span>}
 						</Button>
 					</div>
 				</div>
@@ -709,15 +711,35 @@ export default function AdminDashboardPage() {
 										</DialogDescription>
 									</DialogHeader>
 									<div className="space-y-4 py-4">
-										<div className="flex items-center space-x-2 mb-4 pb-4 border-b">
-											<input
-												type="checkbox"
-												id="isLocalized"
-												className="h-4 w-4"
-												checked={productForm.isLocalized}
-												onChange={(e) => setProductForm({...productForm, isLocalized: e.target.checked})}
-											/>
-											<label htmlFor="isLocalized" className="font-medium">{t('enableLocalization')}</label>
+										<div className="flex items-center justify-between space-x-2 mb-4 pb-4 border-b">
+											<div className="flex items-center space-x-2">
+												<input
+													type="checkbox"
+													id="isLocalized"
+													className="h-4 w-4"
+													checked={productForm.isLocalized}
+													onChange={(e) => setProductForm({...productForm, isLocalized: e.target.checked})}
+												/>
+												<label htmlFor="isLocalized" className="font-medium">{t('enableLocalization')}</label>
+											</div>
+											{productForm.isLocalized && (
+												<div className="flex items-center">
+													<span className="mr-2 text-sm text-muted-foreground">{t('currentlyEditing')}:</span>
+													<div className="flex items-center">
+														{language === 'en' ? (
+															<div className="flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900/30 rounded">
+																<USFlag />
+																<span className="ml-2 font-medium">English</span>
+															</div>
+														) : (
+															<div className="flex items-center px-2 py-1 bg-red-100 dark:bg-red-900/30 rounded">
+																<VietnamFlag />
+																<span className="ml-2 font-medium">Tiếng Việt</span>
+															</div>
+														)}
+													</div>
+												</div>
+											)}
 										</div>
 										<div className="space-y-2">
 											<label>{t('name')}</label>
@@ -727,40 +749,29 @@ export default function AdminDashboardPage() {
 													onChange={(e) => setProductForm({...productForm, name: e.target.value})}
 												/>
 											) : (
-												<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-													<div>
-														<div className="flex items-center mb-1">
-															<VietnamFlag />
-															<span className="ml-2 text-sm font-medium">Vietnamese</span>
-														</div>
-														<Input 
-															value={productForm.localizedName.vi} 
-															onChange={(e) => setProductForm({
-																...productForm, 
-																localizedName: {
-																	...productForm.localizedName,
-																	vi: e.target.value
-																}
-															})}
-														/>
-													</div>
-													<div>
-														<div className="flex items-center mb-1">
-															<USFlag />
-															<span className="ml-2 text-sm font-medium">English</span>
-														</div>
-														<Input 
-															value={productForm.localizedName.en} 
-															onChange={(e) => setProductForm({
+												<Input 
+													value={language === 'en' ? productForm.localizedName.en : productForm.localizedName.vi} 
+													onChange={(e) => {
+														if (language === 'en') {
+															setProductForm({
 																...productForm, 
 																localizedName: {
 																	...productForm.localizedName,
 																	en: e.target.value
 																}
-															})}
-														/>
-													</div>
-												</div>
+															})
+														} else {
+															setProductForm({
+																...productForm, 
+																localizedName: {
+																	...productForm.localizedName,
+																	vi: e.target.value
+																}
+															})
+														}
+													}}
+													placeholder={language === 'en' ? "Product name in English" : "Tên sản phẩm bằng tiếng Việt"}
+												/>
 											)}
 										</div>
 										<div className="space-y-2">
@@ -885,44 +896,32 @@ export default function AdminDashboardPage() {
 													placeholder="Product description in Markdown format..."
 												/>
 											) : (
-												<div className="grid grid-cols-1 gap-4">
-													<div>
-														<div className="flex items-center mb-1">
-															<VietnamFlag />
-															<span className="ml-2 text-sm font-medium">Vietnamese</span>
-														</div>
-														<textarea 
-															className="w-full p-2 border rounded-md min-h-[200px]"
-															value={productForm.localizedDescription.vi} 
-															onChange={(e) => setProductForm({
-																...productForm, 
-																localizedDescription: {
-																	...productForm.localizedDescription,
-																	vi: e.target.value
-																}
-															})}
-															placeholder="Mô tả sản phẩm bằng tiếng Việt (định dạng Markdown)..."
-														/>
-													</div>
-													<div>
-														<div className="flex items-center mb-1">
-															<USFlag />
-															<span className="ml-2 text-sm font-medium">English</span>
-														</div>
-														<textarea 
-															className="w-full p-2 border rounded-md min-h-[200px]"
-															value={productForm.localizedDescription.en} 
-															onChange={(e) => setProductForm({
+												<textarea 
+													className="w-full p-2 border rounded-md min-h-[200px]"
+													value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
+													onChange={(e) => {
+														if (language === 'en') {
+															setProductForm({
 																...productForm, 
 																localizedDescription: {
 																	...productForm.localizedDescription,
 																	en: e.target.value
 																}
-															})}
-															placeholder="Product description in English (Markdown format)..."
-														/>
-													</div>
-												</div>
+															})
+														} else {
+															setProductForm({
+																...productForm, 
+																localizedDescription: {
+																	...productForm.localizedDescription,
+																	vi: e.target.value
+																}
+															})
+														}
+													}}
+													placeholder={language === 'en' 
+														? "Product description in English (Markdown format)..." 
+														: "Mô tả sản phẩm bằng tiếng Việt (định dạng Markdown)..."}
+												/>
 											)}
 										</div>
 										
