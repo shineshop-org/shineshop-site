@@ -145,7 +145,7 @@
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
 	background-size: 1000% 100%;
-	animation: jshine 15s linear infinite;
+	animation: jshine 9s linear infinite;
 }
 
 @keyframes jshine {

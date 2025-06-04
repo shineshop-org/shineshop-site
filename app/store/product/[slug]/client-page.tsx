@@ -50,16 +50,19 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	return (
 		<div className="max-w-7xl mx-auto py-8 page-transition">
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-				{/* Product Image */}
-				<div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 shadow-lg">
-					<Image
-						src={product.image}
-						alt={product.name}
-						fill
-						className="object-contain p-4"
-						sizes="(max-width: 1024px) 100vw, 50vw"
-						priority
-					/>
+				{/* Product Image with 16:9 aspect ratio */}
+				<div className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900">
+					{/* 16:9 Aspect ratio container */}
+					<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+						<Image
+							src={product.image}
+							alt={product.name}
+							fill
+							className="object-cover"
+							sizes="(max-width: 1024px) 100vw, 50vw"
+							priority
+						/>
+					</div>
 				</div>
 				
 				{/* Product Info */}
