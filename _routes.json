@@ -4,8 +4,9 @@
   "exclude": [],
   "routes": [
     {
-      "src": "/service/2fa/.*",
-      "dest": "/service/2fa"
+      "src": "/service/2fa/(.*)",
+      "dest": "/service/2fa/index.html",
+      "status": 200
     }
   ]
 } 

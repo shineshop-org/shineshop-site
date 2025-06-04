@@ -27,15 +27,7 @@ const nextConfig = {
 		// Dangerously allow production builds to successfully complete even if
 		// your project has type errors.
 		ignoreBuildErrors: true,
-	},
-	// Add experimental rewrites for static hosting (Cloudflare Pages)
-	async exportPathMap(defaultPathMap, { dev, dir, outDir, distDir, buildId }) {
-		return {
-			...defaultPathMap,
-			// Handle any path like /service/2fa/* by serving the 2FA page
-			'/service/2fa/dummy-path': { page: '/service/2fa' },
-		};
-	},
+	}
 }
 
 module.exports = nextConfig 

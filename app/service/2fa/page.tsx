@@ -24,14 +24,18 @@ export default function TwoFactorAuthPage() {
 		// Only run in browser
 		if (typeof window !== 'undefined') {
 			try {
+				// Get the full URL path
 				const path = window.location.pathname
-				const segments = path.split('/')
 				
-				// Check if there's a path segment after /service/2fa/
-				if (segments.length > 3 && segments[1] === 'service' && segments[2] === '2fa') {
-					const urlSecret = segments[3]
-					if (urlSecret) {
-						return formatInput(decodeURIComponent(urlSecret))
+				// Check if we're on the 2FA page
+				if (path.includes('/service/2fa/')) {
+					// Extract everything after the last slash
+					const segments = path.split('/')
+					const lastSegment = segments[segments.length - 1]
+					
+					// Return formatted secret
+					if (lastSegment && lastSegment !== '2fa') {
+						return formatInput(decodeURIComponent(lastSegment))
 					}
 				}
 			} catch (e) {
@@ -43,24 +47,32 @@ export default function TwoFactorAuthPage() {
 
 	// Set initial secret from URL path if available
 	useEffect(() => {
-		const urlSecret = extractSecretFromUrl()
-		if (urlSecret) {
-			setSecret(urlSecret)
-		}
+		// Wait for DOM to be fully loaded
+		const timer = setTimeout(() => {
+			const urlSecret = extractSecretFromUrl()
+			if (urlSecret) {
+				setSecret(urlSecret)
+			}
+		}, 100)
+		
+		return () => clearTimeout(timer)
 	}, [])
 	
 	// Update URL when secret changes, without navigation
 	useEffect(() => {
-		if (typeof window !== 'undefined') {
+		if (typeof window !== 'undefined' && secret) {
 			try {
-				if (secret) {
-					const newUrl = `/service/2fa/${encodeURIComponent(secret)}`
-					window.history.replaceState({ path: newUrl }, '', newUrl)
-				} else {
-					window.history.replaceState({ path: '/service/2fa' }, '', '/service/2fa')
-				}
+				const newUrl = `/service/2fa/${encodeURIComponent(secret)}`
+				// Use history API to update URL without navigation
+				window.history.replaceState({ path: newUrl }, '', newUrl)
 			} catch (e) {
 				console.error('Error updating URL:', e)
+			}
+		} else if (typeof window !== 'undefined') {
+			// If no secret, set URL back to base 2FA page
+			const currentPath = window.location.pathname
+			if (currentPath !== '/service/2fa' && currentPath !== '/service/2fa/') {
+				window.history.replaceState({ path: '/service/2fa' }, '', '/service/2fa')
 			}
 		}
 	}, [secret])
