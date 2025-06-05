@@ -41,7 +41,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			if (storageData) {
 				const parsedData = JSON.parse(storageData);
 				if (parsedData.products && Array.isArray(parsedData.products)) {
-					localStorageProduct = parsedData.products.find(p => p.slug === slug);
+					localStorageProduct = parsedData.products.find((p: any) => p.slug === slug);
 				}
 			}
 			
@@ -51,7 +51,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				if (backupData) {
 					const parsedBackup = JSON.parse(backupData);
 					if (parsedBackup.products && Array.isArray(parsedBackup.products)) {
-						localStorageProduct = parsedBackup.products.find(p => p.slug === slug);
+						localStorageProduct = parsedBackup.products.find((p: any) => p.slug === slug);
 					}
 				}
 			}
@@ -95,7 +95,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			// Initialize selected options from localStorage product
 			if (localStorageProduct.options && localStorageProduct.options.length > 0) {
 				const initialOptions: Record<string, string> = {}
-				localStorageProduct.options.forEach(option => {
+				localStorageProduct.options.forEach((option: any) => {
 					if (option.values.length > 0) {
 						initialOptions[option.id] = option.values[0].value
 					}
@@ -188,24 +188,20 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			return product.price
 		}
 		
-		// Find the selected option values and their prices
-		let selectedPrice = product.price
-		let foundValidPrice = false
-		
-		Object.entries(selectedOptions).forEach(([optionId, selectedValue]) => {
-			if (!selectedValue) return
+		// Tìm giá dựa trên tùy chọn được chọn
+		for (const option of product.options) {
+			// Tìm giá trị được chọn cho tùy chọn này
+			const selectedValue = selectedOptions[option.id]
+			if (!selectedValue) continue
 			
-			const option = product.options?.find(opt => opt.id === optionId)
-			if (option) {
-				const optionValue = option.values.find(val => val.value === selectedValue)
-				if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
-					selectedPrice = optionValue.price
-					foundValidPrice = true
-				}
+			// Tìm thông tin tùy chọn
+			const optionValue = option.values.find(val => val.value === selectedValue)
+			if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
+				return optionValue.price
 			}
-		})
+		}
 		
-		return foundValidPrice ? selectedPrice : product.price
+		return product.price
 	}
 	
 	// Get the product name based on language and localization settings
