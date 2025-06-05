@@ -44,7 +44,31 @@ export const initialProducts: Product[] = [
 		image: 'https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png',
 		category: 'Subscription',
 		slug: 'youtube-premium',
-		sortOrder: 0
+		sortOrder: 0,
+		options: [
+			{
+				id: 'duration',
+				name: 'Thời hạn',
+				type: 'select',
+				values: [
+					{
+						value: '1 tháng',
+						price: 40000,
+						description: '40000đ cho tháng đầu tiên và sau đó là 35000đ nếu bạn gia hạn đúng thời điểm hoặc trước đó'
+					},
+					{
+						value: '3 tháng',
+						price: 100000,
+						description: 'Hỗ trợ sửa lỗi "Không thể tham gia gia đình" do rời gia đình nhiều lần trong 12 tháng.'
+					},
+					{
+						value: '6 tháng',
+						price: 195000,
+						description: ''
+					}
+				]
+			}
+		]
 	},
 	{
 		id: '2',
