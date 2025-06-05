@@ -3,8 +3,9 @@ const isDev = process.env.NODE_ENV === 'development'
 const isDeployment = process.env.CF_PAGES === '1' || process.env.CLOUDFLARE === '1'
 
 const nextConfig = {
-	// Use standalone in development for middleware support, export for production deployment
-	output: isDev ? undefined : 'export',
+	// Configure for Cloudflare Pages deployment
+	output: 'standalone',
+	distDir: '.next',
 	images: {
 		unoptimized: true,
 		remotePatterns: [

@@ -17,16 +17,14 @@ jobs:
           node-version: '22'
           cache: 'npm'
       - name: Install dependencies
-        run: |
-          npm ci --legacy-peer-deps
-          npm install autoprefixer next-themes --legacy-peer-deps
+        run: npm install --force
       - name: Build
-        run: npm run export
+        run: npm run build
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: shineshop-site
-          directory: out
+          directory: .next
           gitHubToken: ${{ secrets.GITHUB_TOKEN }} 

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "npm install autoprefixer next-themes --legacy-peer-deps && next build && cp _redirects out/ && cp _routes.json out/",
+    "export": "npm install --force && next build && cp _redirects out/ && cp _routes.json out/",
     "start": "next start",
     "lint": "next lint",
     "deploy": "npm run build && echo Build completed successfully!"
@@ -47,5 +47,11 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
+  },
+  "overrides": {
+    "next-themes": {
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0"
+    }
   }
 }
