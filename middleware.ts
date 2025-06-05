@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import CryptoJS from 'crypto-js'
 
+// Biến kiểm tra môi trường
+const isDevelopment = process.env.NODE_ENV === 'development'
+
 // Các biến bảo mật - trong môi trường thực tế, đây nên là biến môi trường
 const COOKIE_NAME = 'shineshop_admin_auth'
 const HEADER_NAME = 'X-Shineshop-Admin-Key'
@@ -95,17 +98,21 @@ function checkRateLimit(ip: string): boolean {
   return ipAccess[ip].count <= MAX_ADMIN_ATTEMPTS
 }
 
+// Middleware sẽ nạp (không làm gì cả) trong môi trường production
 export function middleware(request: NextRequest) {
-  // Get the pathname of the request
-  const path = request.nextUrl.pathname
+  // Trong môi trường production, chỉ đơn giản là next()
+  if (!isDevelopment) {
+    return NextResponse.next()
+  }
   
-  // Add Content Security Policy header and other security headers
+  // Phần còn lại của middleware chỉ chạy trong môi trường development
+  const path = request.nextUrl.pathname
   const response = NextResponse.next()
   
-  // Define Content Security Policy
+  // Định nghĩa Content Security Policy
   const cspHeader = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io https://ik.imagekit.io; font-src 'self'; connect-src 'self'; frame-src 'self'; object-src 'none';"
   
-  // Set security headers
+  // Thiết lập header bảo mật
   response.headers.set('Content-Security-Policy', cspHeader)
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('X-Frame-Options', 'DENY')
@@ -155,7 +162,7 @@ export function middleware(request: NextRequest) {
   return response
 }
 
-// Configure the middleware to run on all paths instead of just admin paths
+// Đổi thành chỉ áp dụng cho các route không phải static/asset/api
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 } 

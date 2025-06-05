@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, Save, Code } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -12,7 +12,7 @@ import { Input } from '@/app/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/app/components/ui/dialog'
 import { Product, FAQArticle } from '@/app/lib/types'
 import { generateSlug } from '@/app/lib/utils'
-import { clearAuthCookie, ADMIN_CREDENTIALS, getAuthCookie, verifySpecialToken, ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
+import { ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
 import { Badge } from '@/app/components/ui/badge'
 import { 
 	DndContext, 
@@ -31,12 +31,11 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 
 // Add the jshine-gradient CSS class as in the product page
 const jshineGradientClassName = "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
 
-type TabType = 'products' | 'tos'
+type TabType = 'products' | 'tos' | 'export'
 type ProductTabType = 'details' | 'card-order'
 
 // Sortable item component for drag and drop
@@ -140,6 +139,11 @@ export default function AdminDashboardPage() {
 	const [selectedArticles, setSelectedArticles] = useState<string[]>([])
 	const [sortableProducts, setSortableProducts] = useState<Product[]>([])
 	const [isSaving, setIsSaving] = useState(false)
+	const [exportCode, setExportCode] = useState('')
+	const [showExportDialog, setShowExportDialog] = useState(false)
+	
+	// Kiểm tra môi trường
+	const isDevelopment = process.env.NODE_ENV === 'development'
 	
 	// Setup sensors for drag and drop
 	const sensors = useSensors(
@@ -191,30 +195,16 @@ export default function AdminDashboardPage() {
 	})
 	
 	useEffect(() => {
-		// Kiểm tra cookie đặc biệt
-		const cookies = document.cookie.split(';')
-		const hasAccessCookie = cookies.some(cookie => {
-			const [name] = cookie.trim().split('=')
-			return name === ADMIN_ACCESS_COOKIE.name
-		})
-		
-		// Nếu không có cookie đặc biệt, chuyển hướng đến 404
-		if (!hasAccessCookie) {
-			setTimeout(() => {
-				window.location.href = '/404'
-			}, 100)
+		// Trong môi trường development, tự động thiết lập xác thực mà không cần kiểm tra cookie
+		if (isDevelopment) {
+			setIsLoading(false)
+			setAdminAuthenticated(true)
 			return
 		}
 		
-		// Kiểm tra xác thực
-		const authCookie = getAuthCookie()
-		if (!authCookie || !verifySpecialToken(authCookie)) {
-			router.push('/admin')
-			return
-		}
-		
-		setIsLoading(false)
-	}, [router])
+		// Trong môi trường production, chuyển hướng đến 404
+		router.push('/404')
+	}, [router, isDevelopment, setAdminAuthenticated])
 	
 	// Handle updating selectedArticles when editing product is set
 	useEffect(() => {
@@ -226,9 +216,7 @@ export default function AdminDashboardPage() {
 	}, [editingProduct])
 	
 	const handleLogout = () => {
-		clearAuthCookie()
-		setAdminAuthenticated(false)
-		router.push('/admin')
+		router.push('/')
 	}
 	
 	const toggleLanguage = () => {
@@ -281,260 +269,269 @@ export default function AdminDashboardPage() {
 		}
 	}
 	
-	const handleSaveProduct = () => {
-		setIsSaving(true);
+	// Xuất dữ liệu ra dạng initialProducts để copy vào file
+	const generateExportCode = () => {
+		// Sort products by sortOrder
+		const sortedProducts = [...products].sort((a, b) => a.sortOrder - b.sortOrder)
 		
-		// Validate product data
-		if (!productForm.name || !productForm.image || !productForm.category) {
-			alert(t('fillRequiredFields'));
-			setIsSaving(false);
-			return;
-		}
+		// Tạo mã JS
+		let code = 'export const initialProducts: Product[] = [\n'
 		
-		// If editing an existing product
-		if (editingProduct) {
-			// Validate option prices
-			const validatedOptions = productForm.options.map(option => {
-				return {
-					...option,
-					values: option.values.map(value => {
-						// Ensure price is a valid number
-						const price = typeof value.price === 'number' && !isNaN(value.price) ? 
-							value.price : 
-							(editingProduct.price || 0);
-						
-						return {
-							...value,
-							price
-						};
+		sortedProducts.forEach((product, index) => {
+			code += '\t{\n'
+			code += `\t\tid: '${product.id}',\n`
+			code += `\t\tname: '${product.name.replace(/'/g, "\\'")}',\n`
+			if (product.price) code += `\t\tprice: ${product.price},\n`
+			if (product.description) code += `\t\tdescription: \`${product.description.replace(/`/g, "\\`")}\`,\n`
+			code += `\t\timage: '${product.image}',\n`
+			code += `\t\tcategory: '${product.category}',\n`
+			code += `\t\tslug: '${product.slug}',\n`
+			code += `\t\tsortOrder: ${product.sortOrder},\n`
+			
+			// Handle options
+			if (product.options && product.options.length > 0) {
+				code += '\t\toptions: [\n'
+				product.options.forEach((option, optIndex) => {
+					code += '\t\t\t{\n'
+					code += `\t\t\t\tid: '${option.id}',\n`
+					code += `\t\t\t\tname: '${option.name.replace(/'/g, "\\'")}',\n`
+					code += `\t\t\t\ttype: '${option.type}',\n`
+					
+					// Handle option values
+					code += '\t\t\t\tvalues: [\n'
+					option.values.forEach((value, valIndex) => {
+						code += '\t\t\t\t\t{\n'
+						code += `\t\t\t\t\t\tvalue: '${value.value.replace(/'/g, "\\'")}',\n`
+						code += `\t\t\t\t\t\tprice: ${value.price},\n`
+						code += `\t\t\t\t\t\tdescription: '${value.description?.replace(/'/g, "\\'")}'\n`
+						code += '\t\t\t\t\t}'
+						if (valIndex < option.values.length - 1) code += ','
+						code += '\n'
 					})
-				};
-			});
+					code += '\t\t\t\t]\n'
+					
+					code += '\t\t\t}'
+					if (optIndex < product.options.length - 1) code += ','
+					code += '\n'
+				})
+				code += '\t\t],\n'
+			}
 			
-			// Update product with validated options
-			updateProduct(editingProduct.id, {
-				...productForm,
-				options: validatedOptions,
-				relatedArticles: selectedArticles
-			});
-		} else {
-			// Creating a new product
-			// Generate a simple ID
-			const newId = Date.now().toString();
+			// Handle relatedArticles
+			if (product.relatedArticles && product.relatedArticles.length > 0) {
+				code += `\t\trelatedArticles: [${product.relatedArticles.map(id => `'${id}'`).join(', ')}],\n`
+			}
 			
-			// Validate option prices for new product
-			const validatedOptions = productForm.options.map(option => {
-				return {
-					...option,
-					values: option.values.map(value => {
-						// Ensure price is a valid number
-						const price = typeof value.price === 'number' && !isNaN(value.price) ? 
-							value.price : 
-							0;
-						
-						return {
-							...value,
-							price
-						};
-					})
-				};
-			});
+			// Handle localization
+			if (product.isLocalized) {
+				code += `\t\tisLocalized: true,\n`
+				
+				if (product.localizedName) {
+					code += `\t\tlocalizedName: {\n`
+					code += `\t\t\ten: '${product.localizedName.en?.replace(/'/g, "\\'")}',\n`
+					code += `\t\t\tvi: '${product.localizedName.vi?.replace(/'/g, "\\'")}'\n`
+					code += `\t\t},\n`
+				}
+				
+				if (product.localizedDescription) {
+					code += `\t\tlocalizedDescription: {\n`
+					code += `\t\t\ten: \`${product.localizedDescription.en?.replace(/`/g, "\\`")}\`,\n`
+					code += `\t\t\tvi: \`${product.localizedDescription.vi?.replace(/`/g, "\\`")}\`\n`
+					code += `\t\t},\n`
+				}
+			}
 			
-			// Add the new product
-			addProduct({
-				id: newId,
-				...productForm,
-				price: 0, // Base price
-				options: validatedOptions,
-				relatedArticles: selectedArticles,
-				sortOrder: products.length // Add to the end of the list
-			});
-		}
-		
-		// Close dialog and reset form
-		setProductDialog(false);
-		resetProductForm();
-		setIsSaving(false);
-	}
-	
-	const handleSaveTos = () => {
-		setTosContent(tosForm)
-		useStore.getState().syncDataToServer()
-		alert('Điều khoản dịch vụ đã được cập nhật!')
-	}
-	
-	const resetProductForm = () => {
-		setProductForm({
-			name: '',
-			localizedName: {
-				en: '',
-				vi: ''
-			},
-			description: '',
-			localizedDescription: {
-				en: '',
-				vi: ''
-			},
-			image: '',
-			category: '',
-			slug: '',
-			options: [],
-			relatedArticles: [],
-			isLocalized: false
+			code += '\t}'
+			if (index < sortedProducts.length - 1) code += ','
+			code += '\n'
 		})
-		setSelectedArticles([])
+		
+		code += ']'
+		
+		// Cập nhật state
+		setExportCode(code)
+		setShowExportDialog(true)
+	}
+	
+	// Export TOS content
+	const generateTOSExportCode = () => {
+		let code = 'export const initialTOSContent = `' + tosContent.replace(/`/g, "\\`") + '`'
+		setExportCode(code)
+		setShowExportDialog(true)
+	}
+	
+	// Hàm download file
+	const downloadExportFile = () => {
+		const element = document.createElement('a')
+		const file = new Blob([exportCode], {type: 'text/plain'})
+		element.href = URL.createObjectURL(file)
+		element.download = 'exported-data.ts'
+		document.body.appendChild(element)
+		element.click()
+		document.body.removeChild(element)
+	}
+	
+	// Hàm xóa sản phẩm khỏi store
+	const handleDeleteProduct = (id: string) => {
+		// Xóa sản phẩm khỏi store
+		deleteProduct(id)
+		
+		// Đóng dialog nếu đang mở
+		setProductDialog(false)
 		setEditingProduct(null)
 	}
 	
-	const openProductEdit = (product: Product) => {
-		// Deep clone the product to avoid modifying the original directly
-		const productCopy = JSON.parse(JSON.stringify(product));
-		
-		// Ensure all options have valid prices
-		if (productCopy.options) {
-			productCopy.options.forEach((option: any) => {
-				if (option.values) {
-					option.values.forEach((value: any) => {
-						// Ensure price is a valid number
-						value.price = typeof value.price === 'number' && !isNaN(value.price) ? value.price : product.price;
-					});
-				}
-			});
-		}
-		
-		setProductForm({
-			name: productCopy.name || '',
-			localizedName: productCopy.localizedName || { en: '', vi: '' },
-			description: productCopy.description || '',
-			localizedDescription: productCopy.localizedDescription || { en: '', vi: '' },
-			image: productCopy.image || '',
-			category: productCopy.category || '',
-			slug: productCopy.slug || '',
-			options: productCopy.options || [],
-			relatedArticles: productCopy.relatedArticles || [],
-			isLocalized: !!productCopy.isLocalized
-		});
-		
-		setEditingProduct(productCopy);
-		setProductDialog(true);
-	}
-	
-	const addOptionField = () => {
-		const newOption = {
-			id: Date.now().toString(),
-			name: '',
-			type: 'radio' as const,
-			values: [{ value: '', price: 0, description: '' }]
-		}
-		setProductForm({
-			...productForm,
-			options: [...productForm.options, newOption]
-		})
-	}
-	
-	const updateOption = (index: number, field: string, value: any) => {
-		const updatedOptions = [...productForm.options]
-		updatedOptions[index] = {
-			...updatedOptions[index],
-			[field]: value
-		}
-		setProductForm({
-			...productForm,
-			options: updatedOptions
-		})
-	}
-	
-	const updateOptionValue = (optionIndex: number, valueIndex: number, value: string, field: 'value' | 'price' | 'description' = 'value') => {
-		const updatedOptions = [...productForm.options]
-		const optionValues = [...updatedOptions[optionIndex].values]
-		
-		// Create a new value object with the updated field
-		optionValues[valueIndex] = {
-			...optionValues[valueIndex],
-			[field]: field === 'price' 
-				? (value === '' ? 0 : Number(value.replace(/[^0-9]/g, '')) || 0) 
-				: value
-		}
-		
-		updatedOptions[optionIndex] = {
-			...updatedOptions[optionIndex],
-			values: optionValues
-		}
-		
-		setProductForm({
-			...productForm,
-			options: updatedOptions
-		})
-	}
-	
-	const addValueToOption = (optionIndex: number) => {
-		const updatedOptions = [...productForm.options]
-		updatedOptions[optionIndex] = {
-			...updatedOptions[optionIndex],
-			values: [...updatedOptions[optionIndex].values, { value: '', price: 0, description: '' }]
-		}
-		setProductForm({
-			...productForm,
-			options: updatedOptions
-		})
-	}
-	
-	const removeOption = (index: number) => {
-		const updatedOptions = [...productForm.options]
-		updatedOptions.splice(index, 1)
-		setProductForm({
-			...productForm,
-			options: updatedOptions
-		})
-	}
-	
-	const removeOptionValue = (optionIndex: number, valueIndex: number) => {
-		const updatedOptions = [...productForm.options]
-		const optionValues = [...updatedOptions[optionIndex].values]
-		optionValues.splice(valueIndex, 1)
-		updatedOptions[optionIndex] = {
-			...updatedOptions[optionIndex],
-			values: optionValues
-		}
-		setProductForm({
-			...productForm,
-			options: updatedOptions
-		})
-	}
-	
-	const toggleArticleSelection = (articleId: string) => {
-		setSelectedArticles(prev => {
-			if (prev.includes(articleId)) {
-				return prev.filter(id => id !== articleId)
-			} else {
-				return [...prev, articleId]
+	// Thêm hàm để lưu dữ liệu xuống file thông qua API
+	const saveToFile = async (content: string, filePath: string) => {
+		try {
+			const response = await fetch('/api/dev/update-file', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					content,
+					filePath,
+				}),
+			})
+
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(errorData.error || 'Failed to update file')
 			}
-		})
+
+			return true
+		} catch (error) {
+			console.error('Error saving to file:', error)
+			alert(`Error saving to file: ${error}`)
+			return false
+		}
 	}
-	
-	// Calculate lowest price for display
-	const getLowestPrice = (product: Product) => {
-		if (!product.options || product.options.length === 0) {
-			return product.price
+
+	// Thêm hàm lưu products dưới dạng code vào file
+	const saveProductsToFile = async () => {
+		// Sort products by sortOrder
+		const sortedProducts = [...products].sort((a, b) => a.sortOrder - b.sortOrder)
+		
+		// Tạo mã JS
+		let code = `import { Product, FAQArticle, SocialLink } from './types'\n\n`
+		code += 'export const initialProducts: Product[] = [\n'
+		
+		sortedProducts.forEach((product, index) => {
+			code += '\t{\n'
+			code += `\t\tid: '${product.id}',\n`
+			code += `\t\tname: '${product.name.replace(/'/g, "\\'")}',\n`
+			if (product.price) code += `\t\tprice: ${product.price},\n`
+			if (product.description) code += `\t\tdescription: \`${product.description.replace(/`/g, "\\`")}\`,\n`
+			code += `\t\timage: '${product.image}',\n`
+			code += `\t\tcategory: '${product.category}',\n`
+			code += `\t\tslug: '${product.slug}',\n`
+			code += `\t\tsortOrder: ${product.sortOrder},\n`
+			
+			// Handle options
+			if (product.options && product.options.length > 0) {
+				code += '\t\toptions: [\n'
+				product.options.forEach((option, optIndex) => {
+					code += '\t\t\t{\n'
+					code += `\t\t\t\tid: '${option.id}',\n`
+					code += `\t\t\t\tname: '${option.name.replace(/'/g, "\\'")}',\n`
+					code += `\t\t\t\ttype: '${option.type}',\n`
+					
+					// Handle option values
+					code += '\t\t\t\tvalues: [\n'
+					option.values.forEach((value, valIndex) => {
+						code += '\t\t\t\t\t{\n'
+						code += `\t\t\t\t\t\tvalue: '${value.value.replace(/'/g, "\\'")}',\n`
+						code += `\t\t\t\t\t\tprice: ${value.price},\n`
+						code += `\t\t\t\t\t\tdescription: '${value.description?.replace(/'/g, "\\'")}'\n`
+						code += '\t\t\t\t\t}'
+						if (valIndex < option.values.length - 1) code += ','
+						code += '\n'
+					})
+					code += '\t\t\t\t]\n'
+					
+					code += '\t\t\t}'
+					if (optIndex < product.options.length - 1) code += ','
+					code += '\n'
+				})
+				code += '\t\t],\n'
+			}
+			
+			// Handle relatedArticles
+			if (product.relatedArticles && product.relatedArticles.length > 0) {
+				code += `\t\trelatedArticles: [${product.relatedArticles.map(id => `'${id}'`).join(', ')}],\n`
+			}
+			
+			// Handle localization
+			if (product.isLocalized) {
+				code += `\t\tisLocalized: true,\n`
+				
+				if (product.localizedName) {
+					code += `\t\tlocalizedName: {\n`
+					code += `\t\t\ten: '${product.localizedName.en?.replace(/'/g, "\\'")}',\n`
+					code += `\t\t\tvi: '${product.localizedName.vi?.replace(/'/g, "\\'")}'\n`
+					code += `\t\t},\n`
+				}
+				
+				if (product.localizedDescription) {
+					code += `\t\tlocalizedDescription: {\n`
+					code += `\t\t\ten: \`${product.localizedDescription.en?.replace(/`/g, "\\`")}\`,\n`
+					code += `\t\t\tvi: \`${product.localizedDescription.vi?.replace(/`/g, "\\`")}\`\n`
+					code += `\t\t},\n`
+				}
+			}
+			
+			code += '\t}'
+			if (index < sortedProducts.length - 1) code += ','
+			code += '\n'
+		})
+		
+		code += ']\n\n'
+		
+		// Thêm mã cho FAQ và social links (giữ nguyên từ file gốc)
+		code += `export const initialFAQArticles: FAQArticle[] = ${JSON.stringify(faqArticles, null, 2).replace(/"([^"]+)":/g, '$1:')}\n\n`
+		code += `export const initialSocialLinks: SocialLink[] = ${JSON.stringify(socialLinks, null, 2).replace(/"([^"]+)":/g, '$1:')}\n\n`
+		code += `export const initialTOSContent = \`${tosContent.replace(/`/g, '\\`')}\``
+		
+		// Lưu vào file
+		const result = await saveToFile(code, 'app/lib/initial-data.ts')
+		
+		return result
+	}
+
+	// Thêm hàm xử lý sự kiện khi người dùng nhấn nút "Lưu vào File"
+	const handleSaveToFile = async () => {
+		setIsSaving(true)
+		
+		// Lưu dữ liệu vào file
+		const success = await saveProductsToFile()
+		
+		if (success) {
+			alert('Đã lưu thành công vào file!')
 		}
 		
-		const optionValues = product.options.flatMap(option => 
-			option.values.map(value => value.price)
-		)
-		
-		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => !isNaN(price) && isFinite(price)))
-			: product.price
-			
-		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
+		setIsSaving(false)
 	}
 	
-	// Nếu đang loading, không hiển thị gì
+	// Nếu đang loading, hiển thị thông báo
 	if (isLoading) {
-		return null
+		return (
+			<div className="flex items-center justify-center min-h-screen">
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<Shield className="h-5 w-5" />
+							<span>Development Mode</span>
+						</CardTitle>
+						<div className="text-muted-foreground">Loading admin interface...</div>
+					</CardHeader>
+				</Card>
+			</div>
+		)
 	}
 	
-	if (!isAdminAuthenticated) {
+	// Trong production, không hiển thị gì
+	if (!isDevelopment) {
 		return null
 	}
 	
@@ -582,6 +579,17 @@ export default function AdminDashboardPage() {
 					<span>{t('adminDashboard')}</span>
 				</div>
 				<nav className="flex items-center space-x-4">
+					<Button 
+						variant="outline"
+						size="sm"
+						onClick={handleSaveToFile}
+						disabled={isSaving}
+						className="flex items-center gap-2 text-green-600 hover:text-green-700"
+					>
+						<Save className="h-5 w-5" />
+						<span>{isSaving ? 'Đang lưu...' : 'Lưu vào File'}</span>
+					</Button>
+					
 					<Button variant="ghost" size="icon" asChild>
 						<a href="/" target="_blank">
 							<Home className="h-5 w-5" />
@@ -717,11 +725,7 @@ export default function AdminDashboardPage() {
 															variant="outline" 
 															size="sm" 
 															className="flex-1 text-destructive hover:text-destructive"
-															onClick={() => {
-																if (confirm('Are you sure you want to delete this product?')) {
-																	deleteProduct(product.id)
-																}
-															}}
+															onClick={() => handleDeleteProduct(product.id)}
 														>
 															<Trash2 className="mr-2 h-3 w-3" />
 															{t('delete')}

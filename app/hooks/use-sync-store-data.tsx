@@ -34,33 +34,29 @@ export function useSyncStoreData() {
           ? [...localStorageProducts] 
           : [...products]
         
-        // Check if any initialProducts are missing or have different options
+        // CRITICAL: Only add missing initial products but never 
+        // add back products that were deliberately removed in admin
         let needsUpdate = false
+        
+        // First, create a map of existing IDs for quick lookup
+        const existingProductIds = new Set(currentProducts.map(p => p.id))
+        
+        // Only add products from initialProducts that don't already exist
         initialProducts.forEach(initialProduct => {
-          const storeProduct = currentProducts.find(p => p.id === initialProduct.id)
+          // Skip "youtube-premium" product to prevent it from being re-added if removed
+          if (initialProduct.id === 'youtube-premium') {
+            return
+          }
           
-          // If product doesn't exist in store or has different options structure
-          if (!storeProduct) {
+          // Only add completely new products from initialProducts
+          if (!existingProductIds.has(initialProduct.id)) {
             currentProducts.push(initialProduct)
             needsUpdate = true
-          } else if (
-            initialProduct.options && 
-            JSON.stringify(initialProduct.options) !== JSON.stringify(storeProduct.options)
-          ) {
-            // Update the product with initial product options
-            const productIndex = currentProducts.findIndex(p => p.id === initialProduct.id)
-            if (productIndex !== -1) {
-              currentProducts[productIndex] = {
-                ...currentProducts[productIndex],
-                options: initialProduct.options
-              }
-              needsUpdate = true
-            }
           }
         })
         
         // Update store if needed
-        if (needsUpdate || localStorageProducts.length > 0) {
+        if (needsUpdate) {
           setProducts(currentProducts)
           
           // Update localStorage immediately to ensure consistency
@@ -69,6 +65,13 @@ export function useSyncStoreData() {
             localStorage.setItem('shineshop-storage-v3', JSON.stringify({
               ...currentState,
               products: currentProducts
+            }))
+            
+            // Also update backup storage
+            localStorage.setItem('shineshop-backup', JSON.stringify({
+              ...currentState,
+              products: currentProducts,
+              timestamp: new Date().toISOString()
             }))
           } catch (error) {
             console.error('Error updating localStorage:', error)

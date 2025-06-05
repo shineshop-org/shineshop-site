@@ -152,8 +152,8 @@ export const useStore = create<StoreState>()(
 					// In a real implementation, this could call an API endpoint
 					const state = get()
 					
-					// Update the main localStorage storage
-					localStorage.setItem('shineshop-storage-v3', JSON.stringify({
+					// Create a consistent state object
+					const stateToSave = {
 						language: state.language,
 						theme: state.theme,
 						products: state.products,
@@ -162,17 +162,22 @@ export const useStore = create<StoreState>()(
 						paymentInfo: state.paymentInfo,
 						siteConfig: state.siteConfig,
 						tosContent: state.tosContent,
-					}))
+					}
+					
+					// Update the main localStorage storage
+					localStorage.setItem('shineshop-storage-v3', JSON.stringify(stateToSave))
 					
 					// Also update the backup storage
 					localStorage.setItem('shineshop-backup', JSON.stringify({
-						products: state.products,
-						faqArticles: state.faqArticles,
-						socialLinks: state.socialLinks,
-						paymentInfo: state.paymentInfo,
-						siteConfig: state.siteConfig,
-						tosContent: state.tosContent,
+						...stateToSave,
 						timestamp: new Date().toISOString()
+					}))
+					
+					// Force a storage event for cross-tab communication
+					// This helps synchronize changes across tabs
+					window.dispatchEvent(new StorageEvent('storage', {
+						key: 'shineshop-storage-v3',
+						newValue: JSON.stringify(stateToSave)
 					}))
 				} catch (error) {
 					console.error('Failed to sync data:', error)
