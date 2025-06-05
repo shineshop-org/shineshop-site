@@ -172,47 +172,34 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							{product.options.map((option) => (
 								<div key={option.id} className="space-y-2">
 									<label className="text-sm font-medium">{option.name}</label>
-									{option.type === 'select' ? (
-										<div className="space-y-2">
-											<select
-												className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700 transition-colors"
-												value={selectedOptions[option.id] || ''}
-												onChange={(e) => handleOptionChange(option.id, e.target.value)}
+									<div className="flex flex-wrap gap-2">
+										{option.values.map((value) => (
+											<label
+												key={value.value}
+												className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary ${
+													selectedOptions[option.id] === value.value 
+														? 'bg-primary text-primary-foreground border-primary' 
+														: 'bg-background border-input hover:bg-accent/50'
+												}`}
 											>
-												<option value="" disabled>Select {option.name}</option>
-												{option.values.map((value) => (
-													<option key={value.value} value={value.value}>{value.value}</option>
-												))}
-											</select>
-											{selectedOptions[option.id] && (
-												<div>
-													{option.values.map((value) => (
-														value.value === selectedOptions[option.id] && value.description && (
-															<p key={value.value} className="text-sm text-muted-foreground mt-1">{value.description}</p>
-														)
-													))}
-												</div>
-											)}
-										</div>
-									) : (
-										<div className="space-y-2">
+												<input
+													type="radio"
+													name={option.id}
+													value={value.value}
+													checked={selectedOptions[option.id] === value.value}
+													onChange={() => handleOptionChange(option.id, value.value)}
+													className="sr-only"
+												/>
+												<span>{value.value}</span>
+											</label>
+										))}
+									</div>
+									{selectedOptions[option.id] && (
+										<div>
 											{option.values.map((value) => (
-												<div key={value.value} className="mb-2">
-													<label className="flex items-center space-x-2 cursor-pointer hover:text-primary transition-colors">
-														<input
-															type="radio"
-															name={option.id}
-															value={value.value}
-															checked={selectedOptions[option.id] === value.value}
-															onChange={() => handleOptionChange(option.id, value.value)}
-															className="w-4 h-4"
-														/>
-														<span>{value.value}</span>
-													</label>
-													{selectedOptions[option.id] === value.value && value.description && (
-														<p className="text-sm text-muted-foreground ml-6 mt-1">{value.description}</p>
-													)}
-												</div>
+												value.value === selectedOptions[option.id] && value.description && (
+													<p key={value.value} className="text-sm text-muted-foreground mt-1">{value.description}</p>
+												)
 											))}
 										</div>
 									)}

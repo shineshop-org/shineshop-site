@@ -386,7 +386,7 @@ export default function AdminDashboardPage() {
 		const newOption = {
 			id: Date.now().toString(),
 			name: '',
-			type: 'select' as const,
+			type: 'radio' as const,
 			values: [{ value: '', price: 0, description: '' }]
 		}
 		setProductForm({
@@ -838,18 +838,6 @@ export default function AdminDashboardPage() {
 																placeholder="Color, Size, etc."
 															/>
 														</div>
-														
-														<div className="space-y-2">
-															<label className="text-sm font-medium">{t('optionType')}</label>
-															<select 
-																className="w-full p-2 border rounded-md"
-																value={option.type}
-																onChange={(e) => updateOption(optionIndex, 'type', e.target.value)}
-															>
-																<option value="select">Dropdown Select</option>
-																<option value="radio">Radio Button</option>
-															</select>
-														</div>
 													</div>
 													
 													<div className="space-y-2">
@@ -892,11 +880,9 @@ export default function AdminDashboardPage() {
 																	</div>
 																	
 																	<div className="space-y-2">
-																		<label className="text-xs text-muted-foreground">Price (VND)</label>
+																		<label className="text-xs text-muted-foreground">Price</label>
 																		<Input 
-																			type="number"
 																			value={value.price}
-																			min="0"
 																			onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'price')}
 																			placeholder="e.g., 100000"
 																			className="flex-1"
