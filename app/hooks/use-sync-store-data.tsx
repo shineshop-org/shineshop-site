@@ -17,8 +17,22 @@ export function useSyncStoreData() {
     // Only run this once when component mounts
     if (typeof window !== 'undefined') {
       try {
-        // Get current products from store
-        const currentProducts = [...products]
+        // First, check for any localStorage data
+        const storedData = localStorage.getItem('shineshop-storage-v3')
+        let localStorageProducts = []
+        
+        if (storedData) {
+          const parsedData = JSON.parse(storedData)
+          if (parsedData.products && Array.isArray(parsedData.products)) {
+            localStorageProducts = parsedData.products
+          }
+        }
+        
+        // If we have products in localStorage, use those as the base
+        // Otherwise use the current store products
+        const currentProducts = localStorageProducts.length > 0 
+          ? [...localStorageProducts] 
+          : [...products]
         
         // Check if any initialProducts are missing or have different options
         let needsUpdate = false
@@ -46,8 +60,19 @@ export function useSyncStoreData() {
         })
         
         // Update store if needed
-        if (needsUpdate) {
+        if (needsUpdate || localStorageProducts.length > 0) {
           setProducts(currentProducts)
+          
+          // Update localStorage immediately to ensure consistency
+          try {
+            const currentState = JSON.parse(localStorage.getItem('shineshop-storage-v3') || '{}')
+            localStorage.setItem('shineshop-storage-v3', JSON.stringify({
+              ...currentState,
+              products: currentProducts
+            }))
+          } catch (error) {
+            console.error('Error updating localStorage:', error)
+          }
         }
       } catch (error) {
         console.error('Error syncing store data:', error)
