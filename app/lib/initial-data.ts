@@ -54,7 +54,7 @@ export const initialProducts: Product[] = [
 					{
 						value: '1 tháng',
 						price: 30000,
-						description: '40000đ cho tháng đầu tiên và sau đó là 35000đ nếu bạn gia hạn đúng thời điểm hoặc trước đó'
+						description: '30000đ cho tháng đầu tiên và sau đó là 25000đ nếu bạn gia hạn đúng thời điểm hoặc trước đó'
 					},
 					{
 						value: '3 tháng',
