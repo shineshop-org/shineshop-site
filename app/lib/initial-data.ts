@@ -58,7 +58,7 @@ export const initialProducts: Product[] = [
 					},
 					{
 						value: '3 tháng',
-						price: 100000,
+						price: 30000,
 						description: 'Hỗ trợ sửa lỗi "Không thể tham gia gia đình" do rời gia đình nhiều lần trong 12 tháng.'
 					},
 					{
