@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Facebook, MessageCircle, ExternalLink } from 'lucide-react'
@@ -24,6 +24,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const [product, setProduct] = useState<Product>(initialProduct)
 	const [relatedArticles, setRelatedArticles] = useState<FAQArticle[]>([])
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
+	const [priceDisplay, setPriceDisplay] = useState<string>('')
+	const [isAnimatingPrice, setIsAnimatingPrice] = useState(false)
+	const productImageRef = useRef<HTMLDivElement>(null)
+	const [transform, setTransform] = useState('')
 	
 	useEffect(() => {
 		// Try to find the product in the store
@@ -38,7 +42,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				const initialOptions: Record<string, string> = {}
 				storeProduct.options.forEach(option => {
 					if (option.values.length > 0) {
-						initialOptions[option.id] = ''
+						initialOptions[option.id] = option.values[0].value
 					}
 				})
 				setSelectedOptions(initialOptions)
@@ -65,7 +69,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				const initialOptions: Record<string, string> = {}
 				initialProduct.options.forEach(option => {
 					if (option.values.length > 0) {
-						initialOptions[option.id] = ''
+						initialOptions[option.id] = option.values[0].value
 					}
 				})
 				setSelectedOptions(initialOptions)
@@ -73,12 +77,47 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 	}, [slug, products, faqArticles, initialProduct])
 	
+	// Set initial price display
+	useEffect(() => {
+		setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
+	}, [product])
+	
 	// Handle option selection
 	const handleOptionChange = (optionId: string, value: string) => {
 		setSelectedOptions(prev => ({
 			...prev,
 			[optionId]: value
 		}))
+		
+		// Animate price when it changes
+		animatePrice()
+	}
+	
+	// Animate the price when options change
+	const animatePrice = () => {
+		setIsAnimatingPrice(true)
+		
+		const originalPrice = getSelectedPrice()
+		const targetPrice = formatPrice(originalPrice, 'en-US')
+		const duration = 500 // 0.5 seconds
+		const interval = 50 // Update every 50ms
+		const iterations = duration / interval
+		let count = 0
+		
+		const animationInterval = setInterval(() => {
+			count++
+			
+			if (count >= iterations) {
+				clearInterval(animationInterval)
+				setPriceDisplay(targetPrice)
+				setIsAnimatingPrice(false)
+				return
+			}
+			
+			// Generate random digits for the animation
+			const randomDigits = originalPrice.toString().replace(/\d/g, () => Math.floor(Math.random() * 10).toString())
+			setPriceDisplay(formatPrice(parseInt(randomDigits), 'en-US'))
+		}, interval)
 	}
 	
 	// Extract the lowest price from product options
@@ -139,11 +178,40 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		return product.description
 	}
 	
+	// 3D card hover effect for product image
+	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+		if (!productImageRef.current) return
+		
+		const rect = productImageRef.current.getBoundingClientRect()
+		const x = e.clientX - rect.left
+		const y = e.clientY - rect.top
+		const centerX = rect.width / 2
+		const centerY = rect.height / 2
+		
+		const rotateX = ((y - centerY) / centerY) * -10
+		const rotateY = ((x - centerX) / centerX) * 10
+		
+		setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`)
+	}
+	
+	const handleMouseLeave = () => {
+		setTransform('')
+	}
+	
 	return (
-		<div className="max-w-7xl mx-auto py-8 page-transition">
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-				{/* Product Image with 16:9 aspect ratio */}
-				<div className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900">
+		<div className="max-w-7xl mx-auto py-6 page-transition">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				{/* Product Image with 16:9 aspect ratio and 3D hover effect */}
+				<div 
+					ref={productImageRef}
+					className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
+					onMouseMove={handleMouseMove}
+					onMouseLeave={handleMouseLeave}
+					style={{
+						transform: transform,
+						transition: 'transform 0.1s ease-out'
+					}}
+				>
 					{/* 16:9 Aspect ratio container */}
 					<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
 						<Image
@@ -155,96 +223,132 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							priority
 						/>
 					</div>
+					{/* Dynamic shadow based on hover position */}
+					<div 
+						className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+						style={{
+							background: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, transparent 70%)',
+							transform: 'translateZ(-20px) scale(0.95)',
+							filter: 'blur(20px)'
+						}}
+					/>
 				</div>
 				
 				{/* Product Info */}
-				<div className="space-y-6">
-					<div>
+				<div className="space-y-4">
+					<div className="space-y-2">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
-						<p className="text-2xl font-semibold text-primary mt-4">
-							{formatPrice(getSelectedPrice(), 'en-US')}
+						<p className="text-2xl font-semibold text-primary">
+							{isAnimatingPrice ? priceDisplay : formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
 					
-					{/* Options */}
-					{product.options && product.options.length > 0 && (
-						<div className="space-y-4">
-							{product.options.map((option) => (
-								<div key={option.id} className="space-y-2">
-									<label className="text-sm font-medium">{option.name}</label>
-									<div className="flex flex-wrap gap-2">
+					{/* Options - Always show main option even if it's the only one */}
+					<div className="space-y-3">
+						{product.options && product.options.map((option) => (
+							<div key={option.id} className="space-y-1">
+								<label className="text-sm font-medium">{option.name}</label>
+								<div className="flex flex-wrap gap-2">
+									{option.values.map((value) => (
+										<label
+											key={value.value}
+											className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary ${
+												selectedOptions[option.id] === value.value 
+													? 'bg-primary text-primary-foreground border-primary' 
+													: 'bg-background border-input hover:bg-accent/50'
+											}`}
+										>
+											<input
+												type="radio"
+												name={option.id}
+												value={value.value}
+												checked={selectedOptions[option.id] === value.value}
+												onChange={() => handleOptionChange(option.id, value.value)}
+												className="sr-only"
+											/>
+											<span>{value.value}</span>
+										</label>
+									))}
+								</div>
+								{selectedOptions[option.id] && (
+									<div>
 										{option.values.map((value) => (
-											<label
-												key={value.value}
-												className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary ${
-													selectedOptions[option.id] === value.value 
-														? 'bg-primary text-primary-foreground border-primary' 
-														: 'bg-background border-input hover:bg-accent/50'
-												}`}
-											>
-												<input
-													type="radio"
-													name={option.id}
-													value={value.value}
-													checked={selectedOptions[option.id] === value.value}
-													onChange={() => handleOptionChange(option.id, value.value)}
-													className="sr-only"
-												/>
-												<span>{value.value}</span>
-											</label>
+											value.value === selectedOptions[option.id] && value.description && (
+												<p key={value.value} className="text-sm text-muted-foreground mt-1">{value.description}</p>
+											)
 										))}
 									</div>
-									{selectedOptions[option.id] && (
-										<div>
-											{option.values.map((value) => (
-												value.value === selectedOptions[option.id] && value.description && (
-													<p key={value.value} className="text-sm text-muted-foreground mt-1">{value.description}</p>
-												)
-											))}
-										</div>
-									)}
+								)}
+							</div>
+						))}
+						
+						{/* If there are no options, create a single option for display consistency */}
+						{(!product.options || product.options.length === 0) && (
+							<div className="space-y-1">
+								<label className="text-sm font-medium">{getProductName()}</label>
+								<div className="flex flex-wrap gap-2">
+									<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
+										<input
+											type="radio"
+											checked={true}
+											readOnly
+											className="sr-only"
+										/>
+										<span>Chính chủ (Add Family)</span>
+									</label>
 								</div>
-							))}
-						</div>
-					)}
+							</div>
+						)}
+					</div>
 					
 					{/* Order Buttons */}
-					<div className="flex gap-4">
-						<Button
-							asChild
-							size="lg"
-							className="flex-1 hover:scale-105 transition-all duration-200 bg-primary hover:bg-primary/90 dark:bg-primary/80 dark:hover:bg-primary"
-						>
-							<Link
-								href="https://facebook.com"
-								target="_blank"
-								rel="noopener noreferrer"
+					<div className="flex flex-col space-y-3">
+						<div className="flex gap-4">
+							<Button
+								asChild
+								size="lg"
+								className="flex-1 hover:scale-105 transition-all duration-200 bg-primary hover:bg-primary/90 dark:bg-primary/80 dark:hover:bg-primary"
 							>
-								<Facebook className="mr-2 h-5 w-5" />
-								Facebook
-							</Link>
-						</Button>
-						<Button
-							asChild
-							size="lg"
-							variant="outline"
-							className="flex-1 hover:scale-105 transition-all duration-200 dark:border-primary/50 dark:hover:bg-primary/20"
-						>
-							<Link
-								href="https://whatsapp.com"
-								target="_blank"
-								rel="noopener noreferrer"
+								<Link
+									href="https://facebook.com"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<Facebook className="mr-2 h-5 w-5" />
+									Facebook
+								</Link>
+							</Button>
+							<Button
+								asChild
+								size="lg"
+								variant="outline"
+								className="flex-1 hover:scale-105 transition-all duration-200 dark:border-primary/50 dark:hover:bg-primary/20"
 							>
-								<MessageCircle className="mr-2 h-5 w-5" />
-								WhatsApp
+								<Link
+									href="https://whatsapp.com"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<MessageCircle className="mr-2 h-5 w-5" />
+									WhatsApp
+								</Link>
+							</Button>
+						</div>
+						
+						{/* TOS agreement text */}
+						<p className="text-center text-sm text-muted-foreground italic">
+							Khi bạn đã mua hàng đồng nghĩa rằng việc bạn hoàn toàn đồng ý và tuân thủ{' '}
+							<Link href="/tos" className="text-primary hover:underline">
+								Điều khoản và Điều kiện
 							</Link>
-						</Button>
+							{' '}của chúng tôi
+						</p>
 					</div>
 				</div>
 			</div>
 			
 			{/* Description and Related Articles */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
 				{/* Description - Always show */}
 				<div className="lg:col-span-2">
 					<Card className="dark:bg-card/80 dark:border-primary/20">

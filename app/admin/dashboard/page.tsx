@@ -172,6 +172,7 @@ export default function AdminDashboardPage() {
 		},
 		image: '',
 		category: '',
+		slug: '',
 		options: [] as {
 			id: string;
 			name: string;
@@ -295,7 +296,7 @@ export default function AdminDashboardPage() {
 			description: productForm.description,
 			image: productForm.image,
 			category: productForm.category,
-			slug: editingProduct?.slug || generateSlug(productForm.name),
+			slug: productForm.slug || generateSlug(productForm.name),
 			sortOrder: editingProduct?.sortOrder || 999, // Default to end of list
 			options: productForm.options,
 			relatedArticles: selectedArticles
@@ -347,6 +348,7 @@ export default function AdminDashboardPage() {
 			},
 			image: '',
 			category: '',
+			slug: '',
 			options: [],
 			relatedArticles: [],
 			isLocalized: false
@@ -372,6 +374,7 @@ export default function AdminDashboardPage() {
 			},
 			image: product.image,
 			category: product.category,
+			slug: product.slug,
 			options: product.options || [],
 			relatedArticles: product.relatedArticles || [],
 			isLocalized: product.isLocalized || false
@@ -778,6 +781,20 @@ export default function AdminDashboardPage() {
 												/>
 											)}
 										</div>
+										
+										{/* Custom URL Slug */}
+										<div className="space-y-2">
+											<label>URL Slug <span className="text-xs text-muted-foreground">(/product/...)</span></label>
+											<Input 
+												value={productForm.slug} 
+												onChange={(e) => setProductForm({...productForm, slug: e.target.value})}
+												placeholder="custom-product-url"
+											/>
+											<p className="text-xs text-muted-foreground">
+												{t('fullURL')}: {typeof window !== 'undefined' ? window.location.origin : ''}/store/product/{productForm.slug}
+											</p>
+										</div>
+										
 										<div className="space-y-2">
 											<label>{t('imageURL')}</label>
 											<Input 
