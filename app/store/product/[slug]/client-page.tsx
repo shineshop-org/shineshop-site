@@ -274,8 +274,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									<div>
 										{option.values.map((value) => (
 											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-1">
-													<span className="inline-block bg-muted/50 px-2 py-0.5 rounded-md text-xs font-medium mr-1">
+												<p key={value.value} className="text-sm text-muted-foreground mt-4">
+													<span className="inline-block bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
 														{getNoteLabel()}
 													</span> 
 													{value.description}
@@ -303,8 +303,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 										<span>Chính chủ (Add Family)</span>
 									</label>
 								</div>
-								<p className="text-sm text-muted-foreground mt-1">
-									<span className="inline-block bg-muted/50 px-2 py-0.5 rounded-md text-xs font-medium mr-1">
+								<p className="text-sm text-muted-foreground mt-4">
+									<span className="inline-block bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
 										{getNoteLabel()}
 									</span> 
 									40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
