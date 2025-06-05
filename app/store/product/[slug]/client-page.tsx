@@ -25,7 +25,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const [relatedArticles, setRelatedArticles] = useState<FAQArticle[]>([])
 	const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
 	const [priceDisplay, setPriceDisplay] = useState<string>('')
-	const [isAnimatingPrice, setIsAnimatingPrice] = useState(false)
 	const productImageRef = useRef<HTMLDivElement>(null)
 	const [transform, setTransform] = useState('')
 	const productInfoRef = useRef<HTMLDivElement>(null)
@@ -90,22 +89,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			[optionId]: value
 		}))
 		
-		// Update price immediately
+		// Update price immediately without animation
 		setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
-		
-		// Start color animation
-		animatePrice()
-	}
-	
-	// Animate the price when options change
-	const animatePrice = () => {
-		// Start animation
-		setIsAnimatingPrice(true)
-		
-		// Reset animation after 1 second with a smoother transition
-		setTimeout(() => {
-			setIsAnimatingPrice(false)
-		}, 1000)
 	}
 	
 	// Extract the lowest price from product options
@@ -228,10 +213,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				<div ref={productInfoRef} className="space-y-3 flex flex-col">
 					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
-						<p 
-							className="text-3xl font-semibold price-display"
-							data-animating={isAnimatingPrice ? "true" : "false"}
-						>
+						<p className="text-3xl font-semibold jshine-gradient">
 							{priceDisplay || formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
@@ -424,17 +406,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			
 			{/* Custom CSS Animation */}
 			<style jsx global>{`
-				.price-display {
-					transition: color 0.3s ease-out;
-					color: var(--color-primary);
-				}
-				
-				.price-display[data-animating="true"] {
+				.jshine-gradient {
 					background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
 					-webkit-background-clip: text;
 					background-clip: text;
 					color: transparent;
-					transition: all 0.3s ease-in;
 				}
 			`}</style>
 		</div>
