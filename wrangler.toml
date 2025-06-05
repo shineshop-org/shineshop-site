@@ -1,8 +1,13 @@
 name = "shineshop-site"
 compatibility_date = "2025-06-05"
 
+# Simple configuration that works with Cloudflare Pages
 [build]
 command = "npm run export"
+output_dir = "out"
+
+# This is the required property for Cloudflare Pages
+pages_build_output_dir = "out"
 
 # Configure Cloudflare Pages specifically
 [site]

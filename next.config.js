@@ -7,7 +7,7 @@ const { join } = require('path')
 // This function copies important files to the output directory
 const copyImportantFiles = () => {
 	const files = ['_redirects', '_routes.json']
-	const outputDir = '.next'
+	const outputDir = '.next/static'
 	
 	files.forEach(file => {
 		if (existsSync(file)) {
@@ -57,8 +57,15 @@ const nextConfig = {
 		// your project has type errors.
 		ignoreBuildErrors: true,
 	},
-	// Copy important files after build
-	onBuildComplete: copyImportantFiles
+	
+	// Use webpack config to run scripts after build
+	webpack: (config, { isServer }) => {
+		if (isServer) {
+			// Run only once on server build
+			copyImportantFiles();
+		}
+		return config;
+	}
 }
 
 module.exports = nextConfig 
