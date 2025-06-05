@@ -451,7 +451,9 @@ export default function AdminDashboardPage() {
 		// Create a new value object with the updated field
 		optionValues[valueIndex] = {
 			...optionValues[valueIndex],
-			[field]: field === 'price' ? Number(value) || 0 : value
+			[field]: field === 'price' 
+				? (value === '' ? 0 : Number(value.replace(/[^0-9]/g, '')) || 0) 
+				: value
 		}
 		
 		updatedOptions[optionIndex] = {

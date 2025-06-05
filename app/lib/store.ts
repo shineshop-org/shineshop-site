@@ -151,7 +151,20 @@ export const useStore = create<StoreState>()(
 					// We're just making sure data is properly saved to localStorage
 					// In a real implementation, this could call an API endpoint
 					const state = get()
-					// Force localStorage update by creating a backup manually
+					
+					// Update the main localStorage storage
+					localStorage.setItem('shineshop-storage-v3', JSON.stringify({
+						language: state.language,
+						theme: state.theme,
+						products: state.products,
+						faqArticles: state.faqArticles,
+						socialLinks: state.socialLinks,
+						paymentInfo: state.paymentInfo,
+						siteConfig: state.siteConfig,
+						tosContent: state.tosContent,
+					}))
+					
+					// Also update the backup storage
 					localStorage.setItem('shineshop-backup', JSON.stringify({
 						products: state.products,
 						faqArticles: state.faqArticles,
