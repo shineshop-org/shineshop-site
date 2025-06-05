@@ -269,7 +269,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									<div>
 										{option.values.map((value) => (
 											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-md inline-block">{value.description}</p>
+												<p key={value.value} className="text-sm text-muted-foreground mt-1">📝 {value.description}</p>
 											)
 										))}
 									</div>
@@ -293,8 +293,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 										<span>Chính chủ (Add Family)</span>
 									</label>
 								</div>
-								<p className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-md inline-block">
-									40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
+								<p className="text-sm text-muted-foreground mt-1">
+									📝 40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
 								</p>
 							</div>
 						)}
@@ -306,7 +306,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							<Button
 								asChild
 								size="lg"
-								className="flex-1 hover:scale-105 transition-all duration-200 bg-primary hover:bg-primary/90 dark:bg-primary/80 dark:hover:bg-primary"
+								className="flex-1 hover:scale-105 transition-all duration-200 bg-[#0084ff] hover:bg-[#0084ff]/90 text-white"
 							>
 								<Link
 									href="https://facebook.com"
@@ -314,14 +314,13 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									rel="noopener noreferrer"
 								>
 									<Facebook className="mr-2 h-5 w-5" />
-									Facebook
+									Messenger
 								</Link>
 							</Button>
 							<Button
 								asChild
 								size="lg"
-								variant="outline"
-								className="flex-1 hover:scale-105 transition-all duration-200 dark:border-primary/50 dark:hover:bg-primary/20"
+								className="flex-1 hover:scale-105 transition-all duration-200 bg-[#25D366] hover:bg-[#25D366]/90 text-white"
 							>
 								<Link
 									href="https://whatsapp.com"
