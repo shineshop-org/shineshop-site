@@ -210,7 +210,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				</div>
 				
 				{/* Product Info */}
-				<div ref={productInfoRef} className="space-y-3 flex flex-col">
+				<div ref={productInfoRef} className="space-y-4 flex flex-col py-3">
 					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
 						<p className="text-3xl font-semibold jshine-gradient">
@@ -219,7 +219,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					</div>
 					
 					{/* Options - Always show main option even if it's the only one */}
-					<div className="space-y-3">
+					<div className="space-y-4 my-2">
 						{/* Package Type Option (Gói nâng cấp) */}
 						<div className="space-y-1">
 							<div className="flex flex-wrap gap-2">
@@ -335,7 +335,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						</div>
 						
 						{/* TOS agreement text */}
-						<p className="text-center text-sm text-white italic">
+						<p className="text-center text-sm text-foreground italic">
 							Khi bạn đã mua hàng đồng nghĩa rằng việc bạn hoàn toàn đồng ý và tuân thủ{' '}
 							<Link href="/tos" className="bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent hover:underline font-medium">
 								Điều khoản và Điều kiện
@@ -354,7 +354,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						<CardHeader>
 							<CardTitle>{t('productDetails')}</CardTitle>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="pb-8">
 							{getProductDescription() ? (
 								<div className="prose dark:prose-invert prose-sm max-w-none">
 									<ReactMarkdown>
@@ -376,7 +376,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						<CardHeader>
 							<CardTitle>{t('relatedArticles')}</CardTitle>
 						</CardHeader>
-						<CardContent className="space-y-3">
+						<CardContent className="space-y-4 py-5">
 							{relatedArticles.length > 0 ? (
 								relatedArticles.map((article) => (
 									<Link
