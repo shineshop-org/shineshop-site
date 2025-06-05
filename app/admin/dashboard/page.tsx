@@ -509,10 +509,38 @@ export default function AdminDashboardPage() {
 		<div className="flex flex-col min-h-screen">
 			<style jsx global>{`
 				.jshine-gradient {
-					background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+					background: linear-gradient(
+						to right,
+						#06b6d4, /* cyan */
+						#0ea5e9, /* sky/light blue */
+						#8b5cf6, /* violet */
+						#a855f7, /* purple */
+						#d946ef, /* fuchsia */
+						#ec4899, /* pink */
+						#f43f5e, /* rose */
+						#ef4444, /* red */
+						#f97316, /* orange */
+						#f59e0b, /* amber */
+						#eab308, /* yellow */
+						#84cc16, /* lime */
+						#22c55e, /* green */
+						#10b981, /* emerald */
+						#06b6d4  /* back to cyan for seamless loop */
+					);
 					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
 					background-clip: text;
-					color: transparent;
+					background-size: 1000% 100%;
+					animation: jshine 9s linear infinite;
+				}
+				
+				@keyframes jshine {
+					0% {
+						background-position: 0% center;
+					}
+					100% {
+						background-position: 100% center;
+					}
 				}
 			`}</style>
 			<div className="container flex h-16 items-center px-4 sm:px-6 justify-between">
