@@ -99,14 +99,20 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		
 		const originalPrice = getSelectedPrice()
 		const targetPrice = originalPrice
-		const duration = 500 // 0.5 seconds
-		const interval = 50 // Update every 50ms
+		const duration = 800 // 0.8 seconds for smoother animation
+		const interval = 40 // Update more frequently
 		const iterations = duration / interval
 		let count = 0
 		
+		// Create an increasing sequence for smoother animation
+		const steps = Array.from({length: iterations}, (_, i) => {
+			const progress = i / (iterations - 1);
+			// Use easeOutExpo for a nice animation curve
+			const easeOutExpo = 1 - Math.pow(2, -10 * progress);
+			return Math.floor(targetPrice * easeOutExpo);
+		});
+		
 		const animationInterval = setInterval(() => {
-			count++
-			
 			if (count >= iterations) {
 				clearInterval(animationInterval)
 				setPriceDisplay(formatPrice(targetPrice, 'en-US'))
@@ -114,9 +120,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				return
 			}
 			
-			// Generate random digits for the animation, but ensure they don't exceed target value
-			const randomValue = Math.floor(Math.random() * targetPrice)
-			setPriceDisplay(formatPrice(randomValue <= targetPrice ? randomValue : targetPrice, 'en-US'))
+			// Use predefined steps for smoother animation
+			const animationValue = steps[count];
+			setPriceDisplay(formatPrice(animationValue, 'en-US'))
+			count++
 		}, interval)
 	}
 	
@@ -238,7 +245,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				<div className="space-y-3">
 					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
-						<p className="text-3xl font-semibold text-primary">
+						<p className={`text-3xl font-semibold transition-all duration-500 ${
+							isAnimatingPrice 
+								? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse' 
+								: 'text-primary'
+						}`}>
 							{isAnimatingPrice ? priceDisplay : formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
@@ -247,7 +258,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					<div className="space-y-3">
 						{product.options && product.options.map((option) => (
 							<div key={option.id} className="space-y-1">
-								<label className="text-sm font-medium">{option.name}</label>
+								<div className="flex items-center">
+									<div className="px-3 py-1 bg-primary/10 dark:bg-primary/20 rounded-md inline-block text-sm font-medium">
+										{option.name}
+									</div>
+								</div>
 								<div className="flex flex-wrap gap-2">
 									{option.values.map((value) => (
 										<label
@@ -274,7 +289,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									<div>
 										{option.values.map((value) => (
 											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-full inline-block">{value.description}</p>
+												<p key={value.value} className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-md inline-block">{value.description}</p>
 											)
 										))}
 									</div>
@@ -285,7 +300,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						{/* If there are no options, create a single option for display consistency */}
 						{(!product.options || product.options.length === 0) && (
 							<div className="space-y-1">
-								<label className="text-sm font-medium">Lựa chọn</label>
+								<div className="flex items-center">
+									<div className="px-3 py-1 bg-primary/10 dark:bg-primary/20 rounded-md inline-block text-sm font-medium">
+										Lựa chọn
+									</div>
+								</div>
 								<div className="flex flex-wrap gap-2">
 									<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
 										<input
@@ -299,7 +318,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 										<span>Chính chủ (Add Family)</span>
 									</label>
 								</div>
-								<p className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-full inline-block">
+								<p className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-md inline-block">
 									40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
 								</p>
 							</div>
