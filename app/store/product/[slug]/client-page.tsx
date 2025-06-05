@@ -28,6 +28,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const [isAnimatingPrice, setIsAnimatingPrice] = useState(false)
 	const productImageRef = useRef<HTMLDivElement>(null)
 	const [transform, setTransform] = useState('')
+	const imageHeightRef = useRef<HTMLDivElement>(null)
+	const productInfoRef = useRef<HTMLDivElement>(null)
 	
 	useEffect(() => {
 		// Try to find the product in the store
@@ -82,6 +84,24 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}, 10)
 	}, [slug, products, faqArticles, initialProduct])
 	
+	// Effect to match height of product info with image
+	useEffect(() => {
+		const adjustHeight = () => {
+			if (imageHeightRef.current && productInfoRef.current) {
+				const imageHeight = imageHeightRef.current.offsetHeight;
+				productInfoRef.current.style.minHeight = `${imageHeight}px`;
+			}
+		};
+		
+		// Adjust on initial load and window resize
+		adjustHeight();
+		window.addEventListener('resize', adjustHeight);
+		
+		return () => {
+			window.removeEventListener('resize', adjustHeight);
+		};
+	}, [product]);
+	
 	// Handle option selection
 	const handleOptionChange = (optionId: string, value: string) => {
 		setSelectedOptions(prev => ({
@@ -97,10 +117,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const animatePrice = () => {
 		setIsAnimatingPrice(true)
 		
-		const originalPrice = getSelectedPrice()
-		const targetPrice = originalPrice
-		const duration = 800 // 0.8 seconds for smoother animation
-		const interval = 40 // Update more frequently
+		const targetPrice = getSelectedPrice()
+		const duration = 500 // 0.5 seconds as requested
+		const interval = 30 // Update more frequently for smoother animation
 		const iterations = duration / interval
 		let count = 0
 		
@@ -210,52 +229,82 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				{/* Product Image with 16:9 aspect ratio and 3D hover effect */}
 				<div 
-					ref={productImageRef}
+					ref={imageHeightRef}
 					className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
-					onMouseMove={handleMouseMove}
-					onMouseLeave={handleMouseLeave}
-					style={{
-						transform: transform,
-						transition: 'transform 0.1s ease-out'
-					}}
 				>
-					{/* 16:9 Aspect ratio container */}
-					<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-						<Image
-							src={product.image}
-							alt={getProductName()}
-							fill
-							className="object-cover"
-							sizes="(max-width: 1024px) 100vw, 50vw"
-							priority
+					<div
+						ref={productImageRef}
+						className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
+						onMouseMove={handleMouseMove}
+						onMouseLeave={handleMouseLeave}
+						style={{
+							transform: transform,
+							transition: 'transform 0.1s ease-out'
+						}}
+					>
+						{/* 16:9 Aspect ratio container */}
+						<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+							<Image
+								src={product.image}
+								alt={getProductName()}
+								fill
+								className="object-cover"
+								sizes="(max-width: 1024px) 100vw, 50vw"
+								priority
+							/>
+						</div>
+						{/* Dynamic shadow based on hover position */}
+						<div 
+							className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+							style={{
+								background: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, transparent 70%)',
+								transform: 'translateZ(-20px) scale(0.95)',
+								filter: 'blur(20px)'
+							}}
 						/>
 					</div>
-					{/* Dynamic shadow based on hover position */}
-					<div 
-						className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-						style={{
-							background: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, transparent 70%)',
-							transform: 'translateZ(-20px) scale(0.95)',
-							filter: 'blur(20px)'
-						}}
-					/>
 				</div>
 				
 				{/* Product Info */}
-				<div className="space-y-3">
+				<div ref={productInfoRef} className="space-y-3 flex flex-col">
 					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
 						<p className={`text-3xl font-semibold transition-all duration-500 ${
 							isAnimatingPrice 
-								? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse' 
+								? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent' 
 								: 'text-primary'
-						}`}>
+						}`} style={{
+							animation: isAnimatingPrice ? 'fadeGradient 0.5s ease-in-out' : 'none'
+						}}>
 							{isAnimatingPrice ? priceDisplay : formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
 					
 					{/* Options - Always show main option even if it's the only one */}
 					<div className="space-y-3">
+						{/* Package Type Option (Gói nâng cấp) */}
+						<div className="space-y-1">
+							<div className="flex items-center">
+								<div className="px-3 py-1 bg-primary/10 dark:bg-primary/20 rounded-md inline-block text-sm font-medium">
+									Gói nâng cấp
+								</div>
+							</div>
+							<div className="flex flex-wrap gap-2">
+								<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
+									<input
+										type="radio"
+										name="package-type"
+										value="chinh-chu"
+										checked={true}
+										readOnly
+										className="sr-only"
+									/>
+									<span>Chính chủ (Add Family)</span>
+								</label>
+							</div>
+						</div>
+						
+						{/* Render dynamic product options */}
 						{product.options && product.options.map((option) => (
 							<div key={option.id} className="space-y-1">
 								<div className="flex items-center">
@@ -325,8 +374,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						)}
 					</div>
 					
-					{/* Order Buttons */}
-					<div className="flex flex-col space-y-3">
+					{/* Order Buttons - Push to bottom with flex-grow */}
+					<div className="flex flex-col space-y-3 mt-auto">
 						<div className="flex gap-4">
 							<Button
 								asChild
@@ -428,6 +477,24 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					</Card>
 				</div>
 			</div>
+			
+			{/* Custom CSS Animation */}
+			<style jsx global>{`
+				@keyframes fadeGradient {
+					0% {
+						opacity: 0.5;
+						background-size: 100%;
+					}
+					50% {
+						opacity: 1;
+						background-size: 200%;
+					}
+					100% {
+						opacity: 0.9;
+						background-size: 100%;
+					}
+				}
+			`}</style>
 		</div>
 	)
 } 
