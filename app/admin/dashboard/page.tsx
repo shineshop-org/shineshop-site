@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, Save, Code } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, Save, Code, HelpCircle, Share2 } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/ta
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/app/components/ui/dialog'
-import { Product, FAQArticle } from '@/app/lib/types'
+import { Product, FAQArticle, SocialLink } from '@/app/lib/types'
 import { generateSlug } from '@/app/lib/utils'
 import { ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
 import { Badge } from '@/app/components/ui/badge'
@@ -35,7 +35,7 @@ import { CSS } from '@dnd-kit/utilities'
 // Add the jshine-gradient CSS class as in the product page
 const jshineGradientClassName = "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
 
-type TabType = 'products' | 'tos' | 'export'
+type TabType = 'products' | 'faq' | 'social' | 'tos'
 type ProductTabType = 'details' | 'card-order'
 
 // Sortable item component for drag and drop
@@ -94,15 +94,15 @@ function SortableProductItem({ product, getLowestPrice }: { product: Product; ge
 }
 
 // Flag SVG Components
-const VietnamFlag = () => (
-	<svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+const VietnamFlag = (props: React.SVGProps<SVGSVGElement>) => (
+	<svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<rect width="24" height="16" fill="#DA251D"/>
 		<path d="M12 3L13.2 6.6H17L14 8.8L15.2 12.4L12 10.2L8.8 12.4L10 8.8L7 6.6H10.8L12 3Z" fill="#FFFF00"/>
 	</svg>
 )
 
-const USFlag = () => (
-	<svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+const USFlag = (props: React.SVGProps<SVGSVGElement>) => (
+	<svg width="24" height="16" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<rect width="24" height="16" fill="#B22234"/>
 		<rect y="1.23" width="24" height="1.23" fill="white"/>
 		<rect y="3.69" width="24" height="1.23" fill="white"/>
@@ -126,6 +126,13 @@ export default function AdminDashboardPage() {
 		tosContent,
 		setTosContent,
 		faqArticles,
+		addFaqArticle,
+		updateFaqArticle,
+		deleteFaqArticle,
+		setFaqArticles,
+		socialLinks,
+		setSocialLinks,
+		updateSocialLink,
 		language,
 		setLanguage
 	} = useStore()
@@ -135,7 +142,7 @@ export default function AdminDashboardPage() {
 	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 	const [productDialog, setProductDialog] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
-	const [tosForm, setTosForm] = useState(tosContent)
+	const [tosForm, setTosForm] = useState(tosContent || '')
 	const [selectedArticles, setSelectedArticles] = useState<string[]>([])
 	const [sortableProducts, setSortableProducts] = useState<Product[]>([])
 	const [isSaving, setIsSaving] = useState(false)
@@ -168,34 +175,19 @@ export default function AdminDashboardPage() {
 	// Product form state
 	const [productForm, setProductForm] = useState({
 		name: '',
-		localizedName: {
-			en: '',
-			vi: ''
-		},
+		localizedName: { en: '', vi: '' },
 		description: '',
-		localizedDescription: {
-			en: '',
-			vi: ''
-		},
+		localizedDescription: { en: '', vi: '' },
 		image: '',
 		category: '',
 		slug: '',
-		options: [] as {
-			id: string;
-			name: string;
-			type: 'select' | 'radio';
-			values: {
-				value: string;
-				price: number;
-				description: string;
-			}[];
-		}[],
+		options: [] as NonNullable<Product['options']>,
 		relatedArticles: [] as string[],
 		isLocalized: false
 	})
 	
 	useEffect(() => {
-		// Trong môi trường development, tự động thiết lập xác thực mà không cần kiểm tra cookie
+		// Trong môi trường development, không cần kiểm tra xác thực
 		if (isDevelopment) {
 			setIsLoading(false)
 			setAdminAuthenticated(true)
@@ -221,6 +213,189 @@ export default function AdminDashboardPage() {
 	
 	const toggleLanguage = () => {
 		setLanguage(language === 'en' ? 'vi' : 'en')
+	}
+	
+	// Helper function to get lowest price from product options with proper null checks
+	const getLowestPrice = (product: Product): number => {
+		if (!product.options || product.options.length === 0) {
+			return product.price || 0
+		}
+		
+		let lowestPrice = Number.MAX_SAFE_INTEGER
+		for (const option of product.options) {
+			for (const value of option.values) {
+				if (value.price < lowestPrice) {
+					lowestPrice = value.price
+				}
+			}
+		}
+		
+		return lowestPrice === Number.MAX_SAFE_INTEGER ? (product.price || 0) : lowestPrice
+	}
+	
+	// Function to open product edit dialog
+	const openProductEdit = (product: Product) => {
+		setEditingProduct(product)
+		setProductForm({
+			name: product.name,
+			localizedName: product.localizedName || { en: '', vi: '' },
+			description: product.description || '',
+			localizedDescription: product.localizedDescription || { en: '', vi: '' },
+			image: product.image || '',
+			category: product.category || '',
+			slug: product.slug || '',
+			options: product.options || [],
+			relatedArticles: product.relatedArticles || [],
+			isLocalized: product.isLocalized || false
+		})
+		setSelectedArticles(product.relatedArticles || [])
+		setProductDialog(true)
+	}
+	
+	// Function to add option field
+	const addOptionField = () => {
+		setProductForm({
+			...productForm,
+			options: [
+				...productForm.options,
+				{
+					id: Date.now().toString(),
+					name: '',
+					type: 'select',
+					values: [{ value: '', price: 0, description: '' }]
+				}
+			]
+		})
+	}
+	
+	// Function to remove option
+	const removeOption = (optionIndex: number) => {
+		setProductForm({
+			...productForm,
+			options: productForm.options.filter((_: any, index: number) => index !== optionIndex)
+		})
+	}
+	
+	// Function to update option
+	const updateOption = (optionIndex: number, property: string, value: any) => {
+		const updatedOptions = [...productForm.options]
+		updatedOptions[optionIndex] = {
+			...updatedOptions[optionIndex],
+			[property]: value
+		}
+		
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	// Function to add value to option
+	const addValueToOption = (optionIndex: number) => {
+		const updatedOptions = [...productForm.options]
+		updatedOptions[optionIndex].values.push({ value: '', price: 0, description: '' })
+		
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	// Function to remove option value
+	const removeOptionValue = (optionIndex: number, valueIndex: number) => {
+		const updatedOptions = [...productForm.options]
+		updatedOptions[optionIndex].values = updatedOptions[optionIndex].values
+			.filter((_, index) => index !== valueIndex)
+		
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	// Function to update option value
+	const updateOptionValue = (
+		optionIndex: number, 
+		valueIndex: number, 
+		value: string | number, 
+		property: string
+	) => {
+		const updatedOptions = [...productForm.options]
+		updatedOptions[optionIndex].values[valueIndex] = {
+			...updatedOptions[optionIndex].values[valueIndex],
+			[property]: property === 'price' ? Number(value) : value
+		}
+		
+		setProductForm({
+			...productForm,
+			options: updatedOptions
+		})
+	}
+	
+	// Function to toggle article selection
+	const toggleArticleSelection = (articleId: string) => {
+		if (selectedArticles.includes(articleId)) {
+			setSelectedArticles(selectedArticles.filter(id => id !== articleId))
+		} else {
+			setSelectedArticles([...selectedArticles, articleId])
+		}
+	}
+	
+	// Function to handle saving product
+	const handleSaveProduct = () => {
+		if (!productForm.name) {
+			alert('Please enter product name')
+			return
+		}
+
+		// Generate a slug if empty
+		const slug = productForm.slug || generateSlug(productForm.name)
+		
+		// Create or update product
+		const productData: Product = {
+			id: editingProduct?.id || Date.now().toString(),
+			name: productForm.name,
+			localizedName: productForm.isLocalized ? productForm.localizedName : undefined,
+			price: 0, // Default price, will be calculated from options
+			description: productForm.description,
+			localizedDescription: productForm.isLocalized ? productForm.localizedDescription : undefined,
+			image: productForm.image,
+			category: productForm.category,
+			slug,
+			options: productForm.options,
+			relatedArticles: selectedArticles,
+			sortOrder: editingProduct?.sortOrder || products.length + 1,
+			isLocalized: productForm.isLocalized
+		}
+		
+		if (editingProduct) {
+			updateProduct(editingProduct.id, productData)
+		} else {
+			addProduct(productData)
+		}
+		
+		// Reset form and close dialog
+		setProductDialog(false)
+		setEditingProduct(null)
+		setProductForm({
+			name: '',
+			localizedName: { en: '', vi: '' },
+			description: '',
+			localizedDescription: { en: '', vi: '' },
+			image: '',
+			category: '',
+			slug: '',
+			options: [],
+			relatedArticles: [],
+			isLocalized: false
+		})
+		setSelectedArticles([])
+	}
+	
+	// Function to handle saving TOS
+	const handleSaveTos = () => {
+		setTosContent(tosForm)
+		alert('Terms of service saved!')
 	}
 	
 	// Handle drag end event
@@ -289,9 +464,10 @@ export default function AdminDashboardPage() {
 			code += `\t\tsortOrder: ${product.sortOrder},\n`
 			
 			// Handle options
-			if (product.options && product.options.length > 0) {
+			const productOptions = safeProductOptions(product)
+			if (productOptions.length > 0) {
 				code += '\t\toptions: [\n'
-				product.options.forEach((option, optIndex) => {
+				productOptions.forEach((option, optIndex) => {
 					code += '\t\t\t{\n'
 					code += `\t\t\t\tid: '${option.id}',\n`
 					code += `\t\t\t\tname: '${option.name.replace(/'/g, "\\'")}',\n`
@@ -311,7 +487,7 @@ export default function AdminDashboardPage() {
 					code += '\t\t\t\t]\n'
 					
 					code += '\t\t\t}'
-					if (optIndex < product.options.length - 1) code += ','
+					if (optIndex < productOptions.length - 1) code += ','
 					code += '\n'
 				})
 				code += '\t\t],\n'
@@ -358,6 +534,11 @@ export default function AdminDashboardPage() {
 		let code = 'export const initialTOSContent = `' + tosContent.replace(/`/g, "\\`") + '`'
 		setExportCode(code)
 		setShowExportDialog(true)
+	}
+	
+	// Hàm xử lý null/undefined cho product.options
+	const safeProductOptions = (product: Product) => {
+		return product.options || []
 	}
 	
 	// Hàm download file
@@ -407,7 +588,7 @@ export default function AdminDashboardPage() {
 			return false
 		}
 	}
-
+	
 	// Thêm hàm lưu products dưới dạng code vào file
 	const saveProductsToFile = async () => {
 		// Sort products by sortOrder
@@ -429,9 +610,10 @@ export default function AdminDashboardPage() {
 			code += `\t\tsortOrder: ${product.sortOrder},\n`
 			
 			// Handle options
-			if (product.options && product.options.length > 0) {
+			const productOptions = safeProductOptions(product)
+			if (productOptions.length > 0) {
 				code += '\t\toptions: [\n'
-				product.options.forEach((option, optIndex) => {
+				productOptions.forEach((option, optIndex) => {
 					code += '\t\t\t{\n'
 					code += `\t\t\t\tid: '${option.id}',\n`
 					code += `\t\t\t\tname: '${option.name.replace(/'/g, "\\'")}',\n`
@@ -451,7 +633,7 @@ export default function AdminDashboardPage() {
 					code += '\t\t\t\t]\n'
 					
 					code += '\t\t\t}'
-					if (optIndex < product.options.length - 1) code += ','
+					if (optIndex < productOptions.length - 1) code += ','
 					code += '\n'
 				})
 				code += '\t\t],\n'
@@ -488,9 +670,13 @@ export default function AdminDashboardPage() {
 		
 		code += ']\n\n'
 		
-		// Thêm mã cho FAQ và social links (giữ nguyên từ file gốc)
+		// Export FAQ articles from store
 		code += `export const initialFAQArticles: FAQArticle[] = ${JSON.stringify(faqArticles, null, 2).replace(/"([^"]+)":/g, '$1:')}\n\n`
+		
+		// Export social links from store
 		code += `export const initialSocialLinks: SocialLink[] = ${JSON.stringify(socialLinks, null, 2).replace(/"([^"]+)":/g, '$1:')}\n\n`
+		
+		// Export TOS content
 		code += `export const initialTOSContent = \`${tosContent.replace(/`/g, '\\`')}\``
 		
 		// Lưu vào file
@@ -515,19 +701,7 @@ export default function AdminDashboardPage() {
 	
 	// Nếu đang loading, hiển thị thông báo
 	if (isLoading) {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Shield className="h-5 w-5" />
-							<span>Development Mode</span>
-						</CardTitle>
-						<div className="text-muted-foreground">Loading admin interface...</div>
-					</CardHeader>
-				</Card>
-			</div>
-		)
+		return null
 	}
 	
 	// Trong production, không hiển thị gì
@@ -633,6 +807,22 @@ export default function AdminDashboardPage() {
 					>
 						<Home className="mr-2 h-4 w-4" />
 						{t('products')}
+					</Button>
+					<Button 
+						variant={activeTab === 'faq' ? 'default' : 'ghost'} 
+						className="justify-start"
+						onClick={() => setActiveTab('faq')}
+					>
+						<HelpCircle className="mr-2 h-4 w-4" />
+						FAQ
+					</Button>
+					<Button 
+						variant={activeTab === 'social' ? 'default' : 'ghost'} 
+						className="justify-start"
+						onClick={() => setActiveTab('social')}
+					>
+						<Share2 className="mr-2 h-4 w-4" />
+						Social Links
 					</Button>
 					<Button 
 						variant={activeTab === 'tos' ? 'default' : 'ghost'} 
@@ -1069,6 +1259,143 @@ export default function AdminDashboardPage() {
 									</DialogFooter>
 								</DialogContent>
 							</Dialog>
+						</div>
+					)}
+					
+					{activeTab === 'faq' && (
+						<div className="space-y-6">
+							<div className="flex justify-between items-center">
+								<h2 className="text-xl font-semibold">FAQ Management</h2>
+								<Button 
+									onClick={() => {
+										const newArticle: FAQArticle = {
+											id: Date.now().toString(),
+											title: 'New FAQ',
+											content: 'FAQ content...',
+											category: 'general',
+											slug: 'new-faq-' + Date.now(),
+											createdAt: new Date(),
+											updatedAt: new Date(),
+											tags: []
+										}
+										addFaqArticle(newArticle)
+									}}
+								>
+									<Plus className="mr-2 h-4 w-4" />
+									Add FAQ
+								</Button>
+							</div>
+							
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+								{faqArticles.map((article) => (
+									<Card key={article.id} className="overflow-hidden">
+										<CardHeader className="p-4">
+											<CardTitle className="text-lg">{article.title}</CardTitle>
+											<div className="text-sm text-muted-foreground">
+												Category: {article.category}
+											</div>
+										</CardHeader>
+										<CardContent className="p-4 pt-0">
+											<p className="text-sm mb-4 line-clamp-3">{article.content}</p>
+											<div className="flex space-x-2">
+												<Button 
+													variant="outline" 
+													size="sm" 
+													className="flex-1"
+													onClick={() => {
+														const newTitle = prompt('New title:', article.title)
+														if (newTitle) {
+															updateFaqArticle(article.id, { title: newTitle })
+														}
+													}}
+												>
+													<Edit className="mr-2 h-3 w-3" />
+													Edit
+												</Button>
+												<Button 
+													variant="outline" 
+													size="sm" 
+													className="flex-1 text-destructive hover:text-destructive"
+													onClick={() => {
+														if (confirm('Delete this FAQ?')) {
+															deleteFaqArticle(article.id)
+														}
+													}}
+												>
+													<Trash2 className="mr-2 h-3 w-3" />
+													Delete
+												</Button>
+											</div>
+										</CardContent>
+									</Card>
+								))}
+							</div>
+						</div>
+					)}
+					
+					{activeTab === 'social' && (
+						<div className="space-y-6">
+							<div className="flex justify-between items-center">
+								<h2 className="text-xl font-semibold">Social Links Management</h2>
+								<Button 
+									onClick={() => {
+										const newLink: SocialLink = {
+											id: Date.now().toString(),
+											platform: 'new-platform',
+											url: 'https://example.com',
+											icon: 'icon-name'
+										}
+										setSocialLinks([...socialLinks, newLink])
+									}}
+								>
+									<Plus className="mr-2 h-4 w-4" />
+									Add Social Link
+								</Button>
+							</div>
+							
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+								{socialLinks.map((link) => (
+									<Card key={link.id} className="overflow-hidden">
+										<CardHeader className="p-4">
+											<CardTitle className="text-lg">{link.platform}</CardTitle>
+											<div className="text-sm text-muted-foreground">
+												{link.url}
+											</div>
+										</CardHeader>
+										<CardContent className="p-4 pt-0">
+											<div className="flex space-x-2">
+												<Button 
+													variant="outline" 
+													size="sm" 
+													className="flex-1"
+													onClick={() => {
+														const newUrl = prompt('New URL:', link.url)
+														if (newUrl) {
+															updateSocialLink(link.id, { url: newUrl })
+														}
+													}}
+												>
+													<Edit className="mr-2 h-3 w-3" />
+													Edit
+												</Button>
+												<Button 
+													variant="outline" 
+													size="sm" 
+													className="flex-1 text-destructive hover:text-destructive"
+													onClick={() => {
+														if (confirm('Delete this social link?')) {
+															setSocialLinks(socialLinks.filter(l => l.id !== link.id))
+														}
+													}}
+												>
+													<Trash2 className="mr-2 h-3 w-3" />
+													Delete
+												</Button>
+											</div>
+										</CardContent>
+									</Card>
+								))}
+							</div>
 						</div>
 					)}
 					

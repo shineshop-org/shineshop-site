@@ -2,45 +2,9 @@ import { Product, FAQArticle, SocialLink } from './types'
 
 export const initialProducts: Product[] = [
 	{
-		id: '1',
-		name: 'Premium Wireless Headphones',
-		price: 1299000,
-		description: 'High-quality wireless headphones with active noise cancellation and superior sound quality. Perfect for music lovers and professionals.',
-		image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
-		category: 'Electronics',
-		slug: 'premium-wireless-headphones',
-		sortOrder: 1,
-		options: [
-			{
-				id: 'color',
-				name: 'Color',
-				type: 'select',
-				values: [
-					{
-						value: 'Black',
-						price: 1299000,
-						description: 'Classic black color with matte finish'
-					},
-					{
-						value: 'White',
-						price: 1299000,
-						description: 'Clean white design with silver accents'
-					},
-					{
-						value: 'Blue',
-						price: 1399000,
-						description: 'Limited edition navy blue color'
-					}
-				]
-			}
-		],
-		relatedArticles: ['1', '2']
-	},
-	{
 		id: 'youtube-premium',
 		name: 'Youtube Premium (chính chủ)',
-		price: 0,
-		description: 'Youtube Premium subscription service.',
+		description: `Youtube Premium subscription service.`,
 		image: 'https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png',
 		category: 'Subscription',
 		slug: 'youtube-premium',
@@ -68,803 +32,330 @@ export const initialProducts: Product[] = [
 					}
 				]
 			}
-		]
-	},
-	{
-		id: '2',
-		name: 'Smart Watch Pro',
-		price: 3499000,
-		description: 'Advanced smartwatch with health monitoring, GPS, and fitness tracking features.',
-		image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
-		category: 'Electronics',
-		slug: 'smart-watch-pro',
-		sortOrder: 2,
-		options: [
-			{
-				id: 'size',
-				name: 'Band Size',
-				type: 'radio',
-				values: [
-					{
-						value: 'Small',
-						price: 3499000,
-						description: 'Fits wrists 140-160mm'
-					},
-					{
-						value: 'Medium',
-						price: 3499000,
-						description: 'Fits wrists 160-180mm'
-					},
-					{
-						value: 'Large',
-						price: 3599000,
-						description: 'Fits wrists 180-220mm'
-					}
-				]
-			}
-		]
-	},
-	{
-		id: '3',
-		name: 'Portable Power Bank 20000mAh',
-		price: 599000,
-		description: 'High-capacity power bank with fast charging support for all your devices.',
-		image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=500',
-		category: 'Accessories',
-		slug: 'portable-power-bank-20000mah',
-		sortOrder: 3
-	},
-	{
-		id: '4',
-		name: 'Mechanical Gaming Keyboard',
-		price: 1799000,
-		description: 'RGB mechanical keyboard with customizable switches for gaming enthusiasts.',
-		image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500',
-		category: 'Gaming',
-		slug: 'mechanical-gaming-keyboard',
-		sortOrder: 4,
-		options: [
-			{
-				id: 'switch',
-				name: 'Switch Type',
-				type: 'select',
-				values: [
-					{
-						value: 'Red',
-						price: 1799000,
-						description: 'Linear switches with quick actuation, ideal for gaming'
-					},
-					{
-						value: 'Blue',
-						price: 1899000,
-						description: 'Tactile and clicky switches with audible feedback'
-					},
-					{
-						value: 'Brown',
-						price: 1849000,
-						description: 'Tactile switches with a softer feel, good for typing and gaming'
-					}
-				]
-			}
-		]
-	},
-	{
-		id: '5',
-		name: 'Wireless Gaming Mouse',
-		price: 999000,
-		description: 'Professional gaming mouse with high DPI sensor and customizable buttons.',
-		image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500',
-		category: 'Gaming',
-		slug: 'wireless-gaming-mouse',
-		sortOrder: 5
-	},
-	{
-		id: '6',
-		name: 'USB-C Hub 7-in-1',
-		price: 799000,
-		description: 'Multi-port USB-C hub with HDMI, USB 3.0, SD card reader, and PD charging.',
-		image: 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=500',
-		category: 'Accessories',
-		slug: 'usb-c-hub-7-in-1',
-		sortOrder: 6
-	},
-	{
-		id: '7',
-		name: '4K Webcam',
-		price: 1999000,
-		description: 'Professional 4K webcam with auto-focus and noise-canceling microphone.',
-		image: 'https://images.unsplash.com/photo-1598986646512-9330bcc4c0dc?w=500',
-		category: 'Electronics',
-		slug: '4k-webcam',
-		sortOrder: 7
-	},
-	{
-		id: '8',
-		name: 'Wireless Charging Pad',
-		price: 399000,
-		description: 'Fast wireless charging pad compatible with all Qi-enabled devices.',
-		image: 'https://images.unsplash.com/photo-1622675363311-3e1904dc1885?w=500',
-		category: 'Accessories',
-		slug: 'wireless-charging-pad',
-		sortOrder: 8
-	},
-	{
-		id: '9',
-		name: 'Gaming Headset RGB',
-		price: 1499000,
-		description: '7.1 surround sound gaming headset with RGB lighting and detachable mic.',
-		image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500',
-		category: 'Gaming',
-		slug: 'gaming-headset-rgb',
-		sortOrder: 9
-	},
-	{
-		id: '10',
-		name: 'Smartphone Gimbal Stabilizer',
-		price: 2299000,
-		description: '3-axis gimbal stabilizer for smooth video recording with smartphones.',
-		image: 'https://images.unsplash.com/photo-1622782914767-404fb9ab3f57?w=500',
-		category: 'Photography',
-		slug: 'smartphone-gimbal-stabilizer',
-		sortOrder: 10
-	},
-	{
-		id: '11',
-		name: 'LED Ring Light',
-		price: 899000,
-		description: '18-inch LED ring light with adjustable brightness and color temperature.',
-		image: 'https://images.unsplash.com/photo-1606986628253-05620e9b0a80?w=500',
-		category: 'Photography',
-		slug: 'led-ring-light',
-		sortOrder: 11
-	},
-	{
-		id: '12',
-		name: 'Bluetooth Speaker Waterproof',
-		price: 699000,
-		description: 'Portable waterproof Bluetooth speaker with 360° sound and 24-hour battery.',
-		image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500',
-		category: 'Audio',
-		slug: 'bluetooth-speaker-waterproof',
-		sortOrder: 12
-	},
-	{
-		id: '13',
-		name: 'Laptop Stand Adjustable',
-		price: 499000,
-		description: 'Ergonomic aluminum laptop stand with adjustable height and angle.',
-		image: 'https://images.unsplash.com/photo-1527335480088-278dbeec0ad5?w=500',
-		category: 'Accessories',
-		slug: 'laptop-stand-adjustable',
-		sortOrder: 13
-	},
-	{
-		id: '14',
-		name: 'Smart Home Security Camera',
-		price: 1599000,
-		description: '1080p HD security camera with night vision and two-way audio.',
-		image: 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=500',
-		category: 'Smart Home',
-		slug: 'smart-home-security-camera',
-		sortOrder: 14
-	},
-	{
-		id: '15',
-		name: 'Wireless Earbuds Pro',
-		price: 2999000,
-		description: 'Premium wireless earbuds with ANC and transparency mode.',
-		image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500',
-		category: 'Audio',
-		slug: 'wireless-earbuds-pro',
-		sortOrder: 15
-	},
-	{
-		id: '16',
-		name: 'External SSD 1TB',
-		price: 2199000,
-		description: 'Portable external SSD with USB 3.2 Gen 2 for fast data transfer.',
-		image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500',
-		category: 'Storage',
-		slug: 'external-ssd-1tb',
-		sortOrder: 16
-	},
-	{
-		id: '17',
-		name: 'Smart LED Light Bulbs (4 Pack)',
-		price: 999000,
-		description: 'WiFi-enabled smart LED bulbs with millions of colors and voice control.',
-		image: 'https://images.unsplash.com/photo-1565636192929-181a3dd69e60?w=500',
-		category: 'Smart Home',
-		slug: 'smart-led-light-bulbs',
-		sortOrder: 17
-	},
-	{
-		id: '18',
-		name: 'Car Phone Mount',
-		price: 299000,
-		description: 'Universal car phone mount with 360° rotation and strong magnetic hold.',
-		image: 'https://images.unsplash.com/photo-1619725002198-6a689b72f41d?w=500',
-		category: 'Accessories',
-		slug: 'car-phone-mount',
-		sortOrder: 18
-	},
-	{
-		id: '19',
-		name: 'Fitness Tracker Band',
-		price: 799000,
-		description: 'Water-resistant fitness tracker with heart rate monitor and sleep tracking.',
-		image: 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=500',
-		category: 'Fitness',
-		slug: 'fitness-tracker-band',
-		sortOrder: 19
-	},
-	{
-		id: '20',
-		name: 'Tablet Keyboard Case',
-		price: 899000,
-		description: 'Protective case with detachable Bluetooth keyboard for tablets.',
-		image: 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=500',
-		category: 'Accessories',
-		slug: 'tablet-keyboard-case',
-		sortOrder: 20
+		],
 	}
 ]
 
 export const initialFAQArticles: FAQArticle[] = [
-	{
-		id: '1',
-		title: 'How to make a purchase?',
-		content: `# How to make a purchase?
-
-Making a purchase on our website is simple and secure. Follow these steps:
-
-1. **Browse our products** - Navigate through our product categories or use the search function
-2. **Select your product** - Click on any product to view details
-3. **Choose options** - Select size, color, or other available options
-4. **Contact us** - Click the "Order Now" button to contact us via Facebook or WhatsApp
-5. **Complete payment** - Follow the payment instructions provided by our team
-
-Our customer service team is available 24/7 to assist you with your purchase.`,
-		category: 'Shopping',
-		slug: 'how-to-make-a-purchase',
-		createdAt: new Date('2024-01-01'),
-		updatedAt: new Date('2024-01-01'),
-		tags: ['purchase', 'shopping', 'guide']
-	},
-	{
-		id: '2',
-		title: 'What payment methods do you accept?',
-		content: `# Payment Methods
-
-We accept various payment methods for your convenience:
-
-- **Bank Transfer** - Direct transfer to our bank account
-- **VietQR** - Quick payment using QR code
-- **Cash on Delivery** - Available for selected areas
-- **E-wallets** - MoMo, ZaloPay, VNPay
-
-All transactions are secure and encrypted. You'll receive a confirmation once payment is processed.`,
-		category: 'Payment',
-		slug: 'payment-methods',
-		createdAt: new Date('2024-01-02'),
-		updatedAt: new Date('2024-01-02'),
-		tags: ['payment', 'methods', 'banking']
-	},
-	{
-		id: '3',
-		title: 'Shipping and Delivery Information',
-		content: `# Shipping and Delivery
-
-We offer nationwide shipping with the following options:
-
-## Delivery Times
-- **Express Delivery**: 1-2 business days
-- **Standard Delivery**: 3-5 business days
-- **Economy Delivery**: 5-7 business days
-
-## Shipping Fees
-- Orders over 500,000 VND: FREE shipping
-- Orders under 500,000 VND: 30,000 VND flat rate
-
-## Tracking
-You'll receive a tracking number via SMS/Email once your order ships.`,
-		category: 'Shipping',
-		slug: 'shipping-delivery-info',
-		createdAt: new Date('2024-01-03'),
-		updatedAt: new Date('2024-01-03'),
-		tags: ['shipping', 'delivery', 'tracking']
-	},
-	{
-		id: '4',
-		title: 'Return and Refund Policy',
-		content: `# Return and Refund Policy
-
-We want you to be completely satisfied with your purchase.
-
-## Return Eligibility
-- Items must be returned within **7 days** of delivery
-- Products must be unused and in original packaging
-- Include all tags, accessories, and documentation
-
-## How to Return
-1. Contact our customer service team
-2. Receive a return authorization number
-3. Ship the item back to us
-4. Refund processed within 3-5 business days
-
-## Non-returnable Items
-- Opened software or digital products
-- Personalized or custom-made items
-- Clearance or final sale items`,
-		category: 'Returns',
-		slug: 'return-refund-policy',
-		createdAt: new Date('2024-01-04'),
-		updatedAt: new Date('2024-01-04'),
-		tags: ['returns', 'refund', 'policy']
-	},
-	{
-		id: '5',
-		title: 'Product Warranty Information',
-		content: `# Product Warranty
-
-All products come with manufacturer warranty.
-
-## Warranty Coverage
-- **Electronics**: 12-24 months warranty
-- **Accessories**: 6-12 months warranty
-- **Gaming Products**: 12 months warranty
-
-## What's Covered
-- Manufacturing defects
-- Component failures
-- Software issues (where applicable)
-
-## What's NOT Covered
-- Physical damage
-- Water damage
-- Unauthorized modifications
-- Normal wear and tear
-
-To claim warranty, contact us with your order number and issue description.`,
-		category: 'Warranty',
-		slug: 'product-warranty-info',
-		createdAt: new Date('2024-01-05'),
-		updatedAt: new Date('2024-01-05'),
-		tags: ['warranty', 'guarantee', 'support']
-	},
-	{
-		id: '6',
-		title: 'How to track your order?',
-		content: `# Order Tracking
-
-Stay updated on your order status!
-
-## Tracking Methods
-1. **SMS Updates** - Automatic updates sent to your phone
-2. **Email Notifications** - Detailed tracking sent to your email
-3. **Contact Support** - Call/message us with your order number
-
-## Order Statuses
-- **Processing** - We're preparing your order
-- **Shipped** - Your order is on the way
-- **Out for Delivery** - Will arrive today
-- **Delivered** - Order completed
-
-For real-time updates, save your tracking number provided after purchase.`,
-		category: 'Orders',
-		slug: 'how-to-track-order',
-		createdAt: new Date('2024-01-06'),
-		updatedAt: new Date('2024-01-06'),
-		tags: ['tracking', 'orders', 'delivery']
-	},
-	{
-		id: '7',
-		title: 'Account Security Tips',
-		content: `# Account Security
-
-Keep your shopping experience safe!
-
-## Security Best Practices
-- Use a strong, unique password
-- Enable two-factor authentication
-- Don't share your login credentials
-- Log out after shopping on shared devices
-
-## Recognizing Scams
-- We'll never ask for passwords via email
-- Check for HTTPS in the URL
-- Verify seller contact information
-- Report suspicious activity immediately
-
-Your security is our priority. Contact us if you notice any unusual activity.`,
-		category: 'Security',
-		slug: 'account-security-tips',
-		createdAt: new Date('2024-01-07'),
-		updatedAt: new Date('2024-01-07'),
-		tags: ['security', 'safety', 'account']
-	},
-	{
-		id: '8',
-		title: 'Bulk Order Discounts',
-		content: `# Bulk Order Discounts
-
-Save more when you buy more!
-
-## Discount Tiers
-- **5-10 items**: 5% discount
-- **11-20 items**: 10% discount
-- **21-50 items**: 15% discount
-- **50+ items**: Contact for special pricing
-
-## How to Order in Bulk
-1. Contact our business team
-2. Provide product list and quantities
-3. Receive custom quote
-4. Enjoy bulk pricing
-
-Perfect for businesses, events, or group purchases!`,
-		category: 'Discounts',
-		slug: 'bulk-order-discounts',
-		createdAt: new Date('2024-01-08'),
-		updatedAt: new Date('2024-01-08'),
-		tags: ['bulk', 'discounts', 'wholesale']
-	},
-	{
-		id: '9',
-		title: 'Gift Wrapping Services',
-		content: `# Gift Wrapping Services
-
-Make your gifts extra special!
-
-## Available Options
-- **Basic Wrapping**: 20,000 VND
-- **Premium Wrapping**: 50,000 VND
-- **Luxury Wrapping**: 100,000 VND
-
-## Features
-- Beautiful gift paper designs
-- Personalized message cards
-- Ribbon and bow decorations
-- Special occasion themes
-
-Simply select gift wrapping at checkout and add your personal message.`,
-		category: 'Services',
-		slug: 'gift-wrapping-services',
-		createdAt: new Date('2024-01-09'),
-		updatedAt: new Date('2024-01-09'),
-		tags: ['gifts', 'wrapping', 'services']
-	},
-	{
-		id: '10',
-		title: 'Customer Loyalty Program',
-		content: `# Loyalty Program
-
-Join our VIP customer program!
-
-## Membership Tiers
-- **Bronze**: 0-2 million VND spent
-- **Silver**: 2-5 million VND spent
-- **Gold**: 5-10 million VND spent
-- **Platinum**: 10+ million VND spent
-
-## Benefits
-- Exclusive discounts
-- Early access to new products
-- Birthday rewards
-- Free shipping upgrades
-- Priority customer support
-
-Points never expire! Start earning rewards today.`,
-		category: 'Rewards',
-		slug: 'customer-loyalty-program',
-		createdAt: new Date('2024-01-10'),
-		updatedAt: new Date('2024-01-10'),
-		tags: ['loyalty', 'rewards', 'vip']
-	},
-	{
-		id: '11',
-		title: 'Product Care and Maintenance',
-		content: `# Product Care Guide
-
-Keep your products in perfect condition!
-
-## Electronics Care
-- Keep away from liquids
-- Use proper voltage adapters
-- Clean with microfiber cloths
-- Store in cool, dry places
-
-## Accessory Maintenance
-- Regular cleaning recommended
-- Follow manufacturer guidelines
-- Use appropriate cleaning products
-- Handle with care
-
-Proper maintenance extends product life and maintains warranty coverage.`,
-		category: 'Maintenance',
-		slug: 'product-care-maintenance',
-		createdAt: new Date('2024-01-11'),
-		updatedAt: new Date('2024-01-11'),
-		tags: ['care', 'maintenance', 'tips']
-	},
-	{
-		id: '12',
-		title: 'International Shipping',
-		content: `# International Shipping
-
-We ship worldwide!
-
-## Available Countries
-- Singapore, Malaysia, Thailand
-- USA, Canada, Australia
-- Most European countries
-
-## Shipping Rates
-- Calculated at checkout
-- Based on weight and destination
-- Express options available
-
-## Customs and Duties
-- Buyer responsible for import fees
-- We provide all necessary documentation
-- Tracking available for all shipments`,
-		category: 'International',
-		slug: 'international-shipping',
-		createdAt: new Date('2024-01-12'),
-		updatedAt: new Date('2024-01-12'),
-		tags: ['international', 'shipping', 'global']
-	},
-	{
-		id: '13',
-		title: 'Price Match Guarantee',
-		content: `# Price Match Guarantee
-
-We offer competitive pricing!
-
-## How It Works
-1. Find a lower price elsewhere
-2. Send us the competitor's link
-3. We'll match or beat the price
-4. Enjoy your savings!
-
-## Conditions
-- Must be identical product
-- In-stock at competitor
-- Includes shipping costs
-- Excludes clearance items
-
-Valid for 7 days after purchase.`,
-		category: 'Pricing',
-		slug: 'price-match-guarantee',
-		createdAt: new Date('2024-01-13'),
-		updatedAt: new Date('2024-01-13'),
-		tags: ['price', 'match', 'guarantee']
-	},
-	{
-		id: '14',
-		title: 'Pre-Order Information',
-		content: `# Pre-Order Guide
-
-Be first to get new products!
-
-## Pre-Order Benefits
-- Guaranteed allocation
-- Special pre-order pricing
-- Exclusive bonuses
-- Priority shipping
-
-## Payment
-- 50% deposit required
-- Balance due before shipping
-- Full refund if canceled
-
-## Delivery
-- Estimated dates provided
-- First come, first served
-- Updates via email/SMS`,
-		category: 'Pre-Orders',
-		slug: 'pre-order-information',
-		createdAt: new Date('2024-01-14'),
-		updatedAt: new Date('2024-01-14'),
-		tags: ['preorder', 'new', 'products']
-	},
-	{
-		id: '15',
-		title: 'Student Discounts',
-		content: `# Student Discount Program
-
-Special pricing for students!
-
-## Eligibility
-- Valid student ID required
-- Enrolled in accredited institution
-- One account per student
-
-## Discount Details
-- 10% off all products
-- Stackable with sale prices
-- Excludes already discounted items
-
-## How to Apply
-1. Verify student status
-2. Receive discount code
-3. Apply at checkout
-4. Save on every purchase!`,
-		category: 'Discounts',
-		slug: 'student-discounts',
-		createdAt: new Date('2024-01-15'),
-		updatedAt: new Date('2024-01-15'),
-		tags: ['students', 'discount', 'education']
-	},
-	{
-		id: '16',
-		title: 'Corporate Sales',
-		content: `# Corporate Sales
-
-Solutions for your business needs!
-
-## Services Offered
-- Bulk purchasing
-- Custom configurations
-- Net payment terms
-- Dedicated account manager
-
-## Benefits
-- Volume discounts
-- Priority support
-- Custom invoicing
-- Flexible payment options
-
-Contact our B2B team for personalized service and competitive quotes.`,
-		category: 'Business',
-		slug: 'corporate-sales',
-		createdAt: new Date('2024-01-16'),
-		updatedAt: new Date('2024-01-16'),
-		tags: ['corporate', 'b2b', 'business']
-	},
-	{
-		id: '17',
-		title: 'Product Authenticity',
-		content: `# Product Authenticity Guarantee
-
-100% genuine products!
-
-## Our Promise
-- Authorized retailer only
-- Direct from manufacturers
-- Full warranty coverage
-- Authenticity certificates
-
-## Verification
-- Check serial numbers
-- Scan QR codes
-- Verify holograms
-- Contact manufacturer
-
-We guarantee all products are 100% authentic or your money back!`,
-		category: 'Quality',
-		slug: 'product-authenticity',
-		createdAt: new Date('2024-01-17'),
-		updatedAt: new Date('2024-01-17'),
-		tags: ['authentic', 'genuine', 'quality']
-	},
-	{
-		id: '18',
-		title: 'Eco-Friendly Packaging',
-		content: `# Eco-Friendly Initiative
-
-We care about the environment!
-
-## Our Commitment
-- Recyclable packaging materials
-- Minimal plastic use
-- Biodegradable fillers
-- Reusable boxes
-
-## Customer Participation
-- Return packaging for reuse
-- Earn green points
-- Support sustainability
-- Reduce waste together
-
-Join us in protecting our planet!`,
-		category: 'Environment',
-		slug: 'eco-friendly-packaging',
-		createdAt: new Date('2024-01-18'),
-		updatedAt: new Date('2024-01-18'),
-		tags: ['eco', 'green', 'packaging']
-	},
-	{
-		id: '19',
-		title: 'Technical Support',
-		content: `# Technical Support
-
-Expert help when you need it!
-
-## Support Channels
-- Live chat: 9 AM - 9 PM
-- Email: support@shineshop.org
-- Phone: 1800-SHINE
-- Remote assistance available
-
-## Services
-- Product setup help
-- Troubleshooting
-- Software updates
-- Configuration guidance
-
-Our tech experts are here to ensure you get the most from your purchase!`,
-		category: 'Support',
-		slug: 'technical-support',
-		createdAt: new Date('2024-01-19'),
-		updatedAt: new Date('2024-01-19'),
-		tags: ['support', 'technical', 'help']
-	},
-	{
-		id: '20',
-		title: 'Referral Program',
-		content: `# Referral Rewards
-
-Share and earn!
-
-## How It Works
-1. Share your referral code
-2. Friends get 5% discount
-3. You earn 5% commission
-4. No limits on earnings!
-
-## Rewards
-- Cash payments monthly
-- Store credit options
-- Bonus tiers for top referrers
-- Exclusive referrer perks
-
-Start earning by sharing Shine Shop with friends and family today!`,
-		category: 'Rewards',
-		slug: 'referral-program',
-		createdAt: new Date('2024-01-20'),
-		updatedAt: new Date('2024-01-20'),
-		tags: ['referral', 'rewards', 'earn']
-	}
+  {
+    id: "1",
+    title: "How to make a purchase?",
+    content: "# How to make a purchase?\n\nMaking a purchase on our website is simple and secure. Follow these steps:\n\n1. **Browse our products** - Navigate through our product categories or use the search function\n2. **Select your product** - Click on any product to view details\n3. **Choose options** - Select size, color, or other available options\n4. **Contact us** - Click the \"Order Now\" button to contact us via Facebook or WhatsApp\n5. **Complete payment** - Follow the payment instructions provided by our team\n\nOur customer service team is available 24/7 to assist you with your purchase.",
+    category: "Shopping",
+    slug: "how-to-make-a-purchase",
+    createdAt: "2024-01-01T00:00:00.000Z",
+    updatedAt: "2024-01-01T00:00:00.000Z",
+    tags: [
+      "purchase",
+      "shopping",
+      "guide"
+    ]
+  },
+  {
+    id: "2",
+    title: "What payment methods do you accept?",
+    content: "# Payment Methods\n\nWe accept various payment methods for your convenience:\n\n- **Bank Transfer** - Direct transfer to our bank account\n- **VietQR** - Quick payment using QR code\n- **Cash on Delivery** - Available for selected areas\n- **E-wallets** - MoMo, ZaloPay, VNPay\n\nAll transactions are secure and encrypted. You'll receive a confirmation once payment is processed.",
+    category: "Payment",
+    slug: "payment-methods",
+    createdAt: "2024-01-02T00:00:00.000Z",
+    updatedAt: "2024-01-02T00:00:00.000Z",
+    tags: [
+      "payment",
+      "methods",
+      "banking"
+    ]
+  },
+  {
+    id: "3",
+    title: "Shipping and Delivery Information",
+    content: "# Shipping and Delivery\n\nWe offer nationwide shipping with the following options:\n\n## Delivery Times\n- **Express Delivery**: 1-2 business days\n- **Standard Delivery**: 3-5 business days\n- **Economy Delivery**: 5-7 business days\n\n## Shipping Fees\n- Orders over 500,000 VND: FREE shipping\n- Orders under 500,000 VND: 30,000 VND flat rate\n\n## Tracking\nYou'll receive a tracking number via SMS/Email once your order ships.",
+    category: "Shipping",
+    slug: "shipping-delivery-info",
+    createdAt: "2024-01-03T00:00:00.000Z",
+    updatedAt: "2024-01-03T00:00:00.000Z",
+    tags: [
+      "shipping",
+      "delivery",
+      "tracking"
+    ]
+  },
+  {
+    id: "4",
+    title: "Return and Refund Policy",
+    content: "# Return and Refund Policy\n\nWe want you to be completely satisfied with your purchase.\n\n## Return Eligibility\n- Items must be returned within **7 days** of delivery\n- Products must be unused and in original packaging\n- Include all tags, accessories, and documentation\n\n## How to Return\n1. Contact our customer service team\n2. Receive a return authorization number\n3. Ship the item back to us\n4. Refund processed within 3-5 business days\n\n## Non-returnable Items\n- Opened software or digital products\n- Personalized or custom-made items\n- Clearance or final sale items",
+    category: "Returns",
+    slug: "return-refund-policy",
+    createdAt: "2024-01-04T00:00:00.000Z",
+    updatedAt: "2024-01-04T00:00:00.000Z",
+    tags: [
+      "returns",
+      "refund",
+      "policy"
+    ]
+  },
+  {
+    id: "5",
+    title: "Product Warranty Information",
+    content: "# Product Warranty\n\nAll products come with manufacturer warranty.\n\n## Warranty Coverage\n- **Electronics**: 12-24 months warranty\n- **Accessories**: 6-12 months warranty\n- **Gaming Products**: 12 months warranty\n\n## What's Covered\n- Manufacturing defects\n- Component failures\n- Software issues (where applicable)\n\n## What's NOT Covered\n- Physical damage\n- Water damage\n- Unauthorized modifications\n- Normal wear and tear\n\nTo claim warranty, contact us with your order number and issue description.",
+    category: "Warranty",
+    slug: "product-warranty-info",
+    createdAt: "2024-01-05T00:00:00.000Z",
+    updatedAt: "2024-01-05T00:00:00.000Z",
+    tags: [
+      "warranty",
+      "guarantee",
+      "support"
+    ]
+  },
+  {
+    id: "6",
+    title: "How to track your order?",
+    content: "# Order Tracking\n\nStay updated on your order status!\n\n## Tracking Methods\n1. **SMS Updates** - Automatic updates sent to your phone\n2. **Email Notifications** - Detailed tracking sent to your email\n3. **Contact Support** - Call/message us with your order number\n\n## Order Statuses\n- **Processing** - We're preparing your order\n- **Shipped** - Your order is on the way\n- **Out for Delivery** - Will arrive today\n- **Delivered** - Order completed\n\nFor real-time updates, save your tracking number provided after purchase.",
+    category: "Orders",
+    slug: "how-to-track-order",
+    createdAt: "2024-01-06T00:00:00.000Z",
+    updatedAt: "2024-01-06T00:00:00.000Z",
+    tags: [
+      "tracking",
+      "orders",
+      "delivery"
+    ]
+  },
+  {
+    id: "7",
+    title: "Account Security Tips",
+    content: "# Account Security\n\nKeep your shopping experience safe!\n\n## Security Best Practices\n- Use a strong, unique password\n- Enable two-factor authentication\n- Don't share your login credentials\n- Log out after shopping on shared devices\n\n## Recognizing Scams\n- We'll never ask for passwords via email\n- Check for HTTPS in the URL\n- Verify seller contact information\n- Report suspicious activity immediately\n\nYour security is our priority. Contact us if you notice any unusual activity.",
+    category: "Security",
+    slug: "account-security-tips",
+    createdAt: "2024-01-07T00:00:00.000Z",
+    updatedAt: "2024-01-07T00:00:00.000Z",
+    tags: [
+      "security",
+      "safety",
+      "account"
+    ]
+  },
+  {
+    id: "8",
+    title: "Bulk Order Discounts",
+    content: "# Bulk Order Discounts\n\nSave more when you buy more!\n\n## Discount Tiers\n- **5-10 items**: 5% discount\n- **11-20 items**: 10% discount\n- **21-50 items**: 15% discount\n- **50+ items**: Contact for special pricing\n\n## How to Order in Bulk\n1. Contact our business team\n2. Provide product list and quantities\n3. Receive custom quote\n4. Enjoy bulk pricing\n\nPerfect for businesses, events, or group purchases!",
+    category: "Discounts",
+    slug: "bulk-order-discounts",
+    createdAt: "2024-01-08T00:00:00.000Z",
+    updatedAt: "2024-01-08T00:00:00.000Z",
+    tags: [
+      "bulk",
+      "discounts",
+      "wholesale"
+    ]
+  },
+  {
+    id: "9",
+    title: "Gift Wrapping Services",
+    content: "# Gift Wrapping Services\n\nMake your gifts extra special!\n\n## Available Options\n- **Basic Wrapping**: 20,000 VND\n- **Premium Wrapping**: 50,000 VND\n- **Luxury Wrapping**: 100,000 VND\n\n## Features\n- Beautiful gift paper designs\n- Personalized message cards\n- Ribbon and bow decorations\n- Special occasion themes\n\nSimply select gift wrapping at checkout and add your personal message.",
+    category: "Services",
+    slug: "gift-wrapping-services",
+    createdAt: "2024-01-09T00:00:00.000Z",
+    updatedAt: "2024-01-09T00:00:00.000Z",
+    tags: [
+      "gifts",
+      "wrapping",
+      "services"
+    ]
+  },
+  {
+    id: "10",
+    title: "Customer Loyalty Program",
+    content: "# Loyalty Program\n\nJoin our VIP customer program!\n\n## Membership Tiers\n- **Bronze**: 0-2 million VND spent\n- **Silver**: 2-5 million VND spent\n- **Gold**: 5-10 million VND spent\n- **Platinum**: 10+ million VND spent\n\n## Benefits\n- Exclusive discounts\n- Early access to new products\n- Birthday rewards\n- Free shipping upgrades\n- Priority customer support\n\nPoints never expire! Start earning rewards today.",
+    category: "Rewards",
+    slug: "customer-loyalty-program",
+    createdAt: "2024-01-10T00:00:00.000Z",
+    updatedAt: "2024-01-10T00:00:00.000Z",
+    tags: [
+      "loyalty",
+      "rewards",
+      "vip"
+    ]
+  },
+  {
+    id: "11",
+    title: "Product Care and Maintenance",
+    content: "# Product Care Guide\n\nKeep your products in perfect condition!\n\n## Electronics Care\n- Keep away from liquids\n- Use proper voltage adapters\n- Clean with microfiber cloths\n- Store in cool, dry places\n\n## Accessory Maintenance\n- Regular cleaning recommended\n- Follow manufacturer guidelines\n- Use appropriate cleaning products\n- Handle with care\n\nProper maintenance extends product life and maintains warranty coverage.",
+    category: "Maintenance",
+    slug: "product-care-maintenance",
+    createdAt: "2024-01-11T00:00:00.000Z",
+    updatedAt: "2024-01-11T00:00:00.000Z",
+    tags: [
+      "care",
+      "maintenance",
+      "tips"
+    ]
+  },
+  {
+    id: "12",
+    title: "International Shipping",
+    content: "# International Shipping\n\nWe ship worldwide!\n\n## Available Countries\n- Singapore, Malaysia, Thailand\n- USA, Canada, Australia\n- Most European countries\n\n## Shipping Rates\n- Calculated at checkout\n- Based on weight and destination\n- Express options available\n\n## Customs and Duties\n- Buyer responsible for import fees\n- We provide all necessary documentation\n- Tracking available for all shipments",
+    category: "International",
+    slug: "international-shipping",
+    createdAt: "2024-01-12T00:00:00.000Z",
+    updatedAt: "2024-01-12T00:00:00.000Z",
+    tags: [
+      "international",
+      "shipping",
+      "global"
+    ]
+  },
+  {
+    id: "13",
+    title: "Price Match Guarantee",
+    content: "# Price Match Guarantee\n\nWe offer competitive pricing!\n\n## How It Works\n1. Find a lower price elsewhere\n2. Send us the competitor's link\n3. We'll match or beat the price\n4. Enjoy your savings!\n\n## Conditions\n- Must be identical product\n- In-stock at competitor\n- Includes shipping costs\n- Excludes clearance items\n\nValid for 7 days after purchase.",
+    category: "Pricing",
+    slug: "price-match-guarantee",
+    createdAt: "2024-01-13T00:00:00.000Z",
+    updatedAt: "2024-01-13T00:00:00.000Z",
+    tags: [
+      "price",
+      "match",
+      "guarantee"
+    ]
+  },
+  {
+    id: "14",
+    title: "Pre-Order Information",
+    content: "# Pre-Order Guide\n\nBe first to get new products!\n\n## Pre-Order Benefits\n- Guaranteed allocation\n- Special pre-order pricing\n- Exclusive bonuses\n- Priority shipping\n\n## Payment\n- 50% deposit required\n- Balance due before shipping\n- Full refund if canceled\n\n## Delivery\n- Estimated dates provided\n- First come, first served\n- Updates via email/SMS",
+    category: "Pre-Orders",
+    slug: "pre-order-information",
+    createdAt: "2024-01-14T00:00:00.000Z",
+    updatedAt: "2024-01-14T00:00:00.000Z",
+    tags: [
+      "preorder",
+      "new",
+      "products"
+    ]
+  },
+  {
+    id: "15",
+    title: "Student Discounts",
+    content: "# Student Discount Program\n\nSpecial pricing for students!\n\n## Eligibility\n- Valid student ID required\n- Enrolled in accredited institution\n- One account per student\n\n## Discount Details\n- 10% off all products\n- Stackable with sale prices\n- Excludes already discounted items\n\n## How to Apply\n1. Verify student status\n2. Receive discount code\n3. Apply at checkout\n4. Save on every purchase!",
+    category: "Discounts",
+    slug: "student-discounts",
+    createdAt: "2024-01-15T00:00:00.000Z",
+    updatedAt: "2024-01-15T00:00:00.000Z",
+    tags: [
+      "students",
+      "discount",
+      "education"
+    ]
+  },
+  {
+    id: "16",
+    title: "Corporate Sales",
+    content: "# Corporate Sales\n\nSolutions for your business needs!\n\n## Services Offered\n- Bulk purchasing\n- Custom configurations\n- Net payment terms\n- Dedicated account manager\n\n## Benefits\n- Volume discounts\n- Priority support\n- Custom invoicing\n- Flexible payment options\n\nContact our B2B team for personalized service and competitive quotes.",
+    category: "Business",
+    slug: "corporate-sales",
+    createdAt: "2024-01-16T00:00:00.000Z",
+    updatedAt: "2024-01-16T00:00:00.000Z",
+    tags: [
+      "corporate",
+      "b2b",
+      "business"
+    ]
+  },
+  {
+    id: "17",
+    title: "Product Authenticity",
+    content: "# Product Authenticity Guarantee\n\n100% genuine products!\n\n## Our Promise\n- Authorized retailer only\n- Direct from manufacturers\n- Full warranty coverage\n- Authenticity certificates\n\n## Verification\n- Check serial numbers\n- Scan QR codes\n- Verify holograms\n- Contact manufacturer\n\nWe guarantee all products are 100% authentic or your money back!",
+    category: "Quality",
+    slug: "product-authenticity",
+    createdAt: "2024-01-17T00:00:00.000Z",
+    updatedAt: "2024-01-17T00:00:00.000Z",
+    tags: [
+      "authentic",
+      "genuine",
+      "quality"
+    ]
+  },
+  {
+    id: "18",
+    title: "Eco-Friendly Packaging",
+    content: "# Eco-Friendly Initiative\n\nWe care about the environment!\n\n## Our Commitment\n- Recyclable packaging materials\n- Minimal plastic use\n- Biodegradable fillers\n- Reusable boxes\n\n## Customer Participation\n- Return packaging for reuse\n- Earn green points\n- Support sustainability\n- Reduce waste together\n\nJoin us in protecting our planet!",
+    category: "Environment",
+    slug: "eco-friendly-packaging",
+    createdAt: "2024-01-18T00:00:00.000Z",
+    updatedAt: "2024-01-18T00:00:00.000Z",
+    tags: [
+      "eco",
+      "green",
+      "packaging"
+    ]
+  },
+  {
+    id: "19",
+    title: "Technical Support",
+    content: "# Technical Support\n\nExpert help when you need it!\n\n## Support Channels\n- Live chat: 9 AM - 9 PM\n- Email: support@shineshop.org\n- Phone: 1800-SHINE\n- Remote assistance available\n\n## Services\n- Product setup help\n- Troubleshooting\n- Software updates\n- Configuration guidance\n\nOur tech experts are here to ensure you get the most from your purchase!",
+    category: "Support",
+    slug: "technical-support",
+    createdAt: "2024-01-19T00:00:00.000Z",
+    updatedAt: "2024-01-19T00:00:00.000Z",
+    tags: [
+      "support",
+      "technical",
+      "help"
+    ]
+  },
+  {
+    id: "20",
+    title: "Referral Program",
+    content: "# Referral Rewards\n\nShare and earn!\n\n## How It Works\n1. Share your referral code\n2. Friends get 5% discount\n3. You earn 5% commission\n4. No limits on earnings!\n\n## Rewards\n- Cash payments monthly\n- Store credit options\n- Bonus tiers for top referrers\n- Exclusive referrer perks\n\nStart earning by sharing Shine Shop with friends and family today!",
+    category: "Rewards",
+    slug: "referral-program",
+    createdAt: "2024-01-20T00:00:00.000Z",
+    updatedAt: "2024-01-20T00:00:00.000Z",
+    tags: [
+      "referral",
+      "rewards",
+      "earn"
+    ]
+  }
 ]
 
 export const initialSocialLinks: SocialLink[] = [
-	{
-		id: '1',
-		platform: 'Facebook',
-		url: 'https://facebook.com/shineshop',
-		icon: 'facebook'
-	},
-	{
-		id: '2',
-		platform: 'Instagram',
-		url: 'https://instagram.com/shineshop',
-		icon: 'instagram'
-	},
-	{
-		id: '3',
-		platform: 'Twitter',
-		url: 'https://twitter.com/shineshop',
-		icon: 'twitter'
-	},
-	{
-		id: '4',
-		platform: 'WhatsApp',
-		url: 'https://wa.me/84123456789',
-		icon: 'message-circle'
-	},
-	{
-		id: '5',
-		platform: 'Telegram',
-		url: 'https://t.me/shineshop',
-		icon: 'send'
-	},
-	{
-		id: '6',
-		platform: 'YouTube',
-		url: 'https://youtube.com/@shineshop',
-		icon: 'youtube'
-	}
+  {
+    id: "1",
+    platform: "Facebook",
+    url: "https://facebook.com/shineshop",
+    icon: "facebook"
+  },
+  {
+    id: "2",
+    platform: "Instagram",
+    url: "https://instagram.com/shineshop",
+    icon: "instagram"
+  },
+  {
+    id: "3",
+    platform: "Twitter",
+    url: "https://twitter.com/shineshop",
+    icon: "twitter"
+  },
+  {
+    id: "4",
+    platform: "WhatsApp",
+    url: "https://wa.me/84123456789",
+    icon: "message-circle"
+  },
+  {
+    id: "5",
+    platform: "Telegram",
+    url: "https://t.me/shineshop",
+    icon: "send"
+  },
+  {
+    id: "6",
+    platform: "YouTube",
+    url: "https://youtube.com/@shineshop",
+    icon: "youtube"
+  }
 ]
 
 export const initialTOSContent = `# Terms of Service
@@ -972,4 +463,4 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 
 ---
 
-By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.` 
+By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
