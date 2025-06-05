@@ -2,6 +2,7 @@ import React from 'react'
 import { notFound } from 'next/navigation'
 import { initialProducts } from '@/app/lib/initial-data'
 import ProductClient from './client-page'
+import { cookies } from 'next/headers'
 
 interface ProductPageProps {
 	params: {
@@ -20,11 +21,18 @@ export default function ProductPage({ params }: ProductPageProps) {
 	// Get initial data for static generation
 	const initialProduct = initialProducts.find(p => p.slug === params.slug)
 	
-	// For SSG, we need to return a 404 if the product doesn't exist
-	if (!initialProduct) {
-		notFound()
-	}
-	
-	// Pass initialProduct and slug to the client component
-	return <ProductClient slug={params.slug} initialProduct={initialProduct} />
+	// We'll just use the initial product here and let the client component
+	// handle checking the store data. This prevents 404s for dynamically added products.
+	// If no initial product is found, we'll still render the client component
+	// which will try to find the product in the store.
+	return <ProductClient slug={params.slug} initialProduct={initialProduct || {
+		id: '',
+		name: '',
+		price: 0,
+		description: '',
+		image: '',
+		category: '',
+		slug: params.slug,
+		sortOrder: 0
+	}} />
 } 

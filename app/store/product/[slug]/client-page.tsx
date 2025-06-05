@@ -46,6 +46,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					}
 				})
 				setSelectedOptions(initialOptions)
+				
+				// Update price immediately based on the initially selected options
+				setTimeout(() => {
+					const newPrice = getSelectedPrice()
+					setPriceDisplay(formatPrice(newPrice, 'en-US'))
+				}, 10)
 			}
 			
 			// Find related articles from store
@@ -55,14 +61,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				)
 				setRelatedArticles(related)
 			}
-		} else {
-			// Use initial product data and find related articles from initial data
-			if (initialProduct.relatedArticles) {
-				const related = initialFAQArticles.filter(article => 
-					initialProduct.relatedArticles?.includes(article.id)
-				)
-				setRelatedArticles(related)
-			}
+		} else if (initialProduct.id) {
+			// Only use initial product data if it has a valid ID
 			
 			// Initialize selected options for initial product - always select the first option by default
 			if (initialProduct.options && initialProduct.options.length > 0) {
@@ -73,24 +73,40 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					}
 				})
 				setSelectedOptions(initialOptions)
+				
+				// Update price immediately based on the initially selected options
+				setTimeout(() => {
+					const newPrice = getSelectedPrice()
+					setPriceDisplay(formatPrice(newPrice, 'en-US'))
+				}, 10)
 			}
+			
+			// Find related articles from initial data
+			if (initialProduct.relatedArticles) {
+				const related = initialFAQArticles.filter(article => 
+					initialProduct.relatedArticles?.includes(article.id)
+				)
+				setRelatedArticles(related)
+			}
+		} else {
+			// If no product found in either store or initial data, redirect to 404
+			window.location.href = '/404'
+			return
 		}
-		
-		// Initialize price display after setting initial product and options
-		setTimeout(() => {
-			setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
-		}, 10)
 	}, [slug, products, faqArticles, initialProduct])
 	
 	// Handle option selection
 	const handleOptionChange = (optionId: string, value: string) => {
-		setSelectedOptions(prev => ({
-			...prev,
+		const newSelectedOptions = {
+			...selectedOptions,
 			[optionId]: value
-		}))
+		}
 		
-		// Update price immediately without animation
-		setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
+		setSelectedOptions(newSelectedOptions)
+		
+		// Update price display with the new selected options
+		const newPrice = getSelectedPrice()
+		setPriceDisplay(formatPrice(newPrice, 'en-US'))
 	}
 	
 	// Extract the lowest price from product options
@@ -116,23 +132,24 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			return product.price
 		}
 		
-		// Get price based on selected options
-		let totalPrice = product.price
-		
 		// Find the selected option values and their prices
+		let selectedPrice = product.price
+		let foundValidPrice = false
+		
 		Object.entries(selectedOptions).forEach(([optionId, selectedValue]) => {
 			if (!selectedValue) return
 			
 			const option = product.options?.find(opt => opt.id === optionId)
 			if (option) {
 				const optionValue = option.values.find(val => val.value === selectedValue)
-				if (optionValue) {
-					totalPrice = optionValue.price // Just use the option price directly
+				if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
+					selectedPrice = optionValue.price
+					foundValidPrice = true
 				}
 			}
 		})
 		
-		return totalPrice
+		return foundValidPrice ? selectedPrice : product.price
 	}
 	
 	// Get the product name based on language and localization settings

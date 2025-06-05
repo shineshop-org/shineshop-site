@@ -187,18 +187,18 @@ function ProductCard({ product, language }: ProductCardProps) {
 	// Calculate lowest price from options
 	const getLowestPrice = () => {
 		if (!product.options || product.options.length === 0) {
-			return product.price
+			return product.price;
 		}
 		
 		const optionValues = product.options.flatMap(option => 
 			option.values.map(value => value.price)
-		)
+		).filter(price => typeof price === 'number' && !isNaN(price) && isFinite(price));
 		
-		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => !isNaN(price) && isFinite(price)))
-			: product.price
-			
-		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
+		if (optionValues.length === 0) {
+			return product.price;
+		}
+		
+		return Math.min(...optionValues);
 	}
 	
 	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {

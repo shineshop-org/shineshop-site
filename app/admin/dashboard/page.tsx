@@ -282,53 +282,79 @@ export default function AdminDashboardPage() {
 	}
 	
 	const handleSaveProduct = () => {
-		// Get the lowest price from options if available
-		const optionValues = productForm.options.flatMap(option => 
-			option.values.map(value => value.price)
-		)
+		setIsSaving(true);
 		
-		// Set the lowest price found or fallback to 0
-		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => price !== Infinity && !isNaN(price)))
-			: 0
-			
-		const newProduct: Product = {
-			id: editingProduct?.id || Date.now().toString(),
-			name: productForm.name,
-			price: !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : 0,
-			description: productForm.description,
-			image: productForm.image,
-			category: productForm.category,
-			slug: productForm.slug || generateSlug(productForm.name),
-			sortOrder: editingProduct?.sortOrder || 999, // Default to end of list
-			options: productForm.options,
-			relatedArticles: selectedArticles
+		// Validate product data
+		if (!productForm.name || !productForm.image || !productForm.category) {
+			alert(t('fillRequiredFields'));
+			setIsSaving(false);
+			return;
 		}
 		
-		// Add localization if enabled
-		if (productForm.isLocalized) {
-			newProduct.isLocalized = true
-			newProduct.localizedName = {
-				en: productForm.localizedName.en || productForm.name,
-				vi: productForm.localizedName.vi || productForm.name
-			}
-			newProduct.localizedDescription = {
-				en: productForm.localizedDescription.en || productForm.description,
-				vi: productForm.localizedDescription.vi || productForm.description
-			}
-		}
-		
+		// If editing an existing product
 		if (editingProduct) {
-			updateProduct(editingProduct.id, newProduct)
+			// Validate option prices
+			const validatedOptions = productForm.options.map(option => {
+				return {
+					...option,
+					values: option.values.map(value => {
+						// Ensure price is a valid number
+						const price = typeof value.price === 'number' && !isNaN(value.price) ? 
+							value.price : 
+							(editingProduct.price || 0);
+						
+						return {
+							...value,
+							price
+						};
+					})
+				};
+			});
+			
+			// Update product with validated options
+			updateProduct(editingProduct.id, {
+				...productForm,
+				options: validatedOptions,
+				relatedArticles: selectedArticles
+			});
 		} else {
-			addProduct(newProduct)
+			// Creating a new product
+			// Generate a simple ID
+			const newId = Date.now().toString();
+			
+			// Validate option prices for new product
+			const validatedOptions = productForm.options.map(option => {
+				return {
+					...option,
+					values: option.values.map(value => {
+						// Ensure price is a valid number
+						const price = typeof value.price === 'number' && !isNaN(value.price) ? 
+							value.price : 
+							0;
+						
+						return {
+							...value,
+							price
+						};
+					})
+				};
+			});
+			
+			// Add the new product
+			addProduct({
+				id: newId,
+				...productForm,
+				price: 0, // Base price
+				options: validatedOptions,
+				relatedArticles: selectedArticles,
+				sortOrder: products.length // Add to the end of the list
+			});
 		}
 		
-		setProductDialog(false)
-		resetProductForm()
-		
-		// Force sync to ensure data is saved
-		useStore.getState().syncDataToServer()
+		// Close dialog and reset form
+		setProductDialog(false);
+		resetProductForm();
+		setIsSaving(false);
 	}
 	
 	const handleSaveTos = () => {
@@ -361,31 +387,36 @@ export default function AdminDashboardPage() {
 	}
 	
 	const openProductEdit = (product: Product) => {
-		setEditingProduct(product)
+		// Deep clone the product to avoid modifying the original directly
+		const productCopy = JSON.parse(JSON.stringify(product));
 		
-		// Initialize form with existing product data
-		const formData = {
-			name: product.name,
-			localizedName: product.localizedName || {
-				en: product.name,
-				vi: product.name
-			},
-			description: product.description,
-			localizedDescription: product.localizedDescription || {
-				en: product.description,
-				vi: product.description
-			},
-			image: product.image,
-			category: product.category,
-			slug: product.slug,
-			options: product.options || [],
-			relatedArticles: product.relatedArticles || [],
-			isLocalized: product.isLocalized || false
+		// Ensure all options have valid prices
+		if (productCopy.options) {
+			productCopy.options.forEach((option: any) => {
+				if (option.values) {
+					option.values.forEach((value: any) => {
+						// Ensure price is a valid number
+						value.price = typeof value.price === 'number' && !isNaN(value.price) ? value.price : product.price;
+					});
+				}
+			});
 		}
 		
-		setProductForm(formData)
-		setSelectedArticles(product.relatedArticles || [])
-		setProductDialog(true)
+		setProductForm({
+			name: productCopy.name || '',
+			localizedName: productCopy.localizedName || { en: '', vi: '' },
+			description: productCopy.description || '',
+			localizedDescription: productCopy.localizedDescription || { en: '', vi: '' },
+			image: productCopy.image || '',
+			category: productCopy.category || '',
+			slug: productCopy.slug || '',
+			options: productCopy.options || [],
+			relatedArticles: productCopy.relatedArticles || [],
+			isLocalized: !!productCopy.isLocalized
+		});
+		
+		setEditingProduct(productCopy);
+		setProductDialog(true);
 	}
 	
 	const addOptionField = () => {
@@ -490,7 +521,7 @@ export default function AdminDashboardPage() {
 		)
 		
 		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => price !== Infinity && !isNaN(price)))
+			? Math.min(...optionValues.filter(price => !isNaN(price) && isFinite(price)))
 			: product.price
 			
 		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
