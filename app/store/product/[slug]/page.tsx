@@ -3,9 +3,9 @@ import { initialProducts } from '@/app/lib/initial-data'
 import ProductClient from './client-page'
 
 interface ProductPageProps {
-	params: {
+	params: Promise<{
 		slug: string
-	}
+	}>
 }
 
 // This function runs at build time to generate the static paths
@@ -16,7 +16,7 @@ export function generateStaticParams() {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-	const slug = params.slug
+	const { slug } = await params
 	
 	// Get initial data for static generation
 	const initialProduct = initialProducts.find(p => p.slug === slug)
