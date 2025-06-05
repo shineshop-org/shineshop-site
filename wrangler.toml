@@ -1,0 +1,9 @@
+name = "shineshop-site"
+compatibility_date = "2025-06-05"
+
+[build]
+command = "npm install --legacy-peer-deps && npm install autoprefixer next-themes --legacy-peer-deps && npm run export"
+output_dir = "out"
+
+[site]
+bucket = "out" 
