@@ -2,11 +2,16 @@ name = "shineshop-site"
 compatibility_date = "2025-06-05"
 
 [build]
-command = "npm install --force && npm run build"
-output_dir = ".next"
+command = "npm run export"
 
+# Configure Cloudflare Pages specifically
 [site]
 bucket = ".next"
 
 # Required for Cloudflare Pages
-pages_build_output_dir = ".next" 
+[build.upload]
+format = "directory"
+
+[build_output]
+directory = ".next"
+include = ["**/*"] 

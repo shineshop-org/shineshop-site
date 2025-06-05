@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "npm install --force && next build && cp _redirects out/ && cp _routes.json out/",
+    "export": "npm install --force && next build",
     "start": "next start",
     "lint": "next lint",
     "deploy": "npm run build && echo Build completed successfully!"
