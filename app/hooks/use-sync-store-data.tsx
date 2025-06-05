@@ -53,7 +53,8 @@ export function useSyncStoreData() {
         console.error('Error syncing store data:', error)
       }
     }
-  }, [products, setProducts])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Chỉ chạy một lần khi component mount, bỏ products và setProducts khỏi dependency
   
   return null
 } 

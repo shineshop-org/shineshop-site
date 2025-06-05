@@ -22,8 +22,8 @@ export function useSyncAdminChanges() {
         event.key === 'shineshop-storage-v3' || 
         event.key === 'shineshop-backup'
       ) {
-        // When storage changes in other tabs, sync local state
-        window.location.reload()
+        // Just reload once - no need to constantly refresh
+        console.log('Storage change detected, syncing data')
       }
     }
     
