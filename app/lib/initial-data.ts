@@ -37,6 +37,16 @@ export const initialProducts: Product[] = [
 		relatedArticles: ['1', '2']
 	},
 	{
+		id: 'youtube-premium',
+		name: 'Youtube Premium (chính chủ)',
+		price: 0,
+		description: 'Youtube Premium subscription service.',
+		image: 'https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png',
+		category: 'Subscription',
+		slug: 'youtube-premium',
+		sortOrder: 0
+	},
+	{
 		id: '2',
 		name: 'Smart Watch Pro',
 		price: 3499000,
