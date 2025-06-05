@@ -28,7 +28,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const [isAnimatingPrice, setIsAnimatingPrice] = useState(false)
 	const productImageRef = useRef<HTMLDivElement>(null)
 	const [transform, setTransform] = useState('')
-	const imageHeightRef = useRef<HTMLDivElement>(null)
 	const productInfoRef = useRef<HTMLDivElement>(null)
 	
 	useEffect(() => {
@@ -83,24 +82,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
 		}, 10)
 	}, [slug, products, faqArticles, initialProduct])
-	
-	// Effect to match height of product info with image
-	useEffect(() => {
-		const adjustHeight = () => {
-			if (imageHeightRef.current && productInfoRef.current) {
-				const imageHeight = imageHeightRef.current.offsetHeight;
-				productInfoRef.current.style.minHeight = `${imageHeight}px`;
-			}
-		};
-		
-		// Adjust on initial load and window resize
-		adjustHeight();
-		window.addEventListener('resize', adjustHeight);
-		
-		return () => {
-			window.removeEventListener('resize', adjustHeight);
-		};
-	}, [product]);
 	
 	// Handle option selection
 	const handleOptionChange = (optionId: string, value: string) => {
@@ -228,13 +209,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		<div className="max-w-7xl mx-auto py-6 page-transition">
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				{/* Product Image with 16:9 aspect ratio and 3D hover effect */}
-				<div 
-					ref={imageHeightRef}
-					className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
-				>
+				<div className="relative h-full flex items-stretch">
 					<div
 						ref={productImageRef}
-						className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
+						className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 w-full h-full"
 						onMouseMove={handleMouseMove}
 						onMouseLeave={handleMouseLeave}
 						style={{
@@ -242,8 +220,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							transition: 'transform 0.1s ease-out'
 						}}
 					>
-						{/* 16:9 Aspect ratio container */}
-						<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+						{/* 16:9 Aspect ratio container, but allow it to expand beyond that if needed */}
+						<div className="relative w-full h-full" style={{ minHeight: '56.25%' }}>
 							<Image
 								src={product.image}
 								alt={getProductName()}
@@ -284,11 +262,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					<div className="space-y-3">
 						{/* Package Type Option (Gói nâng cấp) */}
 						<div className="space-y-1">
-							<div className="flex items-center">
-								<div className="px-3 py-1 bg-primary/10 dark:bg-primary/20 rounded-md inline-block text-sm font-medium">
-									Gói nâng cấp
-								</div>
-							</div>
 							<div className="flex flex-wrap gap-2">
 								<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
 									<input
@@ -304,14 +277,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							</div>
 						</div>
 						
+						{/* Divider between option sections */}
+						<div className="h-px bg-border/50 dark:bg-border/30 my-2 w-full"></div>
+						
 						{/* Render dynamic product options */}
 						{product.options && product.options.map((option) => (
 							<div key={option.id} className="space-y-1">
-								<div className="flex items-center">
-									<div className="px-3 py-1 bg-primary/10 dark:bg-primary/20 rounded-md inline-block text-sm font-medium">
-										{option.name}
-									</div>
-								</div>
 								<div className="flex flex-wrap gap-2">
 									{option.values.map((value) => (
 										<label
@@ -349,11 +320,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						{/* If there are no options, create a single option for display consistency */}
 						{(!product.options || product.options.length === 0) && (
 							<div className="space-y-1">
-								<div className="flex items-center">
-									<div className="px-3 py-1 bg-primary/10 dark:bg-primary/20 rounded-md inline-block text-sm font-medium">
-										Lựa chọn
-									</div>
-								</div>
 								<div className="flex flex-wrap gap-2">
 									<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
 										<input
