@@ -98,33 +98,13 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const animatePrice = () => {
 		setIsAnimatingPrice(true)
 		
-		const targetPrice = getSelectedPrice()
-		const duration = 500 // 0.5 seconds as requested
-		const interval = 30 // Update more frequently for smoother animation
-		const iterations = duration / interval
-		let count = 0
+		// Simply show the new price with color animation
+		setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
 		
-		// Create an increasing sequence for smoother animation
-		const steps = Array.from({length: iterations}, (_, i) => {
-			const progress = i / (iterations - 1);
-			// Use easeOutExpo for a nice animation curve
-			const easeOutExpo = 1 - Math.pow(2, -10 * progress);
-			return Math.floor(targetPrice * easeOutExpo);
-		});
-		
-		const animationInterval = setInterval(() => {
-			if (count >= iterations) {
-				clearInterval(animationInterval)
-				setPriceDisplay(formatPrice(targetPrice, 'en-US'))
-				setIsAnimatingPrice(false)
-				return
-			}
-			
-			// Use predefined steps for smoother animation
-			const animationValue = steps[count];
-			setPriceDisplay(formatPrice(animationValue, 'en-US'))
-			count++
-		}, interval)
+		// Reset animation after 1 second
+		setTimeout(() => {
+			setIsAnimatingPrice(false)
+		}, 1000)
 	}
 	
 	// Extract the lowest price from product options
@@ -208,11 +188,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	return (
 		<div className="max-w-7xl mx-auto py-6 page-transition">
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-				{/* Product Image with 16:9 aspect ratio and 3D hover effect */}
-				<div className="relative h-full flex items-stretch">
+				{/* Product Image with fixed 16:9 aspect ratio and 3D hover effect */}
+				<div className="relative">
 					<div
 						ref={productImageRef}
-						className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 w-full h-full"
+						className="relative shadow-lg rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
 						onMouseMove={handleMouseMove}
 						onMouseLeave={handleMouseLeave}
 						style={{
@@ -220,8 +200,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							transition: 'transform 0.1s ease-out'
 						}}
 					>
-						{/* 16:9 Aspect ratio container, but allow it to expand beyond that if needed */}
-						<div className="relative w-full h-full" style={{ minHeight: '56.25%' }}>
+						{/* Fixed 16:9 Aspect ratio container */}
+						<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
 							<Image
 								src={product.image}
 								alt={getProductName()}
@@ -247,14 +227,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				<div ref={productInfoRef} className="space-y-3 flex flex-col">
 					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
-						<p className={`text-3xl font-semibold transition-all duration-500 ${
+						<p className={`text-3xl font-semibold ${
 							isAnimatingPrice 
-								? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent' 
-								: 'text-primary'
-						}`} style={{
-							animation: isAnimatingPrice ? 'fadeGradient 0.5s ease-in-out' : 'none'
-						}}>
-							{isAnimatingPrice ? priceDisplay : formatPrice(getSelectedPrice(), 'en-US')}
+								? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent transition-all duration-1000' 
+								: 'text-primary transition-all duration-1000'
+						}`}>
+							{priceDisplay || formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
 					
@@ -448,16 +426,13 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			<style jsx global>{`
 				@keyframes fadeGradient {
 					0% {
-						opacity: 0.5;
-						background-size: 100%;
+						opacity: 0.7;
 					}
 					50% {
 						opacity: 1;
-						background-size: 200%;
 					}
 					100% {
-						opacity: 0.9;
-						background-size: 100%;
+						opacity: 0.7;
 					}
 				}
 			`}</style>
