@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "npm install autoprefixer next-themes --force && next build && cp _redirects out/ && cp _routes.json out/",
+    "export": "npm install autoprefixer next-themes --legacy-peer-deps && next build && cp _redirects out/ && cp _routes.json out/",
     "start": "next start",
     "lint": "next lint",
     "deploy": "npm run build && echo Build completed successfully!"
