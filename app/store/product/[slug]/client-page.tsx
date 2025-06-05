@@ -90,18 +90,19 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			[optionId]: value
 		}))
 		
-		// Animate price when it changes
+		// Update price immediately
+		setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
+		
+		// Start color animation
 		animatePrice()
 	}
 	
 	// Animate the price when options change
 	const animatePrice = () => {
+		// Start animation
 		setIsAnimatingPrice(true)
 		
-		// Simply show the new price with color animation
-		setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
-		
-		// Reset animation after 1 second
+		// Reset animation after 1 second with a smoother transition
 		setTimeout(() => {
 			setIsAnimatingPrice(false)
 		}, 1000)
@@ -227,11 +228,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				<div ref={productInfoRef} className="space-y-3 flex flex-col">
 					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
-						<p className={`text-3xl font-semibold ${
-							isAnimatingPrice 
-								? 'bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent transition-all duration-1000' 
-								: 'text-primary transition-all duration-1000'
-						}`}>
+						<p 
+							className="text-3xl font-semibold price-display"
+							data-animating={isAnimatingPrice ? "true" : "false"}
+						>
 							{priceDisplay || formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
@@ -424,16 +424,17 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			
 			{/* Custom CSS Animation */}
 			<style jsx global>{`
-				@keyframes fadeGradient {
-					0% {
-						opacity: 0.7;
-					}
-					50% {
-						opacity: 1;
-					}
-					100% {
-						opacity: 0.7;
-					}
+				.price-display {
+					transition: color 0.3s ease-out;
+					color: var(--color-primary);
+				}
+				
+				.price-display[data-animating="true"] {
+					background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+					-webkit-background-clip: text;
+					background-clip: text;
+					color: transparent;
+					transition: all 0.3s ease-in;
 				}
 			`}</style>
 		</div>
