@@ -33,6 +33,9 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 
+// Add the jshine-gradient CSS class as in the product page
+const jshineGradientClassName = "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
+
 type TabType = 'products' | 'tos'
 type ProductTabType = 'details' | 'card-order'
 
@@ -78,7 +81,7 @@ function SortableProductItem({ product, getLowestPrice }: { product: Product; ge
 				</div>
 			</div>
 			<div className="flex-shrink-0">
-				<p className="text-primary font-semibold">
+				<p className="jshine-gradient font-semibold">
 					{new Intl.NumberFormat('vi-VN', { 
 						style: 'currency', 
 						currency: 'VND',
@@ -504,6 +507,14 @@ export default function AdminDashboardPage() {
 	
 	return (
 		<div className="flex flex-col min-h-screen">
+			<style jsx global>{`
+				.jshine-gradient {
+					background: linear-gradient(to right, #06b6d4, #a855f7, #ec4899);
+					-webkit-background-clip: text;
+					background-clip: text;
+					color: transparent;
+				}
+			`}</style>
 			<div className="container flex h-16 items-center px-4 sm:px-6 justify-between">
 				<div className="flex items-center gap-2 font-semibold">
 					<Shield className="h-5 w-5" />

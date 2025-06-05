@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Facebook, MessageCircle, ExternalLink } from 'lucide-react'
+import { MessageCircle, ExternalLink } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import { initialFAQArticles } from '@/app/lib/initial-data'
@@ -322,11 +322,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 								className="flex-1 hover:scale-105 transition-all duration-200 bg-[#0084ff] hover:bg-[#0084ff]/90 text-white"
 							>
 								<Link
-									href="https://facebook.com"
+									href="http://m.me/521868681019157"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<Facebook className="mr-2 h-5 w-5" />
+									<MessageCircle className="mr-2 h-5 w-5" />
 									Messenger
 								</Link>
 							</Button>
