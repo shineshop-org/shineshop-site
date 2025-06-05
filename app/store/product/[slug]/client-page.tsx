@@ -151,6 +151,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		return product.description
 	}
 	
+	// Get note label based on language
+	const getNoteLabel = () => {
+		return language === 'vi' ? 'Ghi chú' : 'Note'
+	}
+	
 	// 3D card hover effect for product image
 	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
 		if (!productImageRef.current) return
@@ -269,7 +274,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									<div>
 										{option.values.map((value) => (
 											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-1">📝 {value.description}</p>
+												<p key={value.value} className="text-sm text-muted-foreground mt-1">
+													<span className="inline-block bg-muted/50 px-2 py-0.5 rounded-md text-xs font-medium mr-1">
+														{getNoteLabel()}
+													</span> 
+													{value.description}
+												</p>
 											)
 										))}
 									</div>
@@ -294,7 +304,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									</label>
 								</div>
 								<p className="text-sm text-muted-foreground mt-1">
-									📝 40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
+									<span className="inline-block bg-muted/50 px-2 py-0.5 rounded-md text-xs font-medium mr-1">
+										{getNoteLabel()}
+									</span> 
+									40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
 								</p>
 							</div>
 						)}
