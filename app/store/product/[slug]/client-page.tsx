@@ -37,7 +37,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		if (storeProduct) {
 			setProduct(storeProduct)
 			
-			// Initialize selected options
+			// Initialize selected options - always select the first option by default
 			if (storeProduct.options && storeProduct.options.length > 0) {
 				const initialOptions: Record<string, string> = {}
 				storeProduct.options.forEach(option => {
@@ -64,7 +64,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				setRelatedArticles(related)
 			}
 			
-			// Initialize selected options for initial product
+			// Initialize selected options for initial product - always select the first option by default
 			if (initialProduct.options && initialProduct.options.length > 0) {
 				const initialOptions: Record<string, string> = {}
 				initialProduct.options.forEach(option => {
@@ -75,12 +75,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				setSelectedOptions(initialOptions)
 			}
 		}
+		
+		// Initialize price display after setting initial product and options
+		setTimeout(() => {
+			setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
+		}, 10)
 	}, [slug, products, faqArticles, initialProduct])
-	
-	// Set initial price display
-	useEffect(() => {
-		setPriceDisplay(formatPrice(getSelectedPrice(), 'en-US'))
-	}, [product])
 	
 	// Handle option selection
 	const handleOptionChange = (optionId: string, value: string) => {
@@ -98,7 +98,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		setIsAnimatingPrice(true)
 		
 		const originalPrice = getSelectedPrice()
-		const targetPrice = formatPrice(originalPrice, 'en-US')
+		const targetPrice = originalPrice
 		const duration = 500 // 0.5 seconds
 		const interval = 50 // Update every 50ms
 		const iterations = duration / interval
@@ -109,14 +109,14 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			
 			if (count >= iterations) {
 				clearInterval(animationInterval)
-				setPriceDisplay(targetPrice)
+				setPriceDisplay(formatPrice(targetPrice, 'en-US'))
 				setIsAnimatingPrice(false)
 				return
 			}
 			
-			// Generate random digits for the animation
-			const randomDigits = originalPrice.toString().replace(/\d/g, () => Math.floor(Math.random() * 10).toString())
-			setPriceDisplay(formatPrice(parseInt(randomDigits), 'en-US'))
+			// Generate random digits for the animation, but ensure they don't exceed target value
+			const randomValue = Math.floor(Math.random() * targetPrice)
+			setPriceDisplay(formatPrice(randomValue <= targetPrice ? randomValue : targetPrice, 'en-US'))
 		}, interval)
 	}
 	
@@ -235,10 +235,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				</div>
 				
 				{/* Product Info */}
-				<div className="space-y-4">
-					<div className="space-y-2">
+				<div className="space-y-3">
+					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
-						<p className="text-2xl font-semibold text-primary">
+						<p className="text-3xl font-semibold text-primary">
 							{isAnimatingPrice ? priceDisplay : formatPrice(getSelectedPrice(), 'en-US')}
 						</p>
 					</div>
@@ -274,7 +274,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									<div>
 										{option.values.map((value) => (
 											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-1">{value.description}</p>
+												<p key={value.value} className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-full inline-block">{value.description}</p>
 											)
 										))}
 									</div>
@@ -285,11 +285,13 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						{/* If there are no options, create a single option for display consistency */}
 						{(!product.options || product.options.length === 0) && (
 							<div className="space-y-1">
-								<label className="text-sm font-medium">{getProductName()}</label>
+								<label className="text-sm font-medium">Lựa chọn</label>
 								<div className="flex flex-wrap gap-2">
 									<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
 										<input
 											type="radio"
+											name="default-option"
+											value="default"
 											checked={true}
 											readOnly
 											className="sr-only"
@@ -297,6 +299,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 										<span>Chính chủ (Add Family)</span>
 									</label>
 								</div>
+								<p className="text-sm text-muted-foreground mt-1 px-3 py-1 bg-accent/30 dark:bg-accent/10 rounded-full inline-block">
+									40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
+								</p>
 							</div>
 						)}
 					</div>
@@ -336,9 +341,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						</div>
 						
 						{/* TOS agreement text */}
-						<p className="text-center text-sm text-muted-foreground italic">
+						<p className="text-center text-sm text-white italic">
 							Khi bạn đã mua hàng đồng nghĩa rằng việc bạn hoàn toàn đồng ý và tuân thủ{' '}
-							<Link href="/tos" className="text-primary hover:underline">
+							<Link href="/tos" className="bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent hover:underline font-medium">
 								Điều khoản và Điều kiện
 							</Link>
 							{' '}của chúng tôi
