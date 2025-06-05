@@ -33,6 +33,32 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		// Try to find the product in the store
 		const storeProduct = products.find(p => p.slug === slug)
 		
+		// Check for localStorage backup (in case store hasn't loaded yet)
+		let localStorageProduct = null;
+		try {
+			// Try to get from main storage
+			const storageData = localStorage.getItem('shineshop-storage-v3');
+			if (storageData) {
+				const parsedData = JSON.parse(storageData);
+				if (parsedData.products && Array.isArray(parsedData.products)) {
+					localStorageProduct = parsedData.products.find(p => p.slug === slug);
+				}
+			}
+			
+			// If not found, try backup storage
+			if (!localStorageProduct) {
+				const backupData = localStorage.getItem('shineshop-backup');
+				if (backupData) {
+					const parsedBackup = JSON.parse(backupData);
+					if (parsedBackup.products && Array.isArray(parsedBackup.products)) {
+						localStorageProduct = parsedBackup.products.find(p => p.slug === slug);
+					}
+				}
+			}
+		} catch (e) {
+			console.error('Error reading from localStorage:', e);
+		}
+		
 		// Update with store data if available
 		if (storeProduct) {
 			setProduct(storeProduct)
@@ -61,7 +87,37 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				)
 				setRelatedArticles(related)
 			}
-		} else if (initialProduct.id) {
+		}
+		// Check localStorage data if store data isn't available
+		else if (localStorageProduct) {
+			setProduct(localStorageProduct)
+			
+			// Initialize selected options from localStorage product
+			if (localStorageProduct.options && localStorageProduct.options.length > 0) {
+				const initialOptions: Record<string, string> = {}
+				localStorageProduct.options.forEach(option => {
+					if (option.values.length > 0) {
+						initialOptions[option.id] = option.values[0].value
+					}
+				})
+				setSelectedOptions(initialOptions)
+				
+				// Update price immediately based on the initially selected options
+				setTimeout(() => {
+					const newPrice = getSelectedPrice()
+					setPriceDisplay(formatPrice(newPrice, 'en-US'))
+				}, 10)
+			}
+			
+			// Find related articles for localStorage product
+			if (localStorageProduct.relatedArticles && localStorageProduct.relatedArticles.length > 0) {
+				const related = faqArticles.filter(article => 
+					localStorageProduct.relatedArticles?.includes(article.id)
+				)
+				setRelatedArticles(related)
+			}
+		}
+		else if (initialProduct.id) {
 			// Only use initial product data if it has a valid ID
 			
 			// Initialize selected options for initial product - always select the first option by default

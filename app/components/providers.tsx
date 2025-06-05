@@ -5,12 +5,16 @@ import { ThemeProvider } from 'next-themes'
 import { useStore } from '@/app/lib/store'
 import { initialProducts, initialFAQArticles, initialSocialLinks, initialTOSContent } from '@/app/lib/initial-data'
 import { useSyncAdminChanges } from '@/app/hooks/use-sync-admin-changes'
+import { useSyncStoreData } from '@/app/hooks/use-sync-store-data'
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	const { setProducts, setFaqArticles, setSocialLinks, setTosContent, products, language, setLanguage, theme } = useStore()
 	
 	// Ensure admin changes are synchronized
 	useSyncAdminChanges()
+	
+	// Ensure consistency between initial data and store
+	useSyncStoreData()
 	
 	// Initialize data on first load
 	useEffect(() => {
