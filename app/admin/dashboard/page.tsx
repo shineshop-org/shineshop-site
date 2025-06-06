@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, Save, Code, HelpCircle, Share2 } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, HelpCircle, Share2, Database, Upload, Search, Image as ImageIcon, Bold, Italic, Link, List, Eye, EyeOff, Settings } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/ta
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/app/components/ui/dialog'
-import { Product, FAQArticle, SocialLink } from '@/app/lib/types'
+import { Product, FAQArticle, SocialLink, Language } from '@/app/lib/types'
 import { generateSlug } from '@/app/lib/utils'
 import { ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
 import { Badge } from '@/app/components/ui/badge'
@@ -35,11 +35,16 @@ import { CSS } from '@dnd-kit/utilities'
 // Add the jshine-gradient CSS class as in the product page
 const jshineGradientClassName = "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
 
-type TabType = 'products' | 'faq' | 'social' | 'tos'
+type TabType = 'products' | 'faq' | 'social' | 'tos' | 'data' | 'settings'
 type ProductTabType = 'details' | 'card-order'
 
 // Sortable item component for drag and drop
-function SortableProductItem({ product, getLowestPrice }: { product: Product; getLowestPrice: (product: Product) => number }) {
+function SortableProductItem({ product, getLowestPrice, formatPrice, language }: { 
+	product: Product; 
+	getLowestPrice: (product: Product) => number;
+	formatPrice: (price: number | string, lang?: Language) => string;
+	language: Language;
+}) {
 	const { t } = useTranslation()
 	const {
 		attributes,
@@ -72,21 +77,29 @@ function SortableProductItem({ product, getLowestPrice }: { product: Product; ge
 					className="h-10 w-10 rounded bg-center bg-cover" 
 					style={{ backgroundImage: `url(${product.image})` }}
 				/>
-				<div>
+				<div className="flex-1">
 					<p className="font-medium">{product.name}</p>
-					<p className="text-xs text-muted-foreground">
-						{product.category}
-					</p>
+					<div className="flex flex-wrap gap-1 mt-1">
+						{product.options && product.options.length > 0 ? (
+							product.options.slice(0, 3).map((option) => (
+								<Badge key={option.id} variant="secondary" className="text-xs">
+									{option.name}
+								</Badge>
+							))
+						) : (
+							<p className="text-xs text-muted-foreground">{product.category}</p>
+						)}
+						{product.options && product.options.length > 3 && (
+							<Badge variant="outline" className="text-xs">
+								+{product.options.length - 3}
+							</Badge>
+						)}
+					</div>
 				</div>
 			</div>
 			<div className="flex-shrink-0">
 				<p className="jshine-gradient font-semibold">
-					{new Intl.NumberFormat('vi-VN', { 
-						style: 'currency', 
-						currency: 'VND',
-						minimumFractionDigits: 0,
-						maximumFractionDigits: 0
-					}).format(getLowestPrice(product))}
+					{formatPrice(getLowestPrice(product), language)}
 				</p>
 			</div>
 		</div>
@@ -114,7 +127,105 @@ const USFlag = (props: React.SVGProps<SVGSVGElement>) => (
 	</svg>
 )
 
-export default function AdminDashboardPage() {
+// Debounce hook for auto-save
+function useDebounce<T>(value: T, delay: number): T {
+	const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedValue(value)
+		}, delay)
+
+		return () => {
+			clearTimeout(handler)
+		}
+	}, [value, delay])
+
+	return debouncedValue
+}
+
+// Markdown toolbar component for FAQ editor
+function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
+	return (
+		<div className="flex items-center gap-1 p-1 border-b">
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('**bold**')}
+			>
+				<Bold className="h-4 w-4" />
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('*italic*')}
+			>
+				<Italic className="h-4 w-4" />
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('[link](url)')}
+			>
+				<Link className="h-4 w-4" />
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('- List item')}
+			>
+				<List className="h-4 w-4" />
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('![alt text](image-url)')}
+			>
+				<ImageIcon className="h-4 w-4" />
+			</Button>
+			<div className="h-6 w-px bg-border mx-1" />
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('# Heading 1')}
+			>
+				H1
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('## Heading 2')}
+			>
+				H2
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="h-8 w-8 p-0"
+				onClick={() => onInsert('### Heading 3')}
+			>
+				H3
+			</Button>
+		</div>
+	)
+}
+
+export default function AdminDashboard() {
 	const router = useRouter()
 	const { 
 		isAdminAuthenticated, 
@@ -134,7 +245,9 @@ export default function AdminDashboardPage() {
 		setSocialLinks,
 		updateSocialLink,
 		language,
-		setLanguage
+		setLanguage,
+		siteConfig,
+		setSiteConfig
 	} = useStore()
 	const { t } = useTranslation()
 	const [activeTab, setActiveTab] = useState<TabType>('products')
@@ -146,8 +259,17 @@ export default function AdminDashboardPage() {
 	const [selectedArticles, setSelectedArticles] = useState<string[]>([])
 	const [sortableProducts, setSortableProducts] = useState<Product[]>([])
 	const [isSaving, setIsSaving] = useState(false)
-	const [exportCode, setExportCode] = useState('')
-	const [showExportDialog, setShowExportDialog] = useState(false)
+	const [isPushing, setIsPushing] = useState(false)
+	const [faqDialog, setFaqDialog] = useState(false)
+	const [editingFaq, setEditingFaq] = useState<FAQArticle | null>(null)
+	const [faqForm, setFaqForm] = useState({
+		title: '',
+		content: '',
+		category: 'general',
+		tags: [] as string[]
+	})
+	const [showMarkdownPreview, setShowMarkdownPreview] = useState(false)
+	const [articleSearchQuery, setArticleSearchQuery] = useState('')
 	
 	// Kiểm tra môi trường
 	const isDevelopment = process.env.NODE_ENV === 'development'
@@ -392,12 +514,6 @@ export default function AdminDashboardPage() {
 		setSelectedArticles([])
 	}
 	
-	// Function to handle saving TOS
-	const handleSaveTos = () => {
-		setTosContent(tosForm)
-		alert('Terms of service saved!')
-	}
-	
 	// Handle drag end event
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event
@@ -444,112 +560,9 @@ export default function AdminDashboardPage() {
 		}
 	}
 	
-	// Xuất dữ liệu ra dạng initialProducts để copy vào file
-	const generateExportCode = () => {
-		// Sort products by sortOrder
-		const sortedProducts = [...products].sort((a, b) => a.sortOrder - b.sortOrder)
-		
-		// Tạo mã JS
-		let code = 'export const initialProducts: Product[] = [\n'
-		
-		sortedProducts.forEach((product, index) => {
-			code += '\t{\n'
-			code += `\t\tid: '${product.id}',\n`
-			code += `\t\tname: '${product.name.replace(/'/g, "\\'")}',\n`
-			if (product.price) code += `\t\tprice: ${product.price},\n`
-			if (product.description) code += `\t\tdescription: \`${product.description.replace(/`/g, "\\`")}\`,\n`
-			code += `\t\timage: '${product.image}',\n`
-			code += `\t\tcategory: '${product.category}',\n`
-			code += `\t\tslug: '${product.slug}',\n`
-			code += `\t\tsortOrder: ${product.sortOrder},\n`
-			
-			// Handle options
-			const productOptions = safeProductOptions(product)
-			if (productOptions.length > 0) {
-				code += '\t\toptions: [\n'
-				productOptions.forEach((option, optIndex) => {
-					code += '\t\t\t{\n'
-					code += `\t\t\t\tid: '${option.id}',\n`
-					code += `\t\t\t\tname: '${option.name.replace(/'/g, "\\'")}',\n`
-					code += `\t\t\t\ttype: '${option.type}',\n`
-					
-					// Handle option values
-					code += '\t\t\t\tvalues: [\n'
-					option.values.forEach((value, valIndex) => {
-						code += '\t\t\t\t\t{\n'
-						code += `\t\t\t\t\t\tvalue: '${value.value.replace(/'/g, "\\'")}',\n`
-						code += `\t\t\t\t\t\tprice: ${value.price},\n`
-						code += `\t\t\t\t\t\tdescription: '${value.description?.replace(/'/g, "\\'")}'\n`
-						code += '\t\t\t\t\t}'
-						if (valIndex < option.values.length - 1) code += ','
-						code += '\n'
-					})
-					code += '\t\t\t\t]\n'
-					
-					code += '\t\t\t}'
-					if (optIndex < productOptions.length - 1) code += ','
-					code += '\n'
-				})
-				code += '\t\t],\n'
-			}
-			
-			// Handle relatedArticles
-			if (product.relatedArticles && product.relatedArticles.length > 0) {
-				code += `\t\trelatedArticles: [${product.relatedArticles.map(id => `'${id}'`).join(', ')}],\n`
-			}
-			
-			// Handle localization
-			if (product.isLocalized) {
-				code += `\t\tisLocalized: true,\n`
-				
-				if (product.localizedName) {
-					code += `\t\tlocalizedName: {\n`
-					code += `\t\t\ten: '${product.localizedName.en?.replace(/'/g, "\\'")}',\n`
-					code += `\t\t\tvi: '${product.localizedName.vi?.replace(/'/g, "\\'")}'\n`
-					code += `\t\t},\n`
-				}
-				
-				if (product.localizedDescription) {
-					code += `\t\tlocalizedDescription: {\n`
-					code += `\t\t\ten: \`${product.localizedDescription.en?.replace(/`/g, "\\`")}\`,\n`
-					code += `\t\t\tvi: \`${product.localizedDescription.vi?.replace(/`/g, "\\`")}\`\n`
-					code += `\t\t},\n`
-				}
-			}
-			
-			code += '\t}'
-			if (index < sortedProducts.length - 1) code += ','
-			code += '\n'
-		})
-		
-		code += ']'
-		
-		// Cập nhật state
-		setExportCode(code)
-		setShowExportDialog(true)
-	}
-	
-	// Export TOS content
-	const generateTOSExportCode = () => {
-		let code = 'export const initialTOSContent = `' + tosContent.replace(/`/g, "\\`") + '`'
-		setExportCode(code)
-		setShowExportDialog(true)
-	}
-	
 	// Hàm xử lý null/undefined cho product.options
 	const safeProductOptions = (product: Product) => {
 		return product.options || []
-	}
-	
-	// Hàm download file
-	const downloadExportFile = () => {
-		const element = document.createElement('a')
-		const file = new Blob([exportCode], {type: 'text/plain'})
-		element.href = URL.createObjectURL(file)
-		element.download = 'exported-data.ts'
-		document.body.appendChild(element)
-		element.click()
-		document.body.removeChild(element)
 	}
 	
 	// Hàm xóa sản phẩm khỏi store
@@ -562,142 +575,161 @@ export default function AdminDashboardPage() {
 		setEditingProduct(null)
 	}
 	
-	// Thêm hàm để lưu dữ liệu xuống file thông qua API
-	const saveToFile = async (content: string, filePath: string) => {
+	// Hàm xử lý push to GitHub
+	const handlePushToGitHub = async () => {
+		setIsPushing(true)
+		
 		try {
-			const response = await fetch('/api/dev/update-file', {
+			// Add all changes
+			const response = await fetch('/api/dev/git-push', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					content,
-					filePath,
+					commands: [
+						'git add -A',
+						'git commit -m "chore: update store data from admin dashboard"',
+						'git push origin main'
+					]
 				}),
 			})
-
-			if (!response.ok) {
-				const errorData = await response.json()
-				throw new Error(errorData.error || 'Failed to update file')
+			
+			if (response.ok) {
+				alert('Successfully pushed to GitHub! Cloudflare will auto-deploy in a few minutes.')
+			} else {
+				throw new Error('Failed to push to GitHub')
 			}
-
-			return true
 		} catch (error) {
-			console.error('Error saving to file:', error)
-			alert(`Error saving to file: ${error}`)
-			return false
+			console.error('Error pushing to GitHub:', error)
+			alert('Error pushing to GitHub. Please check console for details.')
+		} finally {
+			setIsPushing(false)
 		}
 	}
 	
-	// Thêm hàm lưu products dưới dạng code vào file
-	const saveProductsToFile = async () => {
-		// Sort products by sortOrder
-		const sortedProducts = [...products].sort((a, b) => a.sortOrder - b.sortOrder)
+	// Price formatting helper
+	const formatPrice = (price: number | string, lang: Language = language): string => {
+		const numPrice = typeof price === 'string' ? parseFloat(price) : price
 		
-		// Tạo mã JS
-		let code = `import { Product, FAQArticle, SocialLink } from './types'\n\n`
-		code += 'export const initialProducts: Product[] = [\n'
-		
-		sortedProducts.forEach((product, index) => {
-			code += '\t{\n'
-			code += `\t\tid: '${product.id}',\n`
-			code += `\t\tname: '${product.name.replace(/'/g, "\\'")}',\n`
-			if (product.price) code += `\t\tprice: ${product.price},\n`
-			if (product.description) code += `\t\tdescription: \`${product.description.replace(/`/g, "\\`")}\`,\n`
-			code += `\t\timage: '${product.image}',\n`
-			code += `\t\tcategory: '${product.category}',\n`
-			code += `\t\tslug: '${product.slug}',\n`
-			code += `\t\tsortOrder: ${product.sortOrder},\n`
-			
-			// Handle options
-			const productOptions = safeProductOptions(product)
-			if (productOptions.length > 0) {
-				code += '\t\toptions: [\n'
-				productOptions.forEach((option, optIndex) => {
-					code += '\t\t\t{\n'
-					code += `\t\t\t\tid: '${option.id}',\n`
-					code += `\t\t\t\tname: '${option.name.replace(/'/g, "\\'")}',\n`
-					code += `\t\t\t\ttype: '${option.type}',\n`
-					
-					// Handle option values
-					code += '\t\t\t\tvalues: [\n'
-					option.values.forEach((value, valIndex) => {
-						code += '\t\t\t\t\t{\n'
-						code += `\t\t\t\t\t\tvalue: '${value.value.replace(/'/g, "\\'")}',\n`
-						code += `\t\t\t\t\t\tprice: ${value.price},\n`
-						code += `\t\t\t\t\t\tdescription: '${value.description?.replace(/'/g, "\\'")}'\n`
-						code += '\t\t\t\t\t}'
-						if (valIndex < option.values.length - 1) code += ','
-						code += '\n'
-					})
-					code += '\t\t\t\t]\n'
-					
-					code += '\t\t\t}'
-					if (optIndex < productOptions.length - 1) code += ','
-					code += '\n'
-				})
-				code += '\t\t],\n'
-			}
-			
-			// Handle relatedArticles
-			if (product.relatedArticles && product.relatedArticles.length > 0) {
-				code += `\t\trelatedArticles: [${product.relatedArticles.map(id => `'${id}'`).join(', ')}],\n`
-			}
-			
-			// Handle localization
-			if (product.isLocalized) {
-				code += `\t\tisLocalized: true,\n`
-				
-				if (product.localizedName) {
-					code += `\t\tlocalizedName: {\n`
-					code += `\t\t\ten: '${product.localizedName.en?.replace(/'/g, "\\'")}',\n`
-					code += `\t\t\tvi: '${product.localizedName.vi?.replace(/'/g, "\\'")}'\n`
-					code += `\t\t},\n`
-				}
-				
-				if (product.localizedDescription) {
-					code += `\t\tlocalizedDescription: {\n`
-					code += `\t\t\ten: \`${product.localizedDescription.en?.replace(/`/g, "\\`")}\`,\n`
-					code += `\t\t\tvi: \`${product.localizedDescription.vi?.replace(/`/g, "\\`")}\`\n`
-					code += `\t\t},\n`
-				}
-			}
-			
-			code += '\t}'
-			if (index < sortedProducts.length - 1) code += ','
-			code += '\n'
-		})
-		
-		code += ']\n\n'
-		
-		// Export FAQ articles from store
-		code += `export const initialFAQArticles: FAQArticle[] = ${JSON.stringify(faqArticles, null, 2).replace(/"([^"]+)":/g, '$1:')}\n\n`
-		
-		// Export social links from store
-		code += `export const initialSocialLinks: SocialLink[] = ${JSON.stringify(socialLinks, null, 2).replace(/"([^"]+)":/g, '$1:')}\n\n`
-		
-		// Export TOS content
-		code += `export const initialTOSContent = \`${tosContent.replace(/`/g, '\\`')}\``
-		
-		// Lưu vào file
-		const result = await saveToFile(code, 'app/lib/initial-data.ts')
-		
-		return result
-	}
-
-	// Thêm hàm xử lý sự kiện khi người dùng nhấn nút "Lưu vào File"
-	const handleSaveToFile = async () => {
-		setIsSaving(true)
-		
-		// Lưu dữ liệu vào file
-		const success = await saveProductsToFile()
-		
-		if (success) {
-			alert('Đã lưu thành công vào file!')
+		if (isNaN(numPrice)) {
+			return lang === 'en' ? '$0.00' : '0₫'
 		}
 		
-		setIsSaving(false)
+		if (lang === 'en') {
+			return new Intl.NumberFormat('en-US', { 
+				style: 'currency', 
+				currency: 'USD',
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2
+			}).format(numPrice)
+		}
+		
+		return new Intl.NumberFormat('vi-VN', { 
+			style: 'currency', 
+			currency: 'VND',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0
+		}).format(numPrice)
 	}
+	
+	// Price input validation
+	const validatePriceInput = (value: string): number => {
+		const cleaned = value.replace(/[^0-9.]/g, '')
+		const parts = cleaned.split('.')
+		
+		if (parts.length > 2) {
+			return parseFloat(parts[0] + '.' + parts[1]) || 0
+		}
+		
+		return parseFloat(cleaned) || 0
+	}
+	
+	// Filtered articles for search
+	const filteredArticles = useMemo(() => {
+		if (!articleSearchQuery.trim()) return faqArticles
+		
+		const query = articleSearchQuery.toLowerCase()
+		return faqArticles.filter(article => 
+			article.title.toLowerCase().includes(query) ||
+			article.content.toLowerCase().includes(query) ||
+			article.tags.some(tag => tag.toLowerCase().includes(query))
+		)
+	}, [faqArticles, articleSearchQuery])
+	
+	// Auto-save for product form
+	const debouncedProductForm = useDebounce(productForm, 1000)
+	const debouncedSelectedArticles = useDebounce(selectedArticles, 1000)
+	
+	useEffect(() => {
+		if (editingProduct && debouncedProductForm.name) {
+			// Generate a slug if empty
+			const slug = debouncedProductForm.slug || generateSlug(debouncedProductForm.name)
+			
+			// Create updated product data
+			const productData: Product = {
+				...editingProduct,
+				name: debouncedProductForm.name,
+				localizedName: debouncedProductForm.isLocalized ? debouncedProductForm.localizedName : undefined,
+				description: debouncedProductForm.description,
+				localizedDescription: debouncedProductForm.isLocalized ? debouncedProductForm.localizedDescription : undefined,
+				image: debouncedProductForm.image,
+				category: debouncedProductForm.category,
+				slug,
+				options: debouncedProductForm.options,
+				relatedArticles: debouncedSelectedArticles,
+				isLocalized: debouncedProductForm.isLocalized
+			}
+			
+			updateProduct(editingProduct.id, productData)
+		}
+	}, [debouncedProductForm, debouncedSelectedArticles, editingProduct, updateProduct])
+	
+	// Auto-save for TOS
+	const debouncedTosForm = useDebounce(tosForm, 1000)
+	
+	useEffect(() => {
+		if (activeTab === 'tos' && debouncedTosForm !== tosContent) {
+			setTosContent(debouncedTosForm)
+		}
+	}, [debouncedTosForm, activeTab, tosContent, setTosContent])
+	
+	// Auto-save for FAQ
+	const debouncedFaqForm = useDebounce(faqForm, 1000)
+	
+	useEffect(() => {
+		if (editingFaq && debouncedFaqForm.title) {
+			const updatedFaq: Partial<FAQArticle> = {
+				title: debouncedFaqForm.title,
+				content: debouncedFaqForm.content,
+				category: debouncedFaqForm.category,
+				tags: debouncedFaqForm.tags,
+				updatedAt: new Date()
+			}
+			
+			updateFaqArticle(editingFaq.id, updatedFaq)
+		}
+	}, [debouncedFaqForm, editingFaq, updateFaqArticle])
+	
+	// Site config state for editing
+	const [editingSiteConfig, setEditingSiteConfig] = useState(siteConfig)
+	
+	// Auto-save for site config
+	const debouncedSiteConfig = useDebounce(editingSiteConfig, 1000)
+	const [showSavedNotification, setShowSavedNotification] = useState(false)
+	
+	useEffect(() => {
+		if (activeTab === 'settings' && JSON.stringify(debouncedSiteConfig) !== JSON.stringify(siteConfig)) {
+			setSiteConfig(debouncedSiteConfig)
+			setShowSavedNotification(true)
+			setTimeout(() => setShowSavedNotification(false), 2000)
+		}
+	}, [debouncedSiteConfig, activeTab, siteConfig, setSiteConfig])
+	
+	// Initialize editingSiteConfig when siteConfig changes
+	useEffect(() => {
+		setEditingSiteConfig(siteConfig)
+	}, [siteConfig])
 	
 	// Nếu đang loading, hiển thị thông báo
 	if (isLoading) {
@@ -753,17 +785,6 @@ export default function AdminDashboardPage() {
 					<span>{t('adminDashboard')}</span>
 				</div>
 				<nav className="flex items-center space-x-4">
-					<Button 
-						variant="outline"
-						size="sm"
-						onClick={handleSaveToFile}
-						disabled={isSaving}
-						className="flex items-center gap-2 text-green-600 hover:text-green-700"
-					>
-						<Save className="h-5 w-5" />
-						<span>{isSaving ? 'Đang lưu...' : 'Lưu vào File'}</span>
-					</Button>
-					
 					<Button variant="ghost" size="icon" asChild>
 						<a href="/" target="_blank">
 							<Home className="h-5 w-5" />
@@ -829,8 +850,24 @@ export default function AdminDashboardPage() {
 						className="justify-start"
 						onClick={() => setActiveTab('tos')}
 					>
-						<Home className="mr-2 h-4 w-4" />
+						<FileText className="mr-2 h-4 w-4" />
 						{t('termsOfService')}
+					</Button>
+					<Button 
+						variant={activeTab === 'data' ? 'default' : 'ghost'} 
+						className="justify-start"
+						onClick={() => setActiveTab('data')}
+					>
+						<Database className="mr-2 h-4 w-4" />
+						Quản lý dữ liệu
+					</Button>
+					<Button 
+						variant={activeTab === 'settings' ? 'default' : 'ghost'} 
+						className="justify-start"
+						onClick={() => setActiveTab('settings')}
+					>
+						<Settings className="mr-2 h-4 w-4" />
+						Cài đặt chung
 					</Button>
 					
 					<div className="mt-auto pt-4 border-t">
@@ -942,12 +979,6 @@ export default function AdminDashboardPage() {
 													{t('dragAndDropInstructions')}
 												</p>
 												
-												{isSaving && (
-													<p className="text-sm text-primary mb-4">
-														{t('savingChanges')}...
-													</p>
-												)}
-												
 												<DndContext
 													sensors={sensors}
 													collisionDetection={closestCenter}
@@ -963,6 +994,8 @@ export default function AdminDashboardPage() {
 																	key={product.id}
 																	product={product}
 																	getLowestPrice={getLowestPrice}
+																	formatPrice={formatPrice}
+																	language={language}
 																/>
 															))}
 														</div>
@@ -975,8 +1008,14 @@ export default function AdminDashboardPage() {
 							</Tabs>
 							
 							{/* Product Dialog */}
-							<Dialog open={productDialog} onOpenChange={setProductDialog}>
-								<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" aria-describedby="product-dialog-description">
+							<Dialog open={productDialog} onOpenChange={(open) => {
+								if (!open) {
+									setProductDialog(false)
+									setEditingProduct(null)
+									setArticleSearchQuery('')
+								}
+							}}>
+								<DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" aria-describedby="product-dialog-description">
 									<DialogHeader>
 										<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
 										<DialogDescription id="product-dialog-description">
@@ -1163,13 +1202,19 @@ export default function AdminDashboardPage() {
 																	</div>
 																	
 																	<div className="space-y-2">
-																		<label className="text-xs text-muted-foreground">Price</label>
+																		<label className="text-xs text-muted-foreground">Price ({language === 'en' ? 'USD' : 'VNĐ'})</label>
 																		<Input 
 																			value={value.price}
-																			onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'price')}
-																			placeholder="e.g., 100000"
+																			onChange={(e) => {
+																				const validatedPrice = validatePriceInput(e.target.value)
+																				updateOptionValue(optionIndex, valueIndex, validatedPrice, 'price')
+																			}}
+																			placeholder={language === 'en' ? "e.g., 100.00" : "e.g., 100000"}
 																			className="flex-1"
 																		/>
+																		<p className="text-xs text-muted-foreground">
+																			{formatPrice(value.price, language)}
+																		</p>
 																	</div>
 																</div>
 																
@@ -1233,28 +1278,44 @@ export default function AdminDashboardPage() {
 										<div className="space-y-4 border-t pt-4">
 											<h3 className="text-lg font-semibold">{t('relatedArticles')}</h3>
 											
-											<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-2">
-												{faqArticles.map(article => (
-													<div 
-														key={article.id} 
-														className={`p-3 border rounded-md cursor-pointer transition-colors ${
-															selectedArticles.includes(article.id) 
-																? 'border-primary bg-primary/10' 
-																: 'hover:border-gray-400'
-														}`}
-														onClick={() => toggleArticleSelection(article.id)}
-													>
-														<h4 className="font-medium text-sm line-clamp-1">{article.title}</h4>
-														<p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-															{article.content.substring(0, 100)}...
-														</p>
+											<div className="relative">
+												<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+												<Input
+													type="text"
+													placeholder={language === 'en' ? "Search articles..." : "Tìm kiếm bài viết..."}
+													className="pl-9"
+													value={articleSearchQuery}
+													onChange={(e) => setArticleSearchQuery(e.target.value)}
+												/>
+											</div>
+											
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-2 border rounded-md">
+												{filteredArticles.length > 0 ? (
+													filteredArticles.map(article => (
+														<div 
+															key={article.id} 
+															className={`p-3 border rounded-md cursor-pointer transition-colors ${
+																selectedArticles.includes(article.id) 
+																	? 'border-primary bg-primary/10' 
+																	: 'hover:border-gray-400'
+															}`}
+															onClick={() => toggleArticleSelection(article.id)}
+														>
+															<h4 className="font-medium text-sm line-clamp-1">{article.title}</h4>
+															<p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+																{article.content.substring(0, 100)}...
+															</p>
+														</div>
+													))
+												) : (
+													<div className="col-span-2 text-center py-8 text-muted-foreground">
+														{language === 'en' ? "No articles found" : "Không tìm thấy bài viết"}
 													</div>
-												))}
+												)}
 											</div>
 										</div>
 									</div>
 									<DialogFooter>
-										<Button variant="outline" onClick={() => setProductDialog(false)}>{t('cancel')}</Button>
 										<Button onClick={handleSaveProduct}>{t('save')}</Button>
 									</DialogFooter>
 								</DialogContent>
@@ -1270,8 +1331,8 @@ export default function AdminDashboardPage() {
 									onClick={() => {
 										const newArticle: FAQArticle = {
 											id: Date.now().toString(),
-											title: 'New FAQ',
-											content: 'FAQ content...',
+											title: 'New FAQ Article',
+											content: '# New FAQ Article\n\nWrite your content here...',
 											category: 'general',
 											slug: 'new-faq-' + Date.now(),
 											createdAt: new Date(),
@@ -1279,6 +1340,14 @@ export default function AdminDashboardPage() {
 											tags: []
 										}
 										addFaqArticle(newArticle)
+										setEditingFaq(newArticle)
+										setFaqForm({
+											title: newArticle.title,
+											content: newArticle.content,
+											category: newArticle.category,
+											tags: newArticle.tags
+										})
+										setFaqDialog(true)
 									}}
 								>
 									<Plus className="mr-2 h-4 w-4" />
@@ -1288,25 +1357,43 @@ export default function AdminDashboardPage() {
 							
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 								{faqArticles.map((article) => (
-									<Card key={article.id} className="overflow-hidden">
+									<Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
 										<CardHeader className="p-4">
 											<CardTitle className="text-lg">{article.title}</CardTitle>
-											<div className="text-sm text-muted-foreground">
-												Category: {article.category}
+											<div className="flex flex-wrap gap-1 mt-2">
+												<Badge variant="secondary" className="text-xs">
+													{article.category}
+												</Badge>
+												{article.tags.slice(0, 2).map(tag => (
+													<Badge key={tag} variant="outline" className="text-xs">
+														{tag}
+													</Badge>
+												))}
+												{article.tags.length > 2 && (
+													<Badge variant="outline" className="text-xs">
+														+{article.tags.length - 2}
+													</Badge>
+												)}
 											</div>
 										</CardHeader>
 										<CardContent className="p-4 pt-0">
-											<p className="text-sm mb-4 line-clamp-3">{article.content}</p>
+											<p className="text-sm mb-4 line-clamp-3 text-muted-foreground">
+												{article.content.replace(/[#*\[\]]/g, '').substring(0, 150)}...
+											</p>
 											<div className="flex space-x-2">
 												<Button 
 													variant="outline" 
 													size="sm" 
 													className="flex-1"
 													onClick={() => {
-														const newTitle = prompt('New title:', article.title)
-														if (newTitle) {
-															updateFaqArticle(article.id, { title: newTitle })
-														}
+														setEditingFaq(article)
+														setFaqForm({
+															title: article.title,
+															content: article.content,
+															category: article.category,
+															tags: article.tags
+														})
+														setFaqDialog(true)
 													}}
 												>
 													<Edit className="mr-2 h-3 w-3" />
@@ -1330,6 +1417,127 @@ export default function AdminDashboardPage() {
 									</Card>
 								))}
 							</div>
+							
+							{/* FAQ Dialog */}
+							<Dialog open={faqDialog} onOpenChange={(open) => {
+								if (!open) {
+									setFaqDialog(false)
+									setEditingFaq(null)
+									setShowMarkdownPreview(false)
+								}
+							}}>
+								<DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col" aria-describedby="faq-dialog-description">
+									<DialogHeader>
+										<DialogTitle>{editingFaq ? 'Edit FAQ Article' : 'Add FAQ Article'}</DialogTitle>
+										<DialogDescription id="faq-dialog-description">
+											Write your FAQ content using Markdown formatting
+										</DialogDescription>
+									</DialogHeader>
+									<div className="flex-1 overflow-hidden flex flex-col">
+										<div className="space-y-4 pb-4">
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+												<div className="space-y-2">
+													<label className="text-sm font-medium">Title</label>
+													<Input 
+														value={faqForm.title}
+														onChange={(e) => setFaqForm({...faqForm, title: e.target.value})}
+														placeholder="FAQ title..."
+														className="w-full"
+													/>
+												</div>
+												<div className="space-y-2">
+													<label className="text-sm font-medium">Category</label>
+													<Input 
+														value={faqForm.category}
+														onChange={(e) => setFaqForm({...faqForm, category: e.target.value})}
+														placeholder="e.g., general, technical, billing"
+														className="w-full"
+													/>
+												</div>
+											</div>
+											
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Tags (comma separated)</label>
+												<Input 
+													value={faqForm.tags.join(', ')}
+													onChange={(e) => setFaqForm({
+														...faqForm, 
+														tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+													})}
+													placeholder="tag1, tag2, tag3"
+													className="w-full"
+												/>
+											</div>
+										</div>
+										
+										<div className="flex-1 overflow-hidden">
+											<div className="flex items-center justify-between mb-2">
+												<label className="text-sm font-medium">Content</label>
+												<Button
+													type="button"
+													variant="ghost"
+													size="sm"
+													onClick={() => setShowMarkdownPreview(!showMarkdownPreview)}
+												>
+													{showMarkdownPreview ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+													{showMarkdownPreview ? 'Hide Preview' : 'Show Preview'}
+												</Button>
+											</div>
+											
+											<div className={`grid ${showMarkdownPreview ? 'grid-cols-2 gap-4' : 'grid-cols-1'} h-[400px]`}>
+												<div className="border rounded-md overflow-hidden flex flex-col">
+													<MarkdownToolbar 
+														onInsert={(text) => {
+															const textarea = document.getElementById('faq-content') as HTMLTextAreaElement
+															if (textarea) {
+																const start = textarea.selectionStart
+																const end = textarea.selectionEnd
+																const currentValue = faqForm.content
+																const newValue = currentValue.substring(0, start) + text + currentValue.substring(end)
+																setFaqForm({...faqForm, content: newValue})
+																
+																// Restore cursor position
+																setTimeout(() => {
+																	textarea.focus()
+																	textarea.setSelectionRange(start + text.length, start + text.length)
+																}, 0)
+															}
+														}}
+													/>
+													<textarea
+														id="faq-content"
+														className="flex-1 w-full p-3 resize-none font-mono text-sm"
+														value={faqForm.content}
+														onChange={(e) => setFaqForm({...faqForm, content: e.target.value})}
+														placeholder="Write your FAQ content in Markdown..."
+													/>
+												</div>
+												
+												{showMarkdownPreview && (
+													<div className="border rounded-md p-4 overflow-y-auto bg-muted/10">
+														<div 
+															className="prose prose-sm dark:prose-invert max-w-none"
+															dangerouslySetInnerHTML={{
+																__html: faqForm.content
+																	.replace(/^# (.*?)$/gm, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
+																	.replace(/^## (.*?)$/gm, '<h2 class="text-xl font-semibold mb-3">$1</h2>')
+																	.replace(/^### (.*?)$/gm, '<h3 class="text-lg font-semibold mb-2">$1</h3>')
+																	.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+																	.replace(/\*(.*?)\*/g, '<em>$1</em>')
+																	.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary underline">$1</a>')
+																	.replace(/^- (.*?)$/gm, '<li class="ml-4">$1</li>')
+																	.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-md my-4" />')
+																	.replace(/\n/g, '<br>')
+															}}
+														/>
+													</div>
+												)}
+											</div>
+										</div>
+									</div>
+									<DialogFooter className="mt-4"></DialogFooter>
+								</DialogContent>
+							</Dialog>
 						</div>
 					)}
 					
@@ -1414,14 +1622,123 @@ export default function AdminDashboardPage() {
 												className="w-full p-2 border rounded-md min-h-[400px]"
 												value={tosForm} 
 												onChange={(e) => setTosForm(e.target.value)}
+												placeholder={language === 'en' ? "Enter terms of service content..." : "Nhập nội dung điều khoản dịch vụ..."}
+											/>
+										</div>
+									</CardContent>
+								</Card>
+							</div>
+						</div>
+					)}
+					
+					{activeTab === 'data' && (
+						<div className="space-y-6">
+							<h2 className="text-xl font-semibold">Quản lý dữ liệu</h2>
+							<Card>
+								<CardHeader>
+									<CardTitle>Đẩy code lên GitHub</CardTitle>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									<p className="text-sm text-muted-foreground">
+										Khi bạn thay đổi bất kỳ nội dung nào trong Admin Dashboard, các thay đổi sẽ được lưu tự động. 
+										Nhấn nút bên dưới để đẩy toàn bộ code lên GitHub và Cloudflare sẽ tự động deploy trong vài phút.
+									</p>
+									
+									<Button 
+										onClick={handlePushToGitHub}
+										disabled={isPushing}
+										className="w-full"
+										size="lg"
+									>
+										<Upload className="mr-2 h-5 w-5" />
+										{isPushing ? 'Đang đẩy lên GitHub...' : 'Đẩy code lên GitHub'}
+									</Button>
+									
+									<div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 p-4">
+										<p className="text-sm font-medium text-amber-900 dark:text-amber-200 mb-1">
+											⚠️ Lưu ý:
+										</p>
+										<ul className="text-sm text-amber-800 dark:text-amber-300 space-y-1 list-disc list-inside">
+											<li>Chỉ sử dụng tính năng này khi bạn đã hoàn thành các thay đổi</li>
+											<li>Sau khi push, Cloudflare sẽ tự động build và deploy trong 2-5 phút</li>
+											<li>Kiểm tra trạng thái deploy tại Cloudflare Dashboard</li>
+										</ul>
+									</div>
+								</CardContent>
+							</Card>
+						</div>
+					)}
+					
+					{activeTab === 'settings' && (
+						<div className="space-y-6">
+							<h2 className="text-xl font-semibold">Cài đặt chung</h2>
+							
+							{showSavedNotification && (
+								<div className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 flex items-center text-green-700 dark:text-green-300">
+									<svg 
+										xmlns="http://www.w3.org/2000/svg" 
+										className="h-5 w-5 mr-2" 
+										viewBox="0 0 20 20" 
+										fill="currentColor"
+									>
+										<path 
+											fillRule="evenodd" 
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+											clipRule="evenodd" 
+										/>
+									</svg>
+									Đã lưu thay đổi!
+								</div>
+							)}
+							
+							<Card className="mb-6">
+								<CardHeader>
+									<CardTitle>Xem trước</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="flex flex-col items-center justify-center p-6 border rounded-lg bg-background">
+										<h1 className={`${jshineGradientClassName} text-4xl font-bold text-center mb-2`}>
+											{editingSiteConfig.heroTitle}
+										</h1>
+										<p className="text-muted-foreground text-center">
+											{editingSiteConfig.heroQuote}
+										</p>
+									</div>
+								</CardContent>
+							</Card>
+							
+							<div className="grid gap-4 md:grid-cols-2">
+								<Card>
+									<CardHeader>
+										<CardTitle>Tiêu đề gradient</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="space-y-2">
+											<label className="text-sm font-medium">Tiêu đề chính trên trang chủ</label>
+											<Input 
+												value={editingSiteConfig.heroTitle}
+												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroTitle: e.target.value})}
+												placeholder="Nhập tiêu đề..."
 											/>
 										</div>
 									</CardContent>
 								</Card>
 								
-								<div className="flex justify-end">
-									<Button onClick={handleSaveTos}>{t('saveTOS')}</Button>
-								</div>
+								<Card>
+									<CardHeader>
+										<CardTitle>Tiêu đề nhỏ</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="space-y-2">
+											<label className="text-sm font-medium">Tiêu đề nhỏ hiển thị bên dưới</label>
+											<Input 
+												value={editingSiteConfig.heroQuote}
+												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroQuote: e.target.value})}
+												placeholder="Nhập tiêu đề nhỏ..."
+											/>
+										</div>
+									</CardContent>
+								</Card>
 							</div>
 						</div>
 					)}

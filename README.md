@@ -13,6 +13,7 @@ A modern e-commerce website built with Next.js 15, React 19, TypeScript, and Tai
 - 📖 FAQ system with search functionality
 - 🔗 Social media links
 - 🛠️ Utility tools (2FA decoder, etc.)
+- 💾 Persistent data storage across browsers
 
 ## Tech Stack
 
@@ -24,6 +25,7 @@ A modern e-commerce website built with Next.js 15, React 19, TypeScript, and Tai
 - **UI Components**: Shadcn/UI with Radix UI
 - **Icons**: Lucide React
 - **Markdown**: React Markdown
+- **Data Storage**: File System (dev) / Cloudflare KV (production)
 
 ## Getting Started
 
@@ -100,6 +102,29 @@ npm run build
 ## Environment Variables
 
 No environment variables are required for basic functionality. All configuration is managed through the admin dashboard.
+
+## Data Persistence
+
+The website uses a dual storage system for data persistence:
+
+### Development Environment
+- Data is stored in `data/store-data.json` file
+- Automatic backups are created (keeps last 5 backups)
+- Changes are immediately persisted to disk
+
+### Production Environment (Cloudflare)
+- Uses Cloudflare KV Storage for persistent data
+- Data is synchronized across all sessions globally
+- Automatic backups with 7-day retention
+
+### Features
+- **Automatic Sync**: Data syncs every 30 seconds
+- **Cross-Browser**: Changes in one browser appear in all others
+- **Backup System**: Automatic backups prevent data loss
+- **Instant Updates**: Changes are saved immediately
+
+### Setup for Cloudflare KV
+See [Cloudflare KV Setup Guide](docs/cloudflare-kv-setup.md) for detailed instructions.
 
 ## Features Overview
 

@@ -6,6 +6,7 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
+import * as OTPAuth from 'otpauth'
 
 export default function TwoFactorAuthPage() {
 	const { t } = useTranslation()
@@ -13,11 +14,46 @@ export default function TwoFactorAuthPage() {
 	const [totpCode, setTotpCode] = useState('')
 	const [timeRemaining, setTimeRemaining] = useState(30)
 	const [copied, setCopied] = useState(false)
+	const [error, setError] = useState('')
 	const initialLoadRef = useRef(true)
 	
 	// Format input to uppercase and remove spaces
 	const formatInput = (input: string) => {
 		return input.toUpperCase().replace(/\s+/g, '')
+	}
+
+	// Validate if the secret is a valid Base32 string
+	const isValidBase32 = (input: string) => {
+		// Base32 characters only include A-Z and 2-7
+		const base32Regex = /^[A-Z2-7]+$/
+		return base32Regex.test(input)
+	}
+
+	// Generate TOTP code using standard RFC 6238 implementation
+	const generateTOTP = (secret: string) => {
+		try {
+			if (!isValidBase32(secret)) {
+				setError('Invalid secret key format')
+				return ''
+			}
+			
+			// Create TOTP object with standard parameters
+			const totp = new OTPAuth.TOTP({
+				issuer: 'ShineShop',
+				label: 'TOTP',
+				algorithm: 'SHA1',
+				digits: 6,
+				period: 30,
+				secret: OTPAuth.Secret.fromBase32(secret)
+			})
+			
+			// Generate token
+			return totp.generate()
+		} catch (error) {
+			console.error('Error generating TOTP:', error)
+			setError('Error generating TOTP code')
+			return ''
+		}
 	}
 
 	// Extract secret from URL path or hash
@@ -31,7 +67,14 @@ export default function TwoFactorAuthPage() {
 					const hashCode = hash.substring(1) // Remove the # character
 					if (hashCode) {
 						console.log('Found code in hash:', hashCode)
-						return formatInput(decodeURIComponent(hashCode))
+						const formatted = formatInput(decodeURIComponent(hashCode))
+						// Validate the extracted secret
+						if (isValidBase32(formatted)) {
+							return formatted
+						} else {
+							setError('Invalid secret key format in URL')
+							return ''
+						}
 					}
 				}
 				
@@ -47,11 +90,19 @@ export default function TwoFactorAuthPage() {
 					// Return formatted secret
 					if (lastSegment && lastSegment !== '2fa') {
 						console.log('Found code in URL path:', lastSegment)
-						return formatInput(decodeURIComponent(lastSegment))
+						const formatted = formatInput(decodeURIComponent(lastSegment))
+						// Validate the extracted secret
+						if (isValidBase32(formatted)) {
+							return formatted
+						} else {
+							setError('Invalid secret key format in URL')
+							return ''
+						}
 					}
 				}
 			} catch (e) {
 				console.error('Error extracting secret from URL:', e)
+				setError('Error extracting secret from URL')
 			}
 		}
 		return ''
@@ -101,23 +152,26 @@ export default function TwoFactorAuthPage() {
 		}
 	}, [secret])
 
+	// Update TOTP code periodically
 	useEffect(() => {
-		if (secret) {
-			// Simple TOTP generation (in production, use a proper library)
-			const generateTOTP = () => {
-				// This is a simplified version - in production, use a proper TOTP library
-				const time = Math.floor(Date.now() / 1000 / 30)
-				const code = Math.abs(time * secret.length * 123456 % 1000000).toString().padStart(6, '0')
-				setTotpCode(code)
-			}
+		if (secret && isValidBase32(secret)) {
+			// Generate initial code
+			const code = generateTOTP(secret)
+			if (code) setTotpCode(code)
 			
-			generateTOTP()
-			const interval = setInterval(generateTOTP, 1000)
+			// Update code every second
+			const interval = setInterval(() => {
+				const code = generateTOTP(secret)
+				if (code) setTotpCode(code)
+			}, 1000)
 			
 			return () => clearInterval(interval)
+		} else {
+			setTotpCode('')
 		}
 	}, [secret])
 	
+	// Update countdown timer
 	useEffect(() => {
 		const timer = setInterval(() => {
 			const seconds = 30 - (Math.floor(Date.now() / 1000) % 30)
@@ -142,6 +196,14 @@ export default function TwoFactorAuthPage() {
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = formatInput(e.target.value)
 		setSecret(value)
+		
+		// Reset error when input changes
+		if (error) setError('')
+		
+		// Validate input is proper Base32
+		if (value && !isValidBase32(value)) {
+			setError('Invalid secret key format. Use only A-Z and 2-7 characters.')
+		}
 	}
 	
 	return (
@@ -164,9 +226,16 @@ export default function TwoFactorAuthPage() {
 							placeholder={t('enterSecretKey')}
 							value={secret}
 							onChange={handleInputChange}
+							className={error ? "border-red-500" : ""}
 						/>
+						{error && (
+							<p className="text-xs text-red-500">{error}</p>
+						)}
 						<p className="text-xs text-muted-foreground">
 							{t('secretKeyDescription')}
+						</p>
+						<p className="text-xs text-muted-foreground mt-1">
+							Valid format: Base32 characters (A-Z, 2-7) without spaces or special characters.
 						</p>
 					</div>
 					

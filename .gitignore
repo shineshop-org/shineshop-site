@@ -55,6 +55,9 @@ Thumbs.db
 # Optional eslint cache
 .eslintcache
 
-# admin (local dev only)
-/app/admin/
-/admin-cookie-simple/ 
+# data storage (local store data)
+/data/
+data/*.json
+
+# Wrangler
+.wrangler/ 

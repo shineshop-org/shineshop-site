@@ -47,8 +47,53 @@ interface StoreState {
 	isAdminAuthenticated: boolean
 	setAdminAuthenticated: (authenticated: boolean) => void
 
-	// Sync with server (backup to prevent data loss)
-	syncDataToServer: () => void
+	// Sync with server
+	syncDataToServer: () => Promise<void>
+	loadDataFromServer: () => Promise<void>
+	isInitialized: boolean
+}
+
+// Helper function to save data to server
+async function saveToServer(data: any) {
+	try {
+		const response = await fetch('/api/store-data', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
+		})
+		
+		if (!response.ok) {
+			throw new Error('Failed to save data to server')
+		}
+		
+		return await response.json()
+	} catch (error) {
+		console.error('Error saving to server:', error)
+		throw error
+	}
+}
+
+// Helper function to load data from server
+async function loadFromServer() {
+	try {
+		const response = await fetch('/api/store-data', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		})
+		
+		if (!response.ok) {
+			throw new Error('Failed to load data from server')
+		}
+		
+		return await response.json()
+	} catch (error) {
+		console.error('Error loading from server:', error)
+		return null
+	}
 }
 
 export const useStore = create<StoreState>()(
@@ -56,64 +101,76 @@ export const useStore = create<StoreState>()(
 		(set, get) => ({
 			// Language
 			language: 'vi',
-			setLanguage: (language) => set({ language }),
+			setLanguage: (language) => {
+				set({ language })
+				get().syncDataToServer()
+			},
 			
 			// Theme
 			theme: 'light',
-			setTheme: (theme) => set({ theme }),
+			setTheme: (theme) => {
+				set({ theme })
+				get().syncDataToServer()
+			},
 			
 			// Products
 			products: initialProducts,
-			setProducts: (products) => set({ products }),
+			setProducts: (products) => {
+				set({ products })
+				get().syncDataToServer()
+			},
 			addProduct: (product) => {
 				set((state) => ({ products: [...state.products, product] }))
-				// Try to sync after changes
-				setTimeout(() => get().syncDataToServer(), 500)
+				get().syncDataToServer()
 			},
 			updateProduct: (id, product) => {
 				set((state) => ({
 					products: state.products.map((p) => p.id === id ? { ...p, ...product } : p)
 				}))
-				// Try to sync after changes
-				setTimeout(() => get().syncDataToServer(), 500)
+				get().syncDataToServer()
 			},
 			deleteProduct: (id) => {
 				set((state) => ({
 					products: state.products.filter((p) => p.id !== id)
 				}))
-				// Try to sync after changes
-				setTimeout(() => get().syncDataToServer(), 500)
+				get().syncDataToServer()
 			},
 			
 			// FAQ Articles
 			faqArticles: initialFAQArticles,
-			setFaqArticles: (articles) => set({ faqArticles: articles }),
+			setFaqArticles: (articles) => {
+				set({ faqArticles: articles })
+				get().syncDataToServer()
+			},
 			addFaqArticle: (article) => {
 				set((state) => ({ faqArticles: [...state.faqArticles, article] }))
-				// Try to sync after changes
-				setTimeout(() => get().syncDataToServer(), 500)
+				get().syncDataToServer()
 			},
 			updateFaqArticle: (id, article) => {
 				set((state) => ({
 					faqArticles: state.faqArticles.map((a) => a.id === id ? { ...a, ...article } : a)
 				}))
-				// Try to sync after changes
-				setTimeout(() => get().syncDataToServer(), 500)
+				get().syncDataToServer()
 			},
 			deleteFaqArticle: (id) => {
 				set((state) => ({
 					faqArticles: state.faqArticles.filter((a) => a.id !== id)
 				}))
-				// Try to sync after changes
-				setTimeout(() => get().syncDataToServer(), 500)
+				get().syncDataToServer()
 			},
 			
 			// Social Links
 			socialLinks: initialSocialLinks,
-			setSocialLinks: (links) => set({ socialLinks: links }),
-			updateSocialLink: (id, link) => set((state) => ({
-				socialLinks: state.socialLinks.map((l) => l.id === id ? { ...l, ...link } : l)
-			})),
+			setSocialLinks: (links) => {
+				set({ socialLinks: links })
+				get().syncDataToServer()
+			},
+			updateSocialLink: (id, link) => {
+				set((state) => ({
+					socialLinks: state.socialLinks.map((l) => l.id === id ? { ...l, ...link } : l)
+				}))
+				get().syncDataToServer()
+			},
 			
 			// Payment Info
 			paymentInfo: {
@@ -124,7 +181,10 @@ export const useStore = create<StoreState>()(
 				wiseEmail: 'payment@shineshop.org',
 				paypalEmail: 'paypal@shineshop.org'
 			},
-			setPaymentInfo: (info) => set({ paymentInfo: info }),
+			setPaymentInfo: (info) => {
+				set({ paymentInfo: info })
+				get().syncDataToServer()
+			},
 			
 			// Site Config
 			siteConfig: {
@@ -135,22 +195,61 @@ export const useStore = create<StoreState>()(
 					whatsapp: 'https://wa.me/84123456789'
 				}
 			},
-			setSiteConfig: (config) => set({ siteConfig: config }),
+			setSiteConfig: (config) => {
+				set({ siteConfig: config })
+				get().syncDataToServer()
+			},
 			
 			// TOS
 			tosContent: '',
-			setTosContent: (content) => set({ tosContent: content }),
+			setTosContent: (content) => {
+				set({ tosContent: content })
+				get().syncDataToServer()
+			},
 			
 			// Admin
 			isAdminAuthenticated: false,
 			setAdminAuthenticated: (authenticated) => set({ isAdminAuthenticated: authenticated }),
 
-			// Sync data to server 
-			syncDataToServer: () => {
+			// Flag to track if data is loaded from server
+			isInitialized: false,
+
+			// Load data from server
+			loadDataFromServer: async () => {
 				try {
-					// We're just making sure data is properly saved to localStorage
-					// In a real implementation, this could call an API endpoint
+					const data = await loadFromServer()
+					if (data) {
+						set({
+							products: data.products || initialProducts,
+							faqArticles: data.faqArticles || initialFAQArticles,
+							socialLinks: data.socialLinks || initialSocialLinks,
+							paymentInfo: data.paymentInfo || get().paymentInfo,
+							siteConfig: data.siteConfig || get().siteConfig,
+							tosContent: data.tosContent || '',
+							language: data.language || 'vi',
+							theme: data.theme || 'light',
+							isInitialized: true
+						})
+					} else {
+						// If no data on server, set initialized flag and sync current data
+						set({ isInitialized: true })
+						await get().syncDataToServer()
+					}
+				} catch (error) {
+					console.error('Failed to load data from server:', error)
+					set({ isInitialized: true })
+				}
+			},
+
+			// Sync data to server 
+			syncDataToServer: async () => {
+				try {
 					const state = get()
+					
+					// Only sync if initialized to avoid overwriting server data on initial load
+					if (!state.isInitialized) {
+						return
+					}
 					
 					// Create a consistent state object
 					const stateToSave = {
@@ -164,17 +263,13 @@ export const useStore = create<StoreState>()(
 						tosContent: state.tosContent,
 					}
 					
-					// Update the main localStorage storage
+					// Save to server
+					await saveToServer(stateToSave)
+					
+					// Also update localStorage for immediate access
 					localStorage.setItem('shineshop-storage-v3', JSON.stringify(stateToSave))
 					
-					// Also update the backup storage
-					localStorage.setItem('shineshop-backup', JSON.stringify({
-						...stateToSave,
-						timestamp: new Date().toISOString()
-					}))
-					
 					// Force a storage event for cross-tab communication
-					// This helps synchronize changes across tabs
 					window.dispatchEvent(new StorageEvent('storage', {
 						key: 'shineshop-storage-v3',
 						newValue: JSON.stringify(stateToSave)
@@ -185,7 +280,7 @@ export const useStore = create<StoreState>()(
 			}
 		}),
 		{
-			name: 'shineshop-storage-v3', // Updated version to avoid conflicts
+			name: 'shineshop-storage-v3',
 			storage: createJSONStorage(() => localStorage),
 			partialize: (state) => ({
 				language: state.language,
@@ -197,6 +292,12 @@ export const useStore = create<StoreState>()(
 				siteConfig: state.siteConfig,
 				tosContent: state.tosContent,
 			}),
+			onRehydrateStorage: () => (state) => {
+				// Load data from server after rehydration
+				if (state && !state.isInitialized) {
+					state.loadDataFromServer()
+				}
+			}
 		}
 	)
 ) 

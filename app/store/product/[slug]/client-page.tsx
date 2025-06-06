@@ -28,6 +28,62 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const productImageRef = useRef<HTMLDivElement>(null)
 	const [transform, setTransform] = useState('')
 	const productInfoRef = useRef<HTMLDivElement>(null)
+	const [activeOptionId, setActiveOptionId] = useState<string>('')
+	
+	// Get current selected price based on options
+	const getSelectedPrice = () => {
+		if (!product.options || product.options.length === 0 || Object.keys(selectedOptions).length === 0) {
+			return product.price
+		}
+		
+		// Tìm giá dựa trên tùy chọn được chọn
+		for (const option of product.options) {
+			// Tìm giá trị được chọn cho tùy chọn này
+			const selectedValue = selectedOptions[option.id]
+			if (!selectedValue) continue
+			
+			// Tìm thông tin tùy chọn
+			const optionValue = option.values.find(val => val.value === selectedValue)
+			if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
+				return optionValue.price
+			}
+		}
+		
+		return product.price
+	}
+	
+	// Initialize options for a product
+	const initializeOptions = (productData: Product) => {
+		if (productData.options && productData.options.length > 0) {
+			const initialOptions: Record<string, string> = {}
+			
+			// Set the first option as active
+			setActiveOptionId(productData.options[0].id)
+			
+			// Select the first value for each option
+			productData.options.forEach(option => {
+				if (option.values.length > 0) {
+					initialOptions[option.id] = option.values[0].value
+				}
+			})
+			
+			setSelectedOptions(initialOptions)
+			
+			// Calculate initial price
+			let initialPrice = productData.price
+			if (productData.options[0] && productData.options[0].values.length > 0) {
+				const firstOptionFirstValue = productData.options[0].values[0]
+				if (typeof firstOptionFirstValue.price === 'number' && !isNaN(firstOptionFirstValue.price)) {
+					initialPrice = firstOptionFirstValue.price
+				}
+			}
+			
+			setPriceDisplay(formatPrice(initialPrice, 'en-US'))
+		} else {
+			// No options, use base price
+			setPriceDisplay(formatPrice(productData.price, 'en-US'))
+		}
+	}
 	
 	useEffect(() => {
 		// Try to find the product in the store
@@ -62,23 +118,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		// Update with store data if available
 		if (storeProduct) {
 			setProduct(storeProduct)
-			
-			// Initialize selected options - always select the first option by default
-			if (storeProduct.options && storeProduct.options.length > 0) {
-				const initialOptions: Record<string, string> = {}
-				storeProduct.options.forEach(option => {
-					if (option.values.length > 0) {
-						initialOptions[option.id] = option.values[0].value
-					}
-				})
-				setSelectedOptions(initialOptions)
-				
-				// Update price immediately based on the initially selected options
-				setTimeout(() => {
-					const newPrice = getSelectedPrice()
-					setPriceDisplay(formatPrice(newPrice, 'en-US'))
-				}, 10)
-			}
+			initializeOptions(storeProduct)
 			
 			// Find related articles from store
 			if (storeProduct.relatedArticles && storeProduct.relatedArticles.length > 0) {
@@ -91,23 +131,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		// Check localStorage data if store data isn't available
 		else if (localStorageProduct) {
 			setProduct(localStorageProduct)
-			
-			// Initialize selected options from localStorage product
-			if (localStorageProduct.options && localStorageProduct.options.length > 0) {
-				const initialOptions: Record<string, string> = {}
-				localStorageProduct.options.forEach((option: any) => {
-					if (option.values.length > 0) {
-						initialOptions[option.id] = option.values[0].value
-					}
-				})
-				setSelectedOptions(initialOptions)
-				
-				// Update price immediately based on the initially selected options
-				setTimeout(() => {
-					const newPrice = getSelectedPrice()
-					setPriceDisplay(formatPrice(newPrice, 'en-US'))
-				}, 10)
-			}
+			initializeOptions(localStorageProduct)
 			
 			// Find related articles for localStorage product
 			if (localStorageProduct.relatedArticles && localStorageProduct.relatedArticles.length > 0) {
@@ -119,23 +143,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 		else if (initialProduct.id) {
 			// Only use initial product data if it has a valid ID
-			
-			// Initialize selected options for initial product - always select the first option by default
-			if (initialProduct.options && initialProduct.options.length > 0) {
-				const initialOptions: Record<string, string> = {}
-				initialProduct.options.forEach(option => {
-					if (option.values.length > 0) {
-						initialOptions[option.id] = option.values[0].value
-					}
-				})
-				setSelectedOptions(initialOptions)
-				
-				// Update price immediately based on the initially selected options
-				setTimeout(() => {
-					const newPrice = getSelectedPrice()
-					setPriceDisplay(formatPrice(newPrice, 'en-US'))
-				}, 10)
-			}
+			initializeOptions(initialProduct)
 			
 			// Find related articles from initial data
 			if (initialProduct.relatedArticles) {
@@ -151,6 +159,23 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 	}, [slug, products, faqArticles, initialProduct])
 	
+	// Handle option name selection
+	const handleOptionNameChange = (optionId: string) => {
+		setActiveOptionId(optionId)
+		
+		// When switching option tabs, update price based on the currently selected value for that option
+		const selectedValue = selectedOptions[optionId]
+		if (selectedValue) {
+			const option = product.options?.find(opt => opt.id === optionId)
+			if (option) {
+				const optionValue = option.values.find(val => val.value === selectedValue)
+				if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
+					setPriceDisplay(formatPrice(optionValue.price, 'en-US'))
+				}
+			}
+		}
+	}
+	
 	// Handle option selection
 	const handleOptionChange = (optionId: string, value: string) => {
 		const newSelectedOptions = {
@@ -160,9 +185,14 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		
 		setSelectedOptions(newSelectedOptions)
 		
-		// Update price display with the new selected options
-		const newPrice = getSelectedPrice()
-		setPriceDisplay(formatPrice(newPrice, 'en-US'))
+		// Update price display immediately
+		const option = product.options?.find(opt => opt.id === optionId)
+		if (option) {
+			const optionValue = option.values.find(val => val.value === value)
+			if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
+				setPriceDisplay(formatPrice(optionValue.price, 'en-US'))
+			}
+		}
 	}
 	
 	// Extract the lowest price from product options
@@ -180,28 +210,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			: product.price
 			
 		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
-	}
-	
-	// Get current selected price based on options
-	const getSelectedPrice = () => {
-		if (!product.options || product.options.length === 0 || Object.keys(selectedOptions).length === 0) {
-			return product.price
-		}
-		
-		// Tìm giá dựa trên tùy chọn được chọn
-		for (const option of product.options) {
-			// Tìm giá trị được chọn cho tùy chọn này
-			const selectedValue = selectedOptions[option.id]
-			if (!selectedValue) continue
-			
-			// Tìm thông tin tùy chọn
-			const optionValue = option.values.find(val => val.value === selectedValue)
-			if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
-				return optionValue.price
-			}
-		}
-		
-		return product.price
 	}
 	
 	// Get the product name based on language and localization settings
@@ -294,20 +302,41 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					
 					{/* Options - Always show main option even if it's the only one */}
 					<div className="space-y-4 my-2">
-						{/* Package Type Option (Gói nâng cấp) */}
+						{/* Option Name Buttons */}
 						<div className="space-y-1">
 							<div className="flex flex-wrap gap-2">
-								<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
-									<input
-										type="radio"
-										name="package-type"
-										value="chinh-chu"
-										checked={true}
-										readOnly
-										className="sr-only"
-									/>
-									<span>Chính chủ (Add Family)</span>
-								</label>
+								{product.options && product.options.map((option) => (
+									<label 
+										key={option.id}
+										className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all ${
+											option.id === activeOptionId ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-input hover:bg-accent/50'
+										}`}
+									>
+										<input
+											type="radio"
+											name="option-name"
+											value={option.id}
+											checked={option.id === activeOptionId}
+											onChange={() => handleOptionNameChange(option.id)}
+											className="sr-only"
+										/>
+										<span>{option.name}</span>
+									</label>
+								))}
+								{/* Fallback if no options */}
+								{(!product.options || product.options.length === 0) && (
+									<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
+										<input
+											type="radio"
+											name="option-name"
+											value="default"
+											checked={true}
+											readOnly
+											className="sr-only"
+										/>
+										<span>Thời hạn</span>
+									</label>
+								)}
 							</div>
 						</div>
 						
@@ -315,29 +344,38 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						<div className="h-px bg-border/50 dark:bg-border/30 my-2 w-full"></div>
 						
 						{/* Render dynamic product options */}
-						{product.options && product.options.map((option) => (
+						{product.options && product.options
+							.filter(option => option.id === activeOptionId)
+							.map((option) => (
 							<div key={option.id} className="space-y-1">
 								<div className="flex flex-wrap gap-2">
-									{option.values.map((value) => (
-										<label
-											key={value.value}
-											className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary ${
-												selectedOptions[option.id] === value.value 
-													? 'bg-primary text-primary-foreground border-primary' 
-													: 'bg-background border-input hover:bg-accent/50'
-											}`}
-										>
-											<input
-												type="radio"
-												name={option.id}
-												value={value.value}
-												checked={selectedOptions[option.id] === value.value}
-												onChange={() => handleOptionChange(option.id, value.value)}
-												className="sr-only"
-											/>
-											<span>{value.value}</span>
-										</label>
-									))}
+									{option.values.map((value, valueIndex) => {
+										// Tạo id duy nhất cho mỗi option value
+										const uniqueId = `${option.id}-${valueIndex}`
+										const inputName = `package-type-${option.id}`
+										
+										return (
+											<label
+												key={uniqueId}
+												className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary ${
+													selectedOptions[option.id] === value.value 
+														? 'bg-primary text-primary-foreground border-primary' 
+														: 'bg-background border-input hover:bg-accent/50'
+												}`}
+											>
+												<input
+													type="radio"
+													name={inputName}
+													value={value.value}
+													checked={selectedOptions[option.id] === value.value}
+													onChange={() => handleOptionChange(option.id, value.value)}
+													className="sr-only"
+													readOnly={false}
+												/>
+												<span>{value.value}</span>
+											</label>
+										)
+									})}
 								</div>
 								{selectedOptions[option.id] && (
 									<div>
@@ -369,7 +407,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 											readOnly
 											className="sr-only"
 										/>
-										<span>Chính chủ (Add Family)</span>
+										<span>Thời hạn</span>
 									</label>
 								</div>
 								<p className="text-sm text-muted-foreground mt-4">
