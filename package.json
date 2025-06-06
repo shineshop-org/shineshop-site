@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "export": "npm install --force && next build && node scripts/build-for-cloudflare.js",
     "start": "next start",
     "lint": "next lint",
     "deploy": "npm run build && echo Build completed successfully!"

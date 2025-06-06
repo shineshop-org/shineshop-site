@@ -157,4 +157,46 @@ app/admin/
 ✅ Bảo mật đầy đủ  
 ✅ Codebase clean và tối ưu  
 
-Dự án đã sẵn sàng để sử dụng và deploy! 
+Dự án đã sẵn sàng để sử dụng và deploy!
+
+# Cloudflare Pages Deployment Instructions
+
+## Build Configuration
+
+When deploying to Cloudflare Pages, use these settings:
+
+### Build settings:
+- **Framework preset**: None
+- **Build command**: `npm run build`
+- **Build output directory**: `out`
+
+### Environment variables:
+- `NODE_VERSION`: 20
+- `CF_PAGES`: 1
+
+## Important Notes
+
+1. Do NOT use `npm run export` - this script has been removed
+2. The site uses static export (`output: 'export'` in next.config.js)
+3. All pages are pre-rendered as static HTML
+4. No API routes or server-side features are available
+
+## Update Existing Deployment
+
+If you have an existing deployment using `npm run export`:
+
+1. Go to Cloudflare Pages Dashboard
+2. Select your project (shineshop-site)
+3. Settings > Builds & deployments
+4. Edit build settings
+5. Change build command from `npm run export` to `npm run build`
+6. Save changes
+
+## Manual Deploy
+
+You can also manually build and deploy:
+
+```bash
+npm run build
+npx wrangler pages deploy out --project-name shineshop-site
+``` 
