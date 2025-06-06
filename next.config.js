@@ -4,7 +4,7 @@ const isDeployment = process.env.CF_PAGES === '1' || process.env.CLOUDFLARE === 
 
 const nextConfig = {
 	// Configure for Cloudflare Pages deployment
-	output: 'standalone',
+	output: 'export',
 	distDir: '.next',
 	images: {
 		unoptimized: true,
@@ -25,6 +25,7 @@ const nextConfig = {
 	},
 	// Disable features not supported in static export
 	trailingSlash: true,
+	skipTrailingSlashRedirect: true,
 	
 	// Disable source maps in production to reduce build size
 	productionBrowserSourceMaps: false,

@@ -65,13 +65,19 @@ async function saveToServer(data: any) {
 		})
 		
 		if (!response.ok) {
+			// Check if it's 501 (API not available in static mode)
+			if (response.status === 501) {
+				console.warn('API not available in static export mode, using localStorage only')
+				return { success: true }
+			}
 			throw new Error('Failed to save data to server')
 		}
 		
 		return await response.json()
 	} catch (error) {
 		console.error('Error saving to server:', error)
-		throw error
+		// Fallback to localStorage only
+		return { success: true }
 	}
 }
 
@@ -86,6 +92,11 @@ async function loadFromServer() {
 		})
 		
 		if (!response.ok) {
+			// Check if it's 501 (API not available in static mode)
+			if (response.status === 501) {
+				console.warn('API not available in static export mode, using localStorage only')
+				return null
+			}
 			throw new Error('Failed to load data from server')
 		}
 		
