@@ -1,7 +1,12 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": ["/api/*"],
+  "exclude": [
+    "/_next/static/*",
+    "/favicon.ico",
+    "/sitemap.xml",
+    "/robots.txt"
+  ],
   "cache": {
     "browser": {
       "maxAge": 0,
@@ -28,7 +33,7 @@
   "routes": [
     {
       "src": "/service/2fa/(.*)",
-      "dest": "/service/2fa/index.html",
+      "dest": "/service/2fa/[...slug]",
       "status": 200
     },
     {

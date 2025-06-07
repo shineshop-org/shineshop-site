@@ -1,2 +1,2 @@
 [build]
-command = "npm install --legacy-peer-deps && npm install autoprefixer next-themes --legacy-peer-deps && npm run export" 
+command = "npm install --legacy-peer-deps && npm run build && npx @cloudflare/next-on-pages" 

@@ -3,9 +3,8 @@ const isDev = process.env.NODE_ENV === 'development'
 const isDeployment = process.env.CF_PAGES === '1' || process.env.CLOUDFLARE === '1'
 
 const nextConfig = {
-	// Configure for Cloudflare Pages deployment
-	// Only use static export for production deployment, not development
-	...(isDeployment && { output: 'export' }),
+	// Remove static export for Cloudflare Pages deployment
+	// Instead, configure for Cloudflare Pages Functions which supports RSC
 	distDir: '.next',
 	images: {
 		unoptimized: true,
