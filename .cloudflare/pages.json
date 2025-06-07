@@ -1,6 +1,6 @@
 {
   "build": {
-    "command": "npm run export",
+    "command": "npm run deploy",
     "output": "out",
     "environment": {
       "NODE_VERSION": "20"

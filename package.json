@@ -8,6 +8,7 @@
     "build": "next build",
     "pages:build": "npx @cloudflare/next-on-pages",
     "pages:deploy": "npm run build && npm run pages:build && wrangler pages deploy .vercel/output/static",
+    "export": "npm run deploy",
     "start": "next start",
     "lint": "next lint",
     "deploy": "npm run build && npx @cloudflare/next-on-pages && cp -r .vercel/output/static out"
@@ -40,7 +41,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.10.0",
+    "@cloudflare/next-on-pages": "^1.13.12",
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.0",
