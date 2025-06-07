@@ -4,6 +4,7 @@ import './globals.css'
 import { Providers } from './components/providers'
 import { Navbar } from './components/navbar'
 import { LanguageInitializer } from './components/language-initializer'
+import { HtmlHead } from './components/html-head'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,6 +20,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
+			<head>
+				<HtmlHead />
+			</head>
 			<body className={inter.className}>
 				<Providers>
 					<LanguageInitializer />
