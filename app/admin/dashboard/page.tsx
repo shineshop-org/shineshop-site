@@ -290,6 +290,9 @@ export default function AdminDashboard() {
 	const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false)
 	const [productToDelete, setProductToDelete] = useState<Product | null>(null)
 	
+	// Added state object to track price input string values
+	const [priceInputValues, setPriceInputValues] = useState<Record<string, string>>({})
+	
 	// Kiểm tra môi trường
 	const isDevelopment = process.env.NODE_ENV === 'development'
 	
@@ -398,6 +401,18 @@ export default function AdminDashboard() {
 			}))
 		}))
 		
+		// Initialize price input values for all options
+		const initialPriceValues: Record<string, string> = {}
+		processedOptions.forEach((option, optionIndex) => {
+			option.values.forEach((value, valueIndex) => {
+				initialPriceValues[`${optionIndex}-${valueIndex}-en`] = 
+					value.localizedPrice?.en ? value.localizedPrice.en.toString() : '0'
+				initialPriceValues[`${optionIndex}-${valueIndex}-vi`] = 
+					value.localizedPrice?.vi ? value.localizedPrice.vi.toString() : '0'
+			})
+		})
+		setPriceInputValues(initialPriceValues)
+		
 		setProductForm({
 			name: product.name,
 			localizedName: product.localizedName || { en: product.name, vi: product.name },
@@ -417,6 +432,15 @@ export default function AdminDashboard() {
 	
 	// Function to add option field
 	const addOptionField = () => {
+		const newOptionIndex = productForm.options.length
+		
+		// Initialize price input values for the new option value
+		setPriceInputValues({
+			...priceInputValues,
+			[`${newOptionIndex}-0-en`]: '0',
+			[`${newOptionIndex}-0-vi`]: '0'
+		})
+		
 		setProductForm({
 			...productForm,
 			options: [
@@ -440,6 +464,33 @@ export default function AdminDashboard() {
 	
 	// Function to remove option
 	const removeOption = (optionIndex: number) => {
+		// Create new price input values without the removed option
+		const newPriceInputValues = { ...priceInputValues }
+		
+		// Remove all price input values for this option
+		Object.keys(newPriceInputValues).forEach(key => {
+			if (key.startsWith(`${optionIndex}-`)) {
+				delete newPriceInputValues[key]
+			}
+		})
+		
+		// Update keys for options that come after the removed one
+		const optionsLength = productForm.options.length
+		for (let i = optionIndex + 1; i < optionsLength; i++) {
+			productForm.options[i].values.forEach((_, valueIndex) => {
+				if (newPriceInputValues[`${i}-${valueIndex}-en`]) {
+					newPriceInputValues[`${i-1}-${valueIndex}-en`] = newPriceInputValues[`${i}-${valueIndex}-en`]
+					delete newPriceInputValues[`${i}-${valueIndex}-en`]
+				}
+				if (newPriceInputValues[`${i}-${valueIndex}-vi`]) {
+					newPriceInputValues[`${i-1}-${valueIndex}-vi`] = newPriceInputValues[`${i}-${valueIndex}-vi`]
+					delete newPriceInputValues[`${i}-${valueIndex}-vi`]
+				}
+			})
+		}
+		
+		setPriceInputValues(newPriceInputValues)
+		
 		setProductForm({
 			...productForm,
 			options: productForm.options.filter((_: any, index: number) => index !== optionIndex)
@@ -463,12 +514,21 @@ export default function AdminDashboard() {
 	// Function to add value to option
 	const addValueToOption = (optionIndex: number) => {
 		const updatedOptions = [...productForm.options]
+		const newValueIndex = updatedOptions[optionIndex].values.length
+		
 		updatedOptions[optionIndex].values.push({ 
 			value: '', 
 			localizedValue: { en: '', vi: '' },
 			price: 0, 
 			localizedPrice: { en: 0, vi: 0 },
 			description: '' 
+		})
+		
+		// Initialize price input values for the new option value
+		setPriceInputValues({
+			...priceInputValues,
+			[`${optionIndex}-${newValueIndex}-en`]: '0',
+			[`${optionIndex}-${newValueIndex}-vi`]: '0'
 		})
 		
 		setProductForm({
@@ -482,6 +542,26 @@ export default function AdminDashboard() {
 		const updatedOptions = [...productForm.options]
 		updatedOptions[optionIndex].values = updatedOptions[optionIndex].values
 			.filter((_, index) => index !== valueIndex)
+		
+		// Create new price input values without the removed value
+		const newPriceInputValues = { ...priceInputValues }
+		delete newPriceInputValues[`${optionIndex}-${valueIndex}-en`]
+		delete newPriceInputValues[`${optionIndex}-${valueIndex}-vi`]
+		
+		// Update keys for values that come after the removed one
+		const optionValuesLength = updatedOptions[optionIndex].values.length + 1 // +1 because we just removed one
+		for (let i = valueIndex + 1; i < optionValuesLength; i++) {
+			if (newPriceInputValues[`${optionIndex}-${i}-en`]) {
+				newPriceInputValues[`${optionIndex}-${i-1}-en`] = newPriceInputValues[`${optionIndex}-${i}-en`]
+				delete newPriceInputValues[`${optionIndex}-${i}-en`]
+			}
+			if (newPriceInputValues[`${optionIndex}-${i}-vi`]) {
+				newPriceInputValues[`${optionIndex}-${i-1}-vi`] = newPriceInputValues[`${optionIndex}-${i}-vi`]
+				delete newPriceInputValues[`${optionIndex}-${i}-vi`]
+			}
+		}
+		
+		setPriceInputValues(newPriceInputValues)
 		
 		setProductForm({
 			...productForm,
@@ -573,8 +653,10 @@ export default function AdminDashboard() {
 			addProduct(productData)
 		}
 		
+		// Reset price input values
+		setPriceInputValues({})
+		
 		// Reset form and close dialog
-		setProductDialog(false)
 		setEditingProduct(null)
 		setProductForm({
 			name: '',
@@ -590,6 +672,7 @@ export default function AdminDashboard() {
 			isLocalized: true
 		})
 		setSelectedArticles([])
+		setProductDialog(false)
 	}
 	
 	// Handle drag end event
@@ -1334,13 +1417,23 @@ export default function AdminDashboard() {
 																			Price ({language === 'en' ? 'USD' : 'VNĐ'})
 																		</label>
 																		<Input 
-																			value={language === 'en' 
-																				? (value.localizedPrice?.en && value.localizedPrice.en !== 0 ? value.localizedPrice.en.toString() : '') 
-																				: (value.localizedPrice?.vi && value.localizedPrice.vi !== 0 ? value.localizedPrice.vi.toString() : '')}
+																			value={language === 'en'
+																				? priceInputValues[`${optionIndex}-${valueIndex}-en`] || 
+																					(value.localizedPrice?.en && value.localizedPrice.en !== 0 ? value.localizedPrice.en.toString() : '')
+																				: priceInputValues[`${optionIndex}-${valueIndex}-vi`] ||
+																					(value.localizedPrice?.vi && value.localizedPrice.vi !== 0 ? value.localizedPrice.vi.toString() : '')
+																			}
 																			onChange={(e) => {
 																				const validatedInput = language === 'en' 
 																					? validateUSDPriceInput(e.target.value)
 																					: validateVNDPriceInput(e.target.value)
+																				
+																				// Store the string input in state
+																				setPriceInputValues({
+																					...priceInputValues,
+																					[`${optionIndex}-${valueIndex}-${language}`]: validatedInput
+																				})
+																				
 																				const numberValue = convertPriceToNumber(validatedInput)
 																				const currentLocalized = value.localizedPrice || { en: 0, vi: 0 }
 																				const newLocalizedPrice = {
