@@ -9,7 +9,15 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 export function middleware(req: NextRequest) {
 	// Skip middleware in production (for static export compatibility)
 	if (!isDevelopment) {
-		return NextResponse.next()
+		// In production, add cache control headers to prevent browser caching
+		const response = NextResponse.next()
+		
+		// Set cache control headers
+		response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
+		response.headers.set('Pragma', 'no-cache')
+		response.headers.set('Expires', '0')
+		
+		return response
 	}
 
 	const url = req.nextUrl.clone()
@@ -21,7 +29,13 @@ export function middleware(req: NextRequest) {
 		return NextResponse.next()
 	}
 
-	return NextResponse.next()
+	// Add cache control headers in development too
+	const response = NextResponse.next()
+	response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
+	response.headers.set('Pragma', 'no-cache')
+	response.headers.set('Expires', '0')
+	
+	return response
 }
 
 export const config = {
