@@ -1,7 +1,10 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Language, Product, FAQArticle, SocialLink, PaymentInfo, SiteConfig } from './types'
-import { initialProducts, initialFAQArticles, initialSocialLinks } from './initial-data'
+import { initialProducts, initialFAQArticles, initialSocialLinks, dataVersion } from './initial-data'
+
+// Lưu trữ phiên bản hiện tại của dữ liệu
+const CURRENT_DATA_VERSION = dataVersion
 
 interface StoreState {
 	// Language
@@ -51,6 +54,9 @@ interface StoreState {
 	syncDataToServer: () => Promise<void>
 	loadDataFromServer: () => Promise<void>
 	isInitialized: boolean
+	
+	// Phiên bản dữ liệu
+	dataVersion: number
 }
 
 // Helper function to save data to server
@@ -240,6 +246,9 @@ export const useStore = create<StoreState>()(
 
 			// Flag to track if data is loaded from server
 			isInitialized: false,
+			
+			// Version dữ liệu
+			dataVersion: CURRENT_DATA_VERSION,
 
 			// Load data from server
 			loadDataFromServer: async () => {
@@ -250,68 +259,88 @@ export const useStore = create<StoreState>()(
 						products: data.products,
 						faqArticles: data.faqArticles,
 						socialLinks: data.socialLinks,
+						language: data.language,
+						theme: data.theme,
 						paymentInfo: data.paymentInfo,
 						siteConfig: data.siteConfig,
 						tosContent: data.tosContent,
-						language: data.language,
-						theme: data.theme,
-						isInitialized: true
+						isInitialized: true,
+						dataVersion: CURRENT_DATA_VERSION
 					})
+					return data
 				} catch (error) {
-					console.error('Failed to load data from server:', error)
-					// Don't set initialized flag on error to prevent further operations
+					console.error('Failed to load data from server, using local storage data', error)
+					set({ isInitialized: true })
 					throw error
 				}
 			},
-
-			// Sync data to server 
+			
+			// Save data to server
 			syncDataToServer: async () => {
 				try {
 					const state = get()
 					
-					// Only sync if initialized to avoid overwriting server data on initial load
-					if (!state.isInitialized) {
-						return
-					}
-					
-					// Create a consistent state object
-					const stateToSave = {
-						language: state.language,
-						theme: state.theme,
+					// Create data object with current data
+					const data = {
 						products: state.products,
 						faqArticles: state.faqArticles,
 						socialLinks: state.socialLinks,
+						language: state.language,
+						theme: state.theme,
 						paymentInfo: state.paymentInfo,
 						siteConfig: state.siteConfig,
 						tosContent: state.tosContent,
+						dataVersion: CURRENT_DATA_VERSION
 					}
 					
-					// Save to server only - no localStorage fallback
-					await saveToServer(stateToSave)
+					// Save to server
+					await saveToServer(data)
+					
+					// Update data version after successful save
+					set({ dataVersion: CURRENT_DATA_VERSION })
 				} catch (error) {
-					console.error('Failed to sync data to server:', error)
-					throw error // Re-throw error instead of silently failing
+					console.error('Error syncing data to server:', error)
+					throw error
 				}
 			}
 		}),
 		{
 			name: 'shineshop-storage-v3',
 			storage: createJSONStorage(() => localStorage),
-			partialize: (state) => ({
-				language: state.language,
-				theme: state.theme,
-				products: state.products,
-				faqArticles: state.faqArticles,
-				socialLinks: state.socialLinks,
-				paymentInfo: state.paymentInfo,
-				siteConfig: state.siteConfig,
-				tosContent: state.tosContent,
-			}),
 			onRehydrateStorage: () => (state) => {
-				// Load data from server after rehydration
-				if (state && !state.isInitialized) {
-					state.loadDataFromServer()
+				// Kiểm tra phiên bản dữ liệu khi khôi phục từ localStorage
+				if (state) {
+					// Nếu phiên bản dữ liệu trong localStorage khác với phiên bản hiện tại
+					// hoặc không có phiên bản (dữ liệu cũ), làm mới dữ liệu
+					if (!state.dataVersion || state.dataVersion !== CURRENT_DATA_VERSION) {
+						console.log('Data version mismatch, resetting to initial data...');
+						// Cập nhật state với dữ liệu mới từ initial-data.ts
+						state.products = initialProducts;
+						state.faqArticles = initialFAQArticles;
+						state.socialLinks = initialSocialLinks;
+						state.dataVersion = CURRENT_DATA_VERSION;
+						
+						// Lưu trạng thái mới ngay lập tức
+						try {
+							localStorage.setItem('shineshop-storage-v3', JSON.stringify({
+								state: {
+									products: initialProducts,
+									faqArticles: initialFAQArticles,
+									socialLinks: initialSocialLinks,
+									language: state.language || 'vi',
+									theme: state.theme || 'light',
+									paymentInfo: state.paymentInfo,
+									siteConfig: state.siteConfig,
+									tosContent: state.tosContent || '',
+									dataVersion: CURRENT_DATA_VERSION
+								}
+							}));
+						} catch (error) {
+							console.error('Failed to update localStorage with new version', error);
+						}
+					}
 				}
+				state?.syncDataToServer();
 			}
 		}
 	)

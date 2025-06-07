@@ -520,3 +520,6 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 ---
 
 By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
+
+// Add version timestamp to force fresh data on build
+export const dataVersion = Date.now();

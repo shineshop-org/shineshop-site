@@ -4,6 +4,7 @@ import React from 'react'
 import { ThemeProvider } from 'next-themes'
 import { useStore } from '@/app/lib/store'
 import { StoreProvider } from './providers/store-provider'
+import { useVersionCheck } from '@/app/hooks/use-version-check'
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	return (
@@ -15,6 +16,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
 	const { theme } = useStore()
+	
+	// Sử dụng hook kiểm tra phiên bản
+	useVersionCheck()
 	
 	return (
 		<ThemeProvider
