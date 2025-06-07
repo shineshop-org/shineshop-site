@@ -8,7 +8,7 @@ export const initialProducts: Product[] = [
       "en": "Youtube Premium (Private Upgrade)",
       "vi": "Youtube Premium (Chính chủ)"
     },
-    "price": 0,
+    "price": 40000,
     "description": "Youtube Premium subscription service.",
     "localizedDescription": {
       "en": "Youtube Premium subscription service.",
@@ -29,7 +29,7 @@ export const initialProducts: Product[] = [
         "values": [
           {
             "value": "1 tháng",
-            "price": 30000,
+            "price": 40000,
             "localizedPrice": {
               "en": 3.5,
               "vi": 40000
