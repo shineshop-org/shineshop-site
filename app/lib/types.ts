@@ -92,6 +92,38 @@ export interface SiteConfig {
 		facebook: string
 		whatsapp: string
 	}
+	// Gradient titles that can be edited from the admin dashboard
+	gradientTitles?: {
+		home?: string
+		products?: string
+		about?: string
+		contact?: string
+		faq?: string
+	}
+	// Small titles/subtitles that can be edited from the admin dashboard
+	smallTitles?: {
+		home?: string
+		products?: string
+		about?: string
+		contact?: string
+		faq?: string
+	}
+	// Additional site configuration settings
+	seo?: {
+		title?: string
+		description?: string
+		keywords?: string[]
+	}
+	// Theme settings
+	theme?: {
+		primaryColor?: string
+		secondaryColor?: string
+		accentColor?: string
+	}
+	// Custom CSS classes
+	customClasses?: {
+		[key: string]: string
+	}
 }
 
 export interface AdminUser {

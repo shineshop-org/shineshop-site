@@ -51,10 +51,16 @@ export async function POST(request: NextRequest) {
 
 // Function to generate the content for initial-data.ts
 function generateInitialDataContent(storeData: any): string {
-  const { products, faqArticles, socialLinks, tosContent } = storeData
+  const { 
+    products, 
+    faqArticles, 
+    socialLinks, 
+    tosContent,
+    siteConfig
+  } = storeData
 
   // Create a string representation of the data in TypeScript format
-  let content = `import { Product, FAQArticle, SocialLink } from './types'\n\n`
+  let content = `import { Product, FAQArticle, SocialLink, SiteConfig } from './types'\n\n`
 
   // Generate products section
   content += `export const initialProducts: Product[] = ${formatTsArray(products)}\n\n`
@@ -67,7 +73,12 @@ function generateInitialDataContent(storeData: any): string {
 
   // Generate TOS content section
   if (tosContent) {
-    content += `export const initialTOSContent = \`${escapeBackticks(tosContent)}\``
+    content += `export const initialTOSContent = \`${escapeBackticks(tosContent)}\`\n\n`
+  }
+
+  // Generate site configuration section (contains gradient titles, small titles, etc.)
+  if (siteConfig) {
+    content += `export const initialSiteConfig: SiteConfig = ${formatTsObject(siteConfig)}`
   }
 
   return content
@@ -82,6 +93,19 @@ function formatTsArray(array: any[]): string {
   // Pretty print the array with proper indentation
   return JSON.stringify(array, null, 2)
     // Fix date format for createdAt and updatedAt
+    .replace(/"createdAt":\s*"([^"]+)"/g, '"createdAt": new Date("$1")')
+    .replace(/"updatedAt":\s*"([^"]+)"/g, '"updatedAt": new Date("$1")')
+}
+
+// Helper function to format an object as TypeScript code
+function formatTsObject(obj: any): string {
+  if (!obj || typeof obj !== 'object' || Object.keys(obj).length === 0) {
+    return '{}'
+  }
+
+  // Pretty print the object with proper indentation
+  return JSON.stringify(obj, null, 2)
+    // Fix date format for any date fields
     .replace(/"createdAt":\s*"([^"]+)"/g, '"createdAt": new Date("$1")')
     .replace(/"updatedAt":\s*"([^"]+)"/g, '"updatedAt": new Date("$1")')
 }

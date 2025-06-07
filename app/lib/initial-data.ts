@@ -1,4 +1,4 @@
-import { Product, FAQArticle, SocialLink } from './types'
+import { Product, FAQArticle, SocialLink, SiteConfig } from './types'
 
 export const initialProducts: Product[] = [
   {
@@ -584,5 +584,28 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 
 By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
 
-// Current data version used for migrations and updates
-export const dataVersion = 1;
+export const initialSiteConfig: SiteConfig = {
+  heroTitle: "Welcome to Shine Shop",
+  heroQuote: "Your trusted online shopping destination",
+  contactLinks: {
+    facebook: "https://facebook.com/shineshop",
+    whatsapp: "https://wa.me/84123456789"
+  },
+  gradientTitles: {
+    home: "Shine Shop",
+    products: "Our Products",
+    about: "About Us",
+    contact: "Contact Us",
+    faq: "Frequently Asked Questions"
+  },
+  smallTitles: {
+    home: "Welcome to our store",
+    products: "Browse our premium selection",
+    about: "Learn more about our story",
+    contact: "Get in touch with us",
+    faq: "Find answers to common questions"
+  }
+}
+
+// Track data version for sync and migration
+export const dataVersion = 2
