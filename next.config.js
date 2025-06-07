@@ -43,6 +43,35 @@ const nextConfig = {
 		// your project has type errors.
 		ignoreBuildErrors: true,
 	},
+	
+	// Disable caching to force fresh build
+	onDemandEntries: {
+		// Keep entries in memory for much shorter time
+		maxInactiveAge: 0,
+	},
+	
+	// Force page rebuilds on each deployment with timestamp
+	generateBuildId: async () => {
+		return `build-${Date.now()}`
+	},
+	
+	// Ensure all dependencies are included in the build
+	experimental: {
+		// Include data dependencies in the build
+		outputFileTracingIncludes: {
+			'/**': ['./app/lib/**/*']
+		}
+	},
+	
+	// Disable build cache
+	swcMinify: true, // Enable SWC minifier but without caching
+	webpack: (config, { dev, isServer }) => {
+		// Disable webpack caching in production
+		if (!dev) {
+			config.cache = false;
+		}
+		return config;
+	},
 }
 
 module.exports = nextConfig 

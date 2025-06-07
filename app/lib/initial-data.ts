@@ -1,5 +1,8 @@
 import { Product, FAQArticle, SocialLink } from './types'
 
+// Add version timestamp to force fresh data on build
+export const dataVersion = Date.now();
+
 export const initialProducts: Product[] = [
   {
     "id": "1749230782074",

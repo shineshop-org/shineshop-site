@@ -1,7 +1,22 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": [],
+  "exclude": ["/api/*"],
+  "cache": {
+    "browser": {
+      "maxAge": 0
+    },
+    "edge": {
+      "maxAgeSeconds": 0
+    }
+  },
+  "headers": {
+    "/*": {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    }
+  },
   "routes": [
     {
       "src": "/service/2fa/(.*)",
