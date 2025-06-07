@@ -328,4 +328,4 @@ export const initialLanguage = 'vi'
 export const initialTheme = 'light'
 
 // Track data version for sync and migration
-export const dataVersion = 2
+export const dataVersion = 3
