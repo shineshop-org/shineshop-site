@@ -1,0 +1,5 @@
+# Redirects for Cloudflare Pages
+/sheet https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit?gid=1592107766#gid=1592107766 301!
+
+# Handle RSC file requests with 200 response
+/*.txt?_rsc=* /.netlify/functions/empty 200 

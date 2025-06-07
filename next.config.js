@@ -34,29 +34,31 @@ const nextConfig = {
 	trailingSlash: true,
 	skipTrailingSlashRedirect: true,
 	
-	// Add redirects configuration
-	async redirects() {
-		return [
-			{
-				source: '/sheet',
-				destination: 'https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit?gid=1592107766#gid=1592107766',
-				permanent: true,
-			},
-		]
-	},
-	
-	// Add rewrites to handle 404s for RSC files
-	async rewrites() {
-		return {
-			beforeFiles: [
-				// Handle missing RSC files
+	// Add redirects configuration - only used in development mode
+	...(!isDeployment && {
+		async redirects() {
+			return [
 				{
-					source: '/:path*\\.txt',
-					destination: '/api/empty-response',
+					source: '/sheet',
+					destination: 'https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit?gid=1592107766#gid=1592107766',
+					permanent: true,
 				},
-			],
-		};
-	},
+			];
+		},
+		
+		// Add rewrites to handle 404s for RSC files - only used in development mode
+		async rewrites() {
+			return {
+				beforeFiles: [
+					// Handle missing RSC files
+					{
+						source: '/:path*\\.txt',
+						destination: '/api/empty-response',
+					},
+				],
+			};
+		},
+	}),
 	
 	// Disable source maps in production to reduce build size
 	productionBrowserSourceMaps: false,
