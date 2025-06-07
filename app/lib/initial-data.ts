@@ -15,6 +15,7 @@ export const initialProducts: Product[] = [
       "vi": "Nâng cấp Youtube Premium chính chủ."
     },
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png?updatedAt=1749032381807",
+    "category": "Subscription",
     "localizedCategory": {
       "en": "Entertainment",
       "vi": "Giải trí"
@@ -27,43 +28,51 @@ export const initialProducts: Product[] = [
         "type": "select",
         "values": [
           {
-            "localizedValue": {
-              "en": "1 month",
-              "vi": "1 tháng"
-            },
+            "value": "1 tháng",
+            "price": 30000,
             "localizedPrice": {
               "en": 3.5,
               "vi": 40000
             },
-            "description": ""
+            "description": "",
+            "localizedValue": {
+              "en": "1 month",
+              "vi": "1 tháng"
+            }
           },
           {
-            "localizedValue": {
-              "en": "3 months",
-              "vi": "3 tháng"
-            },
+            "value": "3 tháng",
+            "price": 30000,
             "localizedPrice": {
               "en": 8.99,
               "vi": 100000
             },
-            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
+            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
+            "localizedValue": {
+              "en": "3 months",
+              "vi": "3 tháng"
+            }
           },
           {
-            "localizedValue": {
-              "en": "6 months",
-              "vi": "6 tháng"
-            },
+            "value": "6 tháng",
+            "price": 195000,
             "localizedPrice": {
               "en": 16.99,
               "vi": 195000
             },
-            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
+            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
+            "localizedValue": {
+              "en": "6 months",
+              "vi": "6 tháng"
+            }
           },
           {
+            "value": "12 tháng",
             "localizedValue": {
               "en": "12 months",
               "vi": "12 tháng"
             },
+            "price": 345000,
             "localizedPrice": {
               "en": 29.99,
               "vi": 345000
@@ -96,6 +105,7 @@ export const initialProducts: Product[] = [
       "vi": "ChatGPT Plus Nâng cấp Chính chủ"
     },
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/openAI.png?updatedAt=1749225595506",
+    "category": "",
     "localizedCategory": {
       "en": "AI",
       "vi": "AI"
@@ -112,10 +122,12 @@ export const initialProducts: Product[] = [
         "type": "select",
         "values": [
           {
+            "value": "",
             "localizedValue": {
               "en": "Shared Account",
               "vi": "Tài khoản dùng chung"
             },
+            "price": 0,
             "localizedPrice": {
               "en": 5.99,
               "vi": 150000
@@ -123,10 +135,12 @@ export const initialProducts: Product[] = [
             "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
           },
           {
+            "value": "",
             "localizedValue": {
               "en": "Private Upgrade",
               "vi": "Nâng cấp chính chủ"
             },
+            "price": 0,
             "localizedPrice": {
               "en": 15,
               "vi": 380000
@@ -292,8 +306,8 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
 
 export const initialSiteConfig: SiteConfig = {
-  "heroTitle": "A",
-  "heroQuote": "A",
+  "heroTitle": "Welcome to SHINE SHOP!",
+  "heroQuote": "heheehh!",
   "contactLinks": {
     "facebook": "https://facebook.com/shineshop",
     "whatsapp": "https://wa.me/84123456789"
@@ -301,17 +315,17 @@ export const initialSiteConfig: SiteConfig = {
 }
 
 export const initialPaymentInfo: PaymentInfo = {
-  bankName: 'Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam',
-  accountNumber: 'MS00T09331707449347',
-  accountName: 'SHINE SHOP',
-  qrTemplate: 'compact',
-  wiseEmail: 'payment@shineshop.org',
-  paypalEmail: 'paypal@shineshop.org'
+  "bankName": "Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam",
+  "accountNumber": "MS00T09331707449347",
+  "accountName": "SHINE SHOP",
+  "qrTemplate": "compact",
+  "wiseEmail": "payment@shineshop.org",
+  "paypalEmail": "paypal@shineshop.org"
 }
 
-export const initialLanguage = 'vi'
+export const initialLanguage = "vi"
 
-export const initialTheme = 'light'
+export const initialTheme = "dark"
 
 // Track data version for sync and migration
-export const dataVersion = 3
+export const dataVersion = 2
