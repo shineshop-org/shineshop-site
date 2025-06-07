@@ -89,6 +89,69 @@ export const initialProducts: Product[] = [
     "relatedArticles": [],
     "sortOrder": 1,
     "isLocalized": true
+  },
+  {
+    "id": "1749268374071",
+    "name": "chat-gpt",
+    "localizedName": {
+      "en": "ChatGPT",
+      "vi": "ChatGPT"
+    },
+    "price": 0,
+    "description": "",
+    "localizedDescription": {
+      "en": "ChatGPT Plus Upgrade",
+      "vi": "ChatGPT Plus Nâng cấp Chính chủ"
+    },
+    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/openAI.png?updatedAt=1749225595506",
+    "category": "",
+    "localizedCategory": {
+      "en": "AI",
+      "vi": "AI"
+    },
+    "slug": "chat-gpt",
+    "options": [
+      {
+        "id": "1749268002232",
+        "name": "",
+        "localizedName": {
+          "en": "Plus Subscription",
+          "vi": "Plus"
+        },
+        "type": "select",
+        "values": [
+          {
+            "value": "",
+            "localizedValue": {
+              "en": "Shared Account",
+              "vi": "Tài khoản dùng chung"
+            },
+            "price": 0,
+            "localizedPrice": {
+              "en": 5.99,
+              "vi": 150000
+            },
+            "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
+          },
+          {
+            "value": "",
+            "localizedValue": {
+              "en": "Private Upgrade",
+              "vi": "Nâng cấp chính chủ"
+            },
+            "price": 0,
+            "localizedPrice": {
+              "en": 15,
+              "vi": 380000
+            },
+            "description": "Nâng cấp thẳng từ tài khoản của bạn"
+          }
+        ]
+      }
+    ],
+    "relatedArticles": [],
+    "sortOrder": 2,
+    "isLocalized": true
   }
 ]
 
@@ -520,6 +583,3 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 ---
 
 By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
-
-// Add version timestamp to force fresh data on build
-export const dataVersion = Date.now();
