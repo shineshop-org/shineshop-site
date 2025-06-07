@@ -56,6 +56,14 @@ interface StoreState {
 // Helper function to save data to server
 async function saveToServer(data: any) {
 	try {
+		// Check if we're in development mode where API routes are available
+		const isDevelopment = process.env.NODE_ENV === 'development'
+		
+		// Only allow API calls in development mode for strict accuracy
+		if (!isDevelopment) {
+			throw new Error('API not available in production static export mode')
+		}
+
 		const response = await fetch('/api/store-data', {
 			method: 'POST',
 			headers: {
@@ -64,26 +72,35 @@ async function saveToServer(data: any) {
 			body: JSON.stringify(data),
 		})
 		
+		if (response.status === 404 || response.status === 501) {
+			throw new Error('API endpoint not available')
+		}
+
 		if (!response.ok) {
-			// Check if it's 501 (API not available in static mode)
-			if (response.status === 501) {
-				console.warn('API not available in static export mode, using localStorage only')
+			if (response.status === 200) {
 				return { success: true }
 			}
-			throw new Error('Failed to save data to server')
+			throw new Error(`Failed to save data to server: ${response.status}`)
 		}
 		
 		return await response.json()
 	} catch (error) {
 		console.error('Error saving to server:', error)
-		// Fallback to localStorage only
-		return { success: true }
+		throw error // Re-throw error instead of falling back
 	}
 }
 
 // Helper function to load data from server
 async function loadFromServer() {
 	try {
+		// Check if we're in development mode where API routes are available
+		const isDevelopment = process.env.NODE_ENV === 'development'
+		
+		// Only allow API calls in development mode for strict accuracy
+		if (!isDevelopment) {
+			throw new Error('API not available in production static export mode')
+		}
+
 		const response = await fetch('/api/store-data', {
 			method: 'GET',
 			headers: {
@@ -92,18 +109,17 @@ async function loadFromServer() {
 		})
 		
 		if (!response.ok) {
-			// Check if it's 501 (API not available in static mode)
-			if (response.status === 501) {
-				console.warn('API not available in static export mode, using localStorage only')
-				return null
+			// Check if it's 404 (API not found) or 501 (API not available in static mode)
+			if (response.status === 404 || response.status === 501) {
+				throw new Error('API endpoint not available')
 			}
-			throw new Error('Failed to load data from server')
+			throw new Error(`Failed to load data from server: ${response.status}`)
 		}
 		
 		return await response.json()
 	} catch (error) {
 		console.error('Error loading from server:', error)
-		return null
+		throw error // Re-throw error instead of falling back
 	}
 }
 
@@ -229,26 +245,22 @@ export const useStore = create<StoreState>()(
 			loadDataFromServer: async () => {
 				try {
 					const data = await loadFromServer()
-					if (data) {
-						set({
-							products: data.products || initialProducts,
-							faqArticles: data.faqArticles || initialFAQArticles,
-							socialLinks: data.socialLinks || initialSocialLinks,
-							paymentInfo: data.paymentInfo || get().paymentInfo,
-							siteConfig: data.siteConfig || get().siteConfig,
-							tosContent: data.tosContent || '',
-							language: data.language || 'vi',
-							theme: data.theme || 'light',
-							isInitialized: true
-						})
-					} else {
-						// If no data on server, set initialized flag and sync current data
-						set({ isInitialized: true })
-						await get().syncDataToServer()
-					}
+					// Strict data requirement - no fallbacks
+					set({
+						products: data.products,
+						faqArticles: data.faqArticles,
+						socialLinks: data.socialLinks,
+						paymentInfo: data.paymentInfo,
+						siteConfig: data.siteConfig,
+						tosContent: data.tosContent,
+						language: data.language,
+						theme: data.theme,
+						isInitialized: true
+					})
 				} catch (error) {
 					console.error('Failed to load data from server:', error)
-					set({ isInitialized: true })
+					// Don't set initialized flag on error to prevent further operations
+					throw error
 				}
 			},
 
@@ -274,19 +286,11 @@ export const useStore = create<StoreState>()(
 						tosContent: state.tosContent,
 					}
 					
-					// Save to server
+					// Save to server only - no localStorage fallback
 					await saveToServer(stateToSave)
-					
-					// Also update localStorage for immediate access
-					localStorage.setItem('shineshop-storage-v3', JSON.stringify(stateToSave))
-					
-					// Force a storage event for cross-tab communication
-					window.dispatchEvent(new StorageEvent('storage', {
-						key: 'shineshop-storage-v3',
-						newValue: JSON.stringify(stateToSave)
-					}))
 				} catch (error) {
-					console.error('Failed to sync data:', error)
+					console.error('Failed to sync data to server:', error)
+					throw error // Re-throw error instead of silently failing
 				}
 			}
 		}),

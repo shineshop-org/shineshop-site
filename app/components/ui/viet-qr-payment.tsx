@@ -167,15 +167,24 @@ export function VietQRPayment({
 							<div className="relative flex items-center justify-center">
 								{qrUrl ? (
 									<div className={`transition-opacity duration-300 ${isLoading ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
-										<Image 
-											ref={qrImageRef}
-											src={qrUrl}
-											alt="VietQR Payment Code"
-											width={300}
-											height={300}
-											className="w-full h-auto"
-											unoptimized
-										/>
+										{qrUrl && qrUrl.trim() !== '' ? (
+											<Image 
+												ref={qrImageRef}
+												src={qrUrl}
+												alt="VietQR Payment Code"
+												width={300}
+												height={300}
+												className="w-full h-auto"
+												unoptimized
+											/>
+										) : (
+											<div className="p-6 flex flex-col items-center justify-center bg-muted rounded-lg">
+												<div className="w-16 h-16 border-4 border-muted-foreground/20 rounded-lg flex items-center justify-center mb-2">
+													<span className="text-2xl">QR</span>
+												</div>
+												<p className="text-center text-muted-foreground text-sm">Nhập số tiền để tạo mã QR</p>
+											</div>
+										)}
 									</div>
 								) : (
 									<div className="p-6 flex flex-col items-center justify-center bg-muted rounded-lg">

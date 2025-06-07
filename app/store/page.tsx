@@ -159,6 +159,10 @@ interface ProductCardProps {
 			values: {
 				value: string;
 				price: number;
+				localizedPrice?: {
+					en: number
+					vi: number
+				};
 				description: string;
 			}[];
 		}[]
@@ -191,8 +195,17 @@ function ProductCard({ product, language }: ProductCardProps) {
 		}
 		
 		const optionValues = product.options.flatMap(option => 
-			option.values.map(value => value.price)
-		).filter(price => typeof price === 'number' && !isNaN(price) && isFinite(price));
+			option.values.map(value => {
+				// Require strict localized price - no fallback
+				if (!value.localizedPrice) {
+					console.warn(`Missing localized price for option ${option.name}, value ${value.value}`)
+					return null
+				}
+				
+				const currentPrice = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi
+				return typeof currentPrice === 'number' && !isNaN(currentPrice) && isFinite(currentPrice) ? currentPrice : null
+			})
+		).filter(price => price !== null) as number[];
 		
 		if (optionValues.length === 0) {
 			return product.price;
@@ -240,13 +253,19 @@ function ProductCard({ product, language }: ProductCardProps) {
 			<Card className="overflow-hidden h-full border border-border/50 dark:border-primary/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:border-primary/50 dark:hover:border-primary/40 dark:bg-card/80">
 				{/* 16:9 Aspect Ratio Container */}
 				<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-					<Image
-						src={product.image}
-						alt={getProductName()}
-						fill
-						className="object-cover transition-transform duration-300 group-hover:scale-105"
-						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
-					/>
+					{product.image && product.image.trim() !== '' ? (
+						<Image
+							src={product.image}
+							alt={getProductName()}
+							fill
+							className="object-cover transition-transform duration-300 group-hover:scale-105"
+							sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
+						/>
+					) : (
+						<div className="absolute inset-0 bg-muted flex items-center justify-center">
+							<div className="text-muted-foreground text-4xl">📦</div>
+						</div>
+					)}
 				</div>
 				<CardContent className="p-3 relative z-10 bg-background dark:bg-card/90">
 					<h3 className="font-semibold text-sm truncate mb-1" title={getProductName()}>

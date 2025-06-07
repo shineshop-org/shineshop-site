@@ -6,7 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number, locale = 'vi-VN'): string {
-	return new Intl.NumberFormat(locale, {
+	if (locale === 'en-US') {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+		}).format(price)
+	}
+	
+	return new Intl.NumberFormat('vi-VN', {
 		style: 'currency',
 		currency: 'VND',
 		minimumFractionDigits: 0,

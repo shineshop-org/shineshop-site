@@ -73,10 +73,16 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 				>
 					<GripVertical className="h-4 w-4" />
 				</button>
-				<div 
-					className="h-10 w-10 rounded bg-center bg-cover" 
-					style={{ backgroundImage: `url(${product.image})` }}
-				/>
+				{product.image ? (
+					<div 
+						className="h-10 w-10 rounded bg-center bg-cover" 
+						style={{ backgroundImage: `url(${product.image})` }}
+					/>
+				) : (
+					<div className="h-10 w-10 rounded bg-muted/30 flex items-center justify-center">
+						<div className="text-muted-foreground text-lg">📦</div>
+					</div>
+				)}
 				<div className="flex-1">
 					<p className="font-medium">{product.name}</p>
 					<div className="flex flex-wrap gap-1 mt-1">
@@ -124,6 +130,17 @@ const USFlag = (props: React.SVGProps<SVGSVGElement>) => (
 		<rect y="11.08" width="24" height="1.23" fill="white"/>
 		<rect y="13.54" width="24" height="1.23" fill="white"/>
 		<rect width="9.6" height="8.62" fill="#3C3B6E"/>
+	</svg>
+)
+
+// Box Icon for placeholder images
+const BoxIcon = (props: React.SVGProps<SVGSVGElement>) => (
+	<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+		<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+		<path d="M7.5 4.21l4.5 2.6 4.5-2.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+		<path d="M7.5 19.79V14.6L3 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+		<path d="M21 12l-4.5 2.6v5.19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+		<path d="M12 2.5v9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
 	</svg>
 )
 
@@ -270,6 +287,8 @@ export default function AdminDashboard() {
 	})
 	const [showMarkdownPreview, setShowMarkdownPreview] = useState(false)
 	const [articleSearchQuery, setArticleSearchQuery] = useState('')
+	const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false)
+	const [productToDelete, setProductToDelete] = useState<Product | null>(null)
 	
 	// Kiểm tra môi trường
 	const isDevelopment = process.env.NODE_ENV === 'development'
@@ -302,10 +321,11 @@ export default function AdminDashboard() {
 		localizedDescription: { en: '', vi: '' },
 		image: '',
 		category: '',
+		localizedCategory: { en: '', vi: '' },
 		slug: '',
 		options: [] as NonNullable<Product['options']>,
 		relatedArticles: [] as string[],
-		isLocalized: false
+		isLocalized: true  // Always true
 	})
 	
 	useEffect(() => {
@@ -337,7 +357,7 @@ export default function AdminDashboard() {
 		setLanguage(language === 'en' ? 'vi' : 'en')
 	}
 	
-	// Helper function to get lowest price from product options with proper null checks
+	// Helper function to get lowest price from product options with strict validation
 	const getLowestPrice = (product: Product): number => {
 		if (!product.options || product.options.length === 0) {
 			return product.price || 0
@@ -346,8 +366,16 @@ export default function AdminDashboard() {
 		let lowestPrice = Number.MAX_SAFE_INTEGER
 		for (const option of product.options) {
 			for (const value of option.values) {
-				if (value.price < lowestPrice) {
-					lowestPrice = value.price
+				// Use strict localized price requirement - no fallback
+				if (!value.localizedPrice) {
+					console.warn(`Missing localized price for option ${option.name}, value ${value.value}`)
+					continue
+				}
+				
+				const currentPrice = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi
+				
+				if (typeof currentPrice === 'number' && currentPrice > 0 && currentPrice < lowestPrice) {
+					lowestPrice = currentPrice
 				}
 			}
 		}
@@ -358,17 +386,30 @@ export default function AdminDashboard() {
 	// Function to open product edit dialog
 	const openProductEdit = (product: Product) => {
 		setEditingProduct(product)
+		
+		// Initialize localized fields for existing options if needed
+		const processedOptions = (product.options || []).map(option => ({
+			...option,
+			localizedName: option.localizedName || { en: option.name, vi: option.name },
+			values: option.values.map(value => ({
+				...value,
+				localizedValue: value.localizedValue || { en: value.value, vi: value.value },
+				localizedPrice: value.localizedPrice || { en: value.price, vi: value.price }
+			}))
+		}))
+		
 		setProductForm({
 			name: product.name,
-			localizedName: product.localizedName || { en: '', vi: '' },
+			localizedName: product.localizedName || { en: product.name, vi: product.name },
 			description: product.description || '',
-			localizedDescription: product.localizedDescription || { en: '', vi: '' },
+			localizedDescription: product.localizedDescription || { en: product.description || '', vi: product.description || '' },
 			image: product.image || '',
 			category: product.category || '',
+			localizedCategory: product.localizedCategory || { en: product.category || '', vi: product.category || '' },
 			slug: product.slug || '',
-			options: product.options || [],
+			options: processedOptions,
 			relatedArticles: product.relatedArticles || [],
-			isLocalized: product.isLocalized || false
+			isLocalized: true  // Always true
 		})
 		setSelectedArticles(product.relatedArticles || [])
 		setProductDialog(true)
@@ -383,8 +424,15 @@ export default function AdminDashboard() {
 				{
 					id: Date.now().toString(),
 					name: '',
+					localizedName: { en: '', vi: '' },
 					type: 'select',
-					values: [{ value: '', price: 0, description: '' }]
+					values: [{ 
+						value: '', 
+						localizedValue: { en: '', vi: '' },
+						price: 0, 
+						localizedPrice: { en: 0, vi: 0 },
+						description: '' 
+					}]
 				}
 			]
 		})
@@ -415,7 +463,13 @@ export default function AdminDashboard() {
 	// Function to add value to option
 	const addValueToOption = (optionIndex: number) => {
 		const updatedOptions = [...productForm.options]
-		updatedOptions[optionIndex].values.push({ value: '', price: 0, description: '' })
+		updatedOptions[optionIndex].values.push({ 
+			value: '', 
+			localizedValue: { en: '', vi: '' },
+			price: 0, 
+			localizedPrice: { en: 0, vi: 0 },
+			description: '' 
+		})
 		
 		setProductForm({
 			...productForm,
@@ -439,13 +493,26 @@ export default function AdminDashboard() {
 	const updateOptionValue = (
 		optionIndex: number, 
 		valueIndex: number, 
-		value: string | number, 
+		value: string | number | { en: string; vi: string } | { en: number; vi: number }, 
 		property: string
 	) => {
 		const updatedOptions = [...productForm.options]
-		updatedOptions[optionIndex].values[valueIndex] = {
-			...updatedOptions[optionIndex].values[valueIndex],
-			[property]: property === 'price' ? Number(value) : value
+		
+		if (property === 'localizedValue') {
+			updatedOptions[optionIndex].values[valueIndex] = {
+				...updatedOptions[optionIndex].values[valueIndex],
+				localizedValue: value as { en: string; vi: string }
+			}
+		} else if (property === 'localizedPrice') {
+			updatedOptions[optionIndex].values[valueIndex] = {
+				...updatedOptions[optionIndex].values[valueIndex],
+				localizedPrice: value as { en: number; vi: number }
+			}
+		} else {
+			updatedOptions[optionIndex].values[valueIndex] = {
+				...updatedOptions[optionIndex].values[valueIndex],
+				[property]: property === 'price' ? Number(value) : value
+			}
 		}
 		
 		setProductForm({
@@ -465,29 +532,39 @@ export default function AdminDashboard() {
 	
 	// Function to handle saving product
 	const handleSaveProduct = () => {
+		// Strict validation - require both slug and name
+		if (!productForm.slug) {
+			alert('Please enter URL Slug to create/save product')
+			return
+		}
+		
 		if (!productForm.name) {
-			alert('Please enter product name')
+			alert('Please enter product name to create/save product')
 			return
 		}
 
-		// Generate a slug if empty
-		const slug = productForm.slug || generateSlug(productForm.name)
+		// Validate that localized names are properly filled
+		if (!productForm.localizedName.en || !productForm.localizedName.vi) {
+			alert('Please provide product name in both English and Vietnamese')
+			return
+		}
 		
 		// Create or update product
 		const productData: Product = {
 			id: editingProduct?.id || Date.now().toString(),
 			name: productForm.name,
-			localizedName: productForm.isLocalized ? productForm.localizedName : undefined,
-			price: 0, // Default price, will be calculated from options
+			localizedName: productForm.localizedName,
+			price: 0,
 			description: productForm.description,
-			localizedDescription: productForm.isLocalized ? productForm.localizedDescription : undefined,
+			localizedDescription: productForm.localizedDescription,
 			image: productForm.image,
 			category: productForm.category,
-			slug,
+			localizedCategory: productForm.localizedCategory,
+			slug: productForm.slug,
 			options: productForm.options,
 			relatedArticles: selectedArticles,
 			sortOrder: editingProduct?.sortOrder || products.length + 1,
-			isLocalized: productForm.isLocalized
+			isLocalized: true
 		}
 		
 		if (editingProduct) {
@@ -506,10 +583,11 @@ export default function AdminDashboard() {
 			localizedDescription: { en: '', vi: '' },
 			image: '',
 			category: '',
+			localizedCategory: { en: '', vi: '' },
 			slug: '',
 			options: [],
 			relatedArticles: [],
-			isLocalized: false
+			isLocalized: true
 		})
 		setSelectedArticles([])
 	}
@@ -565,14 +643,26 @@ export default function AdminDashboard() {
 		return product.options || []
 	}
 	
-	// Hàm xóa sản phẩm khỏi store
-	const handleDeleteProduct = (id: string) => {
-		// Xóa sản phẩm khỏi store
-		deleteProduct(id)
+	// Hàm xử lý xóa sản phẩm với confirmation
+	const handleDeleteProduct = (product: Product) => {
+		setProductToDelete(product)
+		setDeleteConfirmDialog(true)
+	}
+	
+	// Hàm confirm xóa sản phẩm
+	const confirmDeleteProduct = () => {
+		if (productToDelete) {
+			// Xóa sản phẩm khỏi store
+			deleteProduct(productToDelete.id)
+			
+			// Đóng dialog nếu đang mở
+			setProductDialog(false)
+			setEditingProduct(null)
+		}
 		
-		// Đóng dialog nếu đang mở
-		setProductDialog(false)
-		setEditingProduct(null)
+		// Đóng confirmation dialog
+		setDeleteConfirmDialog(false)
+		setProductToDelete(null)
 	}
 	
 	// Hàm xử lý push to GitHub
@@ -595,14 +685,34 @@ export default function AdminDashboard() {
 				}),
 			})
 			
+			const responseData = await response.json()
+			
 			if (response.ok) {
 				alert('Successfully pushed to GitHub! Cloudflare will auto-deploy in a few minutes.')
 			} else {
-				throw new Error('Failed to push to GitHub')
+				// Extract and display more detailed error information
+				const errorDetails = responseData.details || 'Unknown error'
+				const errorResults = responseData.results || []
+				
+				console.error('Git push failed:', responseData)
+				
+				// Prepare a more informative error message
+				let errorMessage = `Error: ${responseData.error}\n\nDetails: ${errorDetails}`
+				
+				if (errorResults.length > 0) {
+					errorMessage += '\n\nCommand results:'
+					errorResults.forEach((result: any) => {
+						errorMessage += `\n- ${result.command}: ${result.success ? 'Success' : 'Failed'}`
+						if (result.stderr) errorMessage += `\n  Error: ${result.stderr}`
+					})
+				}
+				
+				alert(errorMessage)
+				throw new Error(responseData.error || 'Failed to push to GitHub')
 			}
 		} catch (error) {
 			console.error('Error pushing to GitHub:', error)
-			alert('Error pushing to GitHub. Please check console for details.')
+			alert(`Error pushing to GitHub: ${(error as Error).message}`)
 		} finally {
 			setIsPushing(false)
 		}
@@ -633,16 +743,29 @@ export default function AdminDashboard() {
 		}).format(numPrice)
 	}
 	
-	// Price input validation
-	const validatePriceInput = (value: string): number => {
+	// Price input validation for USD (allows decimals) - returns cleaned string
+	const validateUSDPriceInput = (value: string): string => {
+		// Only allow numbers and one decimal point
 		const cleaned = value.replace(/[^0-9.]/g, '')
 		const parts = cleaned.split('.')
 		
+		// If more than one decimal point, keep only the first one
 		if (parts.length > 2) {
-			return parseFloat(parts[0] + '.' + parts[1]) || 0
+			return parts[0] + '.' + parts.slice(1).join('')
 		}
 		
-		return parseFloat(cleaned) || 0
+		return cleaned
+	}
+	
+	// Price input validation for VND (integers only) - returns cleaned string
+	const validateVNDPriceInput = (value: string): string => {
+		return value.replace(/[^0-9]/g, '')
+	}
+	
+	// Convert string to number for storage
+	const convertPriceToNumber = (value: string): number => {
+		const num = parseFloat(value)
+		return isNaN(num) ? 0 : num
 	}
 	
 	// Filtered articles for search
@@ -658,27 +781,27 @@ export default function AdminDashboard() {
 	}, [faqArticles, articleSearchQuery])
 	
 	// Auto-save for product form
-	const debouncedProductForm = useDebounce(productForm, 1000)
-	const debouncedSelectedArticles = useDebounce(selectedArticles, 1000)
+	const debouncedProductForm = useDebounce(productForm, 2000)
+	const debouncedSelectedArticles = useDebounce(selectedArticles, 2000)
 	
 	useEffect(() => {
-		if (editingProduct && debouncedProductForm.name) {
-			// Generate a slug if empty
-			const slug = debouncedProductForm.slug || generateSlug(debouncedProductForm.name)
-			
+		if (editingProduct && debouncedProductForm.slug) {
 			// Create updated product data
 			const productData: Product = {
 				...editingProduct,
-				name: debouncedProductForm.name,
-				localizedName: debouncedProductForm.isLocalized ? debouncedProductForm.localizedName : undefined,
+				name: debouncedProductForm.name || debouncedProductForm.slug,
+				localizedName: debouncedProductForm.localizedName.en || debouncedProductForm.localizedName.vi 
+					? debouncedProductForm.localizedName 
+					: { en: debouncedProductForm.name || debouncedProductForm.slug, vi: debouncedProductForm.name || debouncedProductForm.slug },
 				description: debouncedProductForm.description,
-				localizedDescription: debouncedProductForm.isLocalized ? debouncedProductForm.localizedDescription : undefined,
+				localizedDescription: debouncedProductForm.localizedDescription,
 				image: debouncedProductForm.image,
 				category: debouncedProductForm.category,
-				slug,
+				localizedCategory: debouncedProductForm.localizedCategory,
+				slug: debouncedProductForm.slug,
 				options: debouncedProductForm.options,
 				relatedArticles: debouncedSelectedArticles,
-				isLocalized: debouncedProductForm.isLocalized
+				isLocalized: true
 			}
 			
 			updateProduct(editingProduct.id, productData)
@@ -686,7 +809,7 @@ export default function AdminDashboard() {
 	}, [debouncedProductForm, debouncedSelectedArticles, editingProduct, updateProduct])
 	
 	// Auto-save for TOS
-	const debouncedTosForm = useDebounce(tosForm, 1000)
+	const debouncedTosForm = useDebounce(tosForm, 2000)
 	
 	useEffect(() => {
 		if (activeTab === 'tos' && debouncedTosForm !== tosContent) {
@@ -695,7 +818,7 @@ export default function AdminDashboard() {
 	}, [debouncedTosForm, activeTab, tosContent, setTosContent])
 	
 	// Auto-save for FAQ
-	const debouncedFaqForm = useDebounce(faqForm, 1000)
+	const debouncedFaqForm = useDebounce(faqForm, 2000)
 	
 	useEffect(() => {
 		if (editingFaq && debouncedFaqForm.title) {
@@ -715,7 +838,7 @@ export default function AdminDashboard() {
 	const [editingSiteConfig, setEditingSiteConfig] = useState(siteConfig)
 	
 	// Auto-save for site config
-	const debouncedSiteConfig = useDebounce(editingSiteConfig, 1000)
+	const debouncedSiteConfig = useDebounce(editingSiteConfig, 2000)
 	const [showSavedNotification, setShowSavedNotification] = useState(false)
 	
 	useEffect(() => {
@@ -795,26 +918,6 @@ export default function AdminDashboard() {
 						<LogOut className="h-5 w-5" />
 						<span className="sr-only">{t('logout')}</span>
 					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={toggleLanguage}
-						className="flex items-center gap-2 px-3 py-1.5 h-9 w-20 rounded-full border-2 hover:border-primary transition-all duration-200"
-					>
-						<div className="flex items-center gap-2 justify-center w-full">
-							{language === 'en' ? (
-								<>
-									<USFlag />
-									<span className="font-medium">EN</span>
-								</>
-							) : (
-								<>
-									<VietnamFlag />
-									<span className="font-medium">VN</span>
-								</>
-							)}
-						</div>
-					</Button>
 				</nav>
 			</div>
 			
@@ -869,19 +972,6 @@ export default function AdminDashboard() {
 						<Settings className="mr-2 h-4 w-4" />
 						Cài đặt chung
 					</Button>
-					
-					<div className="mt-auto pt-4 border-t">
-						<Button
-							variant="outline"
-							className="w-full justify-start"
-							onClick={toggleLanguage}
-						>
-							<Globe className="mr-2 h-4 w-4" />
-							{language === 'en' 
-								? <span className="flex items-center"><VietnamFlag className="mr-1" /> {t('switchToVietnamese')}</span> 
-								: <span className="flex items-center"><USFlag className="mr-1" /> {t('switchToEnglish')}</span>}
-						</Button>
-					</div>
 				</div>
 				
 				{/* Main Content */}
@@ -915,11 +1005,15 @@ export default function AdminDashboard() {
 										{products.map((product) => (
 											<Card key={product.id} className="overflow-hidden">
 												<div className="relative aspect-video">
-													{product.image && (
+													{product.image ? (
 														<div 
 															className="w-full h-full bg-cover bg-center" 
 															style={{ backgroundImage: `url(${product.image})` }}
 														/>
+													) : (
+														<div className="w-full h-full bg-muted/30 flex items-center justify-center">
+															<div className="text-muted-foreground text-3xl">📦</div>
+														</div>
 													)}
 												</div>
 												<CardHeader className="p-4">
@@ -952,7 +1046,7 @@ export default function AdminDashboard() {
 															variant="outline" 
 															size="sm" 
 															className="flex-1 text-destructive hover:text-destructive"
-															onClick={() => handleDeleteProduct(product.id)}
+															onClick={() => handleDeleteProduct(product)}
 														>
 															<Trash2 className="mr-2 h-3 w-3" />
 															{t('delete')}
@@ -1017,74 +1111,64 @@ export default function AdminDashboard() {
 							}}>
 								<DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" aria-describedby="product-dialog-description">
 									<DialogHeader>
-										<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
-										<DialogDescription id="product-dialog-description">
-											{editingProduct ? t('editProductDescription') : t('addProductDescription')}
-										</DialogDescription>
+										<div className="flex items-center justify-between">
+											<div>
+												<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
+												<DialogDescription id="product-dialog-description">
+													{editingProduct ? t('editProductDescription') : t('addProductDescription')}
+												</DialogDescription>
+											</div>
+										</div>
 									</DialogHeader>
 									<div className="space-y-4 py-4">
-										<div className="flex items-center justify-between space-x-2 mb-4 pb-4 border-b">
-											<div className="flex items-center space-x-2">
-												<input
-													type="checkbox"
-													id="isLocalized"
-													className="h-4 w-4"
-													checked={productForm.isLocalized}
-													onChange={(e) => setProductForm({...productForm, isLocalized: e.target.checked})}
-												/>
-												<label htmlFor="isLocalized" className="font-medium">{t('enableLocalization')}</label>
-											</div>
-											{productForm.isLocalized && (
-												<div className="flex items-center">
-													<span className="mr-2 text-sm text-muted-foreground">{t('currentlyEditing')}:</span>
-													<div className="flex items-center">
-														{language === 'en' ? (
-															<div className="flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900/30 rounded">
-																<USFlag />
-																<span className="ml-2 font-medium">English</span>
-															</div>
-														) : (
-															<div className="flex items-center px-2 py-1 bg-red-100 dark:bg-red-900/30 rounded">
-																<VietnamFlag />
-																<span className="ml-2 font-medium">Tiếng Việt</span>
-															</div>
-														)}
-													</div>
+										<div className="flex items-center justify-end space-x-2 mb-4 pb-4 border-b">
+											<div className="flex items-center">
+												<span className="mr-2 text-sm text-muted-foreground">{t('currentlyEditing')}:</span>
+												<div 
+													className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+													onClick={toggleLanguage}
+												>
+													{language === 'en' ? (
+														<div className="flex items-center px-3 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+															<USFlag />
+															<span className="ml-2 font-medium text-blue-800 dark:text-blue-200">English</span>
+															<span className="ml-2 text-xs text-blue-600 dark:text-blue-300">(click to switch)</span>
+														</div>
+													) : (
+														<div className="flex items-center px-3 py-2 bg-red-100 dark:bg-red-900/30 rounded-lg border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700 transition-colors">
+															<VietnamFlag />
+															<span className="ml-2 font-medium text-red-800 dark:text-red-200">Tiếng Việt</span>
+															<span className="ml-2 text-xs text-red-600 dark:text-red-300">(click để chuyển)</span>
+														</div>
+													)}
 												</div>
-											)}
+											</div>
 										</div>
 										<div className="space-y-2">
 											<label>{t('name')}</label>
-											{!productForm.isLocalized ? (
-												<Input 
-													value={productForm.name} 
-													onChange={(e) => setProductForm({...productForm, name: e.target.value})}
-												/>
-											) : (
-												<Input 
-													value={language === 'en' ? productForm.localizedName.en : productForm.localizedName.vi} 
-													onChange={(e) => {
-														if (language === 'en') {
-															setProductForm({
-																...productForm, 
-																localizedName: {
-																	...productForm.localizedName,
-																	en: e.target.value
-																}
-															})
-														} else {
-															setProductForm({
-																...productForm, 
-																localizedName: {
-																	...productForm.localizedName,
-																	vi: e.target.value
-																}
-															})
-														}
-													}}
-													placeholder={language === 'en' ? "Product name in English" : "Tên sản phẩm bằng tiếng Việt"}
-												/>
-											)}
+											<Input 
+												value={language === 'en' ? productForm.localizedName.en : productForm.localizedName.vi} 
+												onChange={(e) => {
+													if (language === 'en') {
+														setProductForm({
+															...productForm, 
+															localizedName: {
+																...productForm.localizedName,
+																en: e.target.value
+															}
+														})
+													} else {
+														setProductForm({
+															...productForm, 
+															localizedName: {
+																...productForm.localizedName,
+																vi: e.target.value
+															}
+														})
+													}
+												}}
+												placeholder={language === 'en' ? "Product name in English" : "Tên sản phẩm bằng tiếng Việt"}
+											/>
 										</div>
 										
 										{/* Custom URL Slug */}
@@ -1106,17 +1190,40 @@ export default function AdminDashboard() {
 												value={productForm.image} 
 												onChange={(e) => setProductForm({...productForm, image: e.target.value})}
 											/>
-											{productForm.image && (
+											{productForm.image ? (
 												<div className="mt-2 relative w-full h-40 bg-center bg-cover rounded-md" 
 													style={{ backgroundImage: `url(${productForm.image})` }}
 												/>
+											) : (
+												<div className="mt-2 relative w-full h-40 bg-muted/30 rounded-md flex items-center justify-center">
+													<div className="text-muted-foreground text-4xl">📦</div>
+												</div>
 											)}
 										</div>
 										<div className="space-y-2">
 											<label>{t('category')}</label>
 											<Input 
-												value={productForm.category} 
-												onChange={(e) => setProductForm({...productForm, category: e.target.value})}
+												value={language === 'en' ? productForm.localizedCategory.en : productForm.localizedCategory.vi} 
+												onChange={(e) => {
+													if (language === 'en') {
+														setProductForm({
+															...productForm, 
+															localizedCategory: {
+																...productForm.localizedCategory,
+																en: e.target.value
+															}
+														})
+													} else {
+														setProductForm({
+															...productForm, 
+															localizedCategory: {
+																...productForm.localizedCategory,
+																vi: e.target.value
+															}
+														})
+													}
+												}}
+												placeholder={language === 'en' ? "Category in English" : "Danh mục bằng tiếng Việt"}
 											/>
 										</div>
 										
@@ -1155,9 +1262,19 @@ export default function AdminDashboard() {
 														<div className="space-y-2">
 															<label className="text-sm font-medium">{t('optionName')}</label>
 															<Input 
-																value={option.name} 
-																onChange={(e) => updateOption(optionIndex, 'name', e.target.value)}
-																placeholder="Color, Size, etc."
+																value={language === 'en' 
+																	? (option.localizedName?.en || '') 
+																	: (option.localizedName?.vi || '')} 
+																onChange={(e) => {
+																	const newLocalizedName = {
+																		...option.localizedName,
+																		[language]: e.target.value
+																	}
+																	updateOption(optionIndex, 'localizedName', newLocalizedName)
+																}}
+																placeholder={language === 'en' 
+																	? "Option name in English" 
+																	: "Tên tùy chọn bằng tiếng Việt"}
 															/>
 														</div>
 													</div>
@@ -1194,26 +1311,52 @@ export default function AdminDashboard() {
 																	<div className="space-y-2">
 																		<label className="text-xs text-muted-foreground">Value Name</label>
 																		<Input 
-																			value={value.value}
-																			onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'value')}
-																			placeholder="e.g., Red, Small, etc."
+																			value={language === 'en' 
+																				? (value.localizedValue?.en || '') 
+																				: (value.localizedValue?.vi || '')} 
+																			onChange={(e) => {
+																				const currentLocalized = value.localizedValue || { en: '', vi: '' }
+																				const newLocalizedValue = {
+																					en: language === 'en' ? e.target.value : currentLocalized.en,
+																					vi: language === 'vi' ? e.target.value : currentLocalized.vi
+																				}
+																				updateOptionValue(optionIndex, valueIndex, newLocalizedValue, 'localizedValue')
+																			}}
+																			placeholder={language === 'en' 
+																				? "Value name in English" 
+																				: "Tên giá trị bằng tiếng Việt"}
 																			className="flex-1"
 																		/>
 																	</div>
 																	
 																	<div className="space-y-2">
-																		<label className="text-xs text-muted-foreground">Price ({language === 'en' ? 'USD' : 'VNĐ'})</label>
+																		<label className="text-xs text-muted-foreground">
+																			Price ({language === 'en' ? 'USD' : 'VNĐ'})
+																		</label>
 																		<Input 
-																			value={value.price}
+																			value={language === 'en' 
+																				? (value.localizedPrice?.en && value.localizedPrice.en !== 0 ? value.localizedPrice.en.toString() : '') 
+																				: (value.localizedPrice?.vi && value.localizedPrice.vi !== 0 ? value.localizedPrice.vi.toString() : '')}
 																			onChange={(e) => {
-																				const validatedPrice = validatePriceInput(e.target.value)
-																				updateOptionValue(optionIndex, valueIndex, validatedPrice, 'price')
+																				const validatedInput = language === 'en' 
+																					? validateUSDPriceInput(e.target.value)
+																					: validateVNDPriceInput(e.target.value)
+																				const numberValue = convertPriceToNumber(validatedInput)
+																				const currentLocalized = value.localizedPrice || { en: 0, vi: 0 }
+																				const newLocalizedPrice = {
+																					en: language === 'en' ? numberValue : currentLocalized.en,
+																					vi: language === 'vi' ? numberValue : currentLocalized.vi
+																				}
+																				updateOptionValue(optionIndex, valueIndex, newLocalizedPrice, 'localizedPrice')
 																			}}
-																			placeholder={language === 'en' ? "e.g., 100.00" : "e.g., 100000"}
+																			placeholder={language === 'en' ? "e.g., 3.99" : "e.g., 100000"}
 																			className="flex-1"
 																		/>
 																		<p className="text-xs text-muted-foreground">
-																			{formatPrice(value.price, language)}
+																			{language === 'en' 
+																				? formatPrice(value.localizedPrice?.en || 0, 'en')
+																				: formatPrice(value.localizedPrice?.vi || 0, 'vi')
+																			}
 																		</p>
 																	</div>
 																</div>
@@ -1237,41 +1380,32 @@ export default function AdminDashboard() {
 										{/* Description - Markdown */}
 										<div className="space-y-2 border-t pt-4">
 											<label>{t('description')} <span className="text-xs text-muted-foreground">(Markdown)</span></label>
-											{!productForm.isLocalized ? (
-												<textarea 
-													className="w-full p-2 border rounded-md min-h-[200px]"
-													value={productForm.description} 
-													onChange={(e) => setProductForm({...productForm, description: e.target.value})}
-													placeholder="Product description in Markdown format..."
-												/>
-											) : (
-												<textarea 
-													className="w-full p-2 border rounded-md min-h-[200px]"
-													value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
-													onChange={(e) => {
-														if (language === 'en') {
-															setProductForm({
-																...productForm, 
-																localizedDescription: {
-																	...productForm.localizedDescription,
-																	en: e.target.value
-																}
-															})
-														} else {
-															setProductForm({
-																...productForm, 
-																localizedDescription: {
-																	...productForm.localizedDescription,
-																	vi: e.target.value
-																}
-															})
-														}
-													}}
-													placeholder={language === 'en' 
-														? "Product description in English (Markdown format)..." 
-														: "Mô tả sản phẩm bằng tiếng Việt (định dạng Markdown)..."}
-												/>
-											)}
+											<textarea 
+												className="w-full p-2 border rounded-md min-h-[200px]"
+												value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
+												onChange={(e) => {
+													if (language === 'en') {
+														setProductForm({
+															...productForm, 
+															localizedDescription: {
+																...productForm.localizedDescription,
+																en: e.target.value
+															}
+														})
+													} else {
+														setProductForm({
+															...productForm, 
+															localizedDescription: {
+																...productForm.localizedDescription,
+																vi: e.target.value
+															}
+														})
+													}
+												}}
+												placeholder={language === 'en' 
+													? "Product description in English (Markdown format)..." 
+													: "Mô tả sản phẩm bằng tiếng Việt (định dạng Markdown)..."}
+											/>
 										</div>
 										
 										{/* Related Articles */}
@@ -1433,7 +1567,7 @@ export default function AdminDashboard() {
 											Write your FAQ content using Markdown formatting
 										</DialogDescription>
 									</DialogHeader>
-									<div className="flex-1 overflow-hidden flex flex-col">
+									<div className="flex-1 overflow-hidden">
 										<div className="space-y-4 pb-4">
 											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 												<div className="space-y-2">
@@ -1744,6 +1878,29 @@ export default function AdminDashboard() {
 					)}
 				</div>
 			</div>
+			
+			{/* Delete Confirmation Dialog */}
+			<Dialog open={deleteConfirmDialog} onOpenChange={setDeleteConfirmDialog}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{language === 'en' ? 'Confirm Delete' : 'Xác nhận xóa'}</DialogTitle>
+						<DialogDescription>
+							{language === 'en' 
+								? `Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`
+								: `Bạn có chắc chắn muốn xóa "${productToDelete?.name}"? Hành động này không thể hoàn tác.`
+							}
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setDeleteConfirmDialog(false)}>
+							{language === 'en' ? 'Cancel' : 'Hủy'}
+						</Button>
+						<Button variant="destructive" onClick={confirmDeleteProduct}>
+							{language === 'en' ? 'Delete' : 'Xóa'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 } 

@@ -71,7 +71,7 @@ Chi tiết về giao diện của từng trang:
 - Phần này sẽ chỉ có chữ và các loại chữ có thể khác nhau 
 
 
-LƯU Ý: ADMIN DASHBOARD CÓ THỂ CHỈNH SỬA TOÀN BỘ NỘI DUNG HIỂN THỊ Ở TRANG WEB NHƯ THỨ TỰ SORT CỦA CÁC CARD Ở /store, nội dung ở /product, thêm sản phẩm, xóa sản phẩm, thay đổi giá tiền options, thay đổi nội dung TOS, thêm các bài FAQ, chỉnh sửa FAQ, etc ngoại trừ trang /payment
+LƯU Ý: ADMIN DASHBOARD (CHỈ NẰM Ở LOCALHOST KHÔNG XUẤT HIỆN TRÊN WEBSITE ĐÃ ĐƯỢC DEPLOY) CÓ THỂ CHỈNH SỬA TOÀN BỘ NỘI DUNG HIỂN THỊ Ở TRANG WEB NHƯ THỨ TỰ SORT CỦA CÁC CARD Ở /store, nội dung ở /product, thêm sản phẩm, xóa sản phẩm, thay đổi giá tiền options, thay đổi nội dung TOS, thêm các bài FAQ, chỉnh sửa FAQ, etc ngoại trừ trang /payment
 
 Hãy cho tôi cách truy cập trang admin đơn giản nhưng đủ bảo mật - không phát sinh thêm gì quá phức tạp
 

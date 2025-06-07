@@ -44,8 +44,18 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			
 			// Tìm thông tin tùy chọn
 			const optionValue = option.values.find(val => val.value === selectedValue)
-			if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
-				return optionValue.price
+			if (optionValue) {
+				// Require strict localized price - no fallback
+				if (!optionValue.localizedPrice) {
+					console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
+					continue
+				}
+				
+				const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
+				
+				if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
+					return currentPrice
+				}
 			}
 		}
 		
@@ -73,15 +83,22 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			let initialPrice = productData.price
 			if (productData.options[0] && productData.options[0].values.length > 0) {
 				const firstOptionFirstValue = productData.options[0].values[0]
-				if (typeof firstOptionFirstValue.price === 'number' && !isNaN(firstOptionFirstValue.price)) {
-					initialPrice = firstOptionFirstValue.price
+				// Require strict localized price - no fallback
+				if (firstOptionFirstValue.localizedPrice) {
+					const currentPrice = language === 'en' ? firstOptionFirstValue.localizedPrice.en : firstOptionFirstValue.localizedPrice.vi
+					
+					if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
+						initialPrice = currentPrice
+					}
+				} else {
+					console.warn(`Missing localized price for option ${productData.options[0].name}, value ${firstOptionFirstValue.value}`)
 				}
 			}
 			
-			setPriceDisplay(formatPrice(initialPrice, 'en-US'))
+			setPriceDisplay(formatPrice(initialPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
 		} else {
 			// No options, use base price
-			setPriceDisplay(formatPrice(productData.price, 'en-US'))
+			setPriceDisplay(formatPrice(productData.price, language === 'vi' ? 'vi-VN' : 'en-US'))
 		}
 	}
 	
@@ -169,8 +186,17 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			const option = product.options?.find(opt => opt.id === optionId)
 			if (option) {
 				const optionValue = option.values.find(val => val.value === selectedValue)
-				if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
-					setPriceDisplay(formatPrice(optionValue.price, 'en-US'))
+				if (optionValue) {
+					// Require strict localized price - no fallback
+					if (optionValue.localizedPrice) {
+						const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
+						
+						if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
+							setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+						}
+					} else {
+						console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
+					}
 				}
 			}
 		}
@@ -188,9 +214,19 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		// Update price display immediately
 		const option = product.options?.find(opt => opt.id === optionId)
 		if (option) {
+			// For localized products, we need to find the value by the actual stored value, not the display value
 			const optionValue = option.values.find(val => val.value === value)
-			if (optionValue && typeof optionValue.price === 'number' && !isNaN(optionValue.price)) {
-				setPriceDisplay(formatPrice(optionValue.price, 'en-US'))
+			if (optionValue) {
+				// Require strict localized price - no fallback
+				if (optionValue.localizedPrice) {
+					const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
+					
+					if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
+						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+					}
+				} else {
+					console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
+				}
 			}
 		}
 	}
@@ -202,11 +238,20 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 		
 		const optionValues = product.options.flatMap(option => 
-			option.values.map(value => value.price)
-		)
+			option.values.map(value => {
+				// Require strict localized price - no fallback
+				if (!value.localizedPrice) {
+					console.warn(`Missing localized price for option ${option.name}, value ${value.value}`)
+					return null
+				}
+				
+				const currentPrice = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi
+				return typeof currentPrice === 'number' && !isNaN(currentPrice) && isFinite(currentPrice) ? currentPrice : null
+			})
+		).filter(price => price !== null) as number[]
 		
 		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues.filter(price => !isNaN(price) && isFinite(price)))
+			? Math.min(...optionValues)
 			: product.price
 			
 		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
@@ -226,6 +271,22 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			return product.localizedDescription[language as 'en' | 'vi'] || product.description
 		}
 		return product.description
+	}
+	
+	// Get the localized option name
+	const getOptionName = (option: NonNullable<Product['options']>[0]) => {
+		if (product.isLocalized && option.localizedName) {
+			return option.localizedName[language as 'en' | 'vi'] || option.name
+		}
+		return option.name
+	}
+	
+	// Get the localized option value
+	const getOptionValue = (value: NonNullable<Product['options']>[0]['values'][0]) => {
+		if (product.isLocalized && value.localizedValue) {
+			return value.localizedValue[language as 'en' | 'vi'] || value.value
+		}
+		return value.value
 	}
 	
 	// Get note label based on language
@@ -270,14 +331,20 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					>
 						{/* Fixed 16:9 Aspect ratio container */}
 						<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-							<Image
-								src={product.image}
-								alt={getProductName()}
-								fill
-								className="object-cover"
-								sizes="(max-width: 1024px) 100vw, 50vw"
-								priority
-							/>
+							{product.image && product.image.trim() !== '' ? (
+								<Image
+									src={product.image}
+									alt={getProductName()}
+									fill
+									className="object-cover"
+									sizes="(max-width: 1024px) 100vw, 50vw"
+									priority
+								/>
+							) : (
+								<div className="absolute inset-0 bg-muted flex items-center justify-center">
+									<div className="text-muted-foreground text-6xl">📦</div>
+								</div>
+							)}
 						</div>
 						{/* Dynamic shadow based on hover position */}
 						<div 
@@ -296,7 +363,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					<div className="space-y-1">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
 						<p className="text-3xl font-semibold jshine-gradient">
-							{priceDisplay || formatPrice(getSelectedPrice(), 'en-US')}
+							{priceDisplay || formatPrice(getSelectedPrice(), language === 'vi' ? 'vi-VN' : 'en-US')}
 						</p>
 					</div>
 					
@@ -320,7 +387,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 											onChange={() => handleOptionNameChange(option.id)}
 											className="sr-only"
 										/>
-										<span>{option.name}</span>
+										<span>{getOptionName(option)}</span>
 									</label>
 								))}
 								{/* Fallback if no options */}
@@ -372,7 +439,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 													className="sr-only"
 													readOnly={false}
 												/>
-												<span>{value.value}</span>
+												<span>{getOptionValue(value)}</span>
 											</label>
 										)
 									})}

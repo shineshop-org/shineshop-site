@@ -13,6 +13,10 @@ export interface Product {
 	}
 	image: string
 	category: string
+	localizedCategory?: {
+		en: string
+		vi: string
+	}
 	options?: ProductOption[]
 	relatedArticles?: string[]
 	slug: string
@@ -23,13 +27,25 @@ export interface Product {
 export interface ProductOption {
 	id: string
 	name: string
+	localizedName?: {
+		en: string
+		vi: string
+	}
 	type: 'select' | 'radio'
 	values: OptionValue[]
 }
 
 export interface OptionValue {
 	value: string
+	localizedValue?: {
+		en: string
+		vi: string
+	}
 	price: number
+	localizedPrice?: {
+		en: number
+		vi: number
+	}
 	description: string
 }
 

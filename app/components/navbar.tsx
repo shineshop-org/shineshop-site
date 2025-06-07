@@ -80,6 +80,10 @@ export function Navbar() {
 								height={40}
 								className="h-10 w-auto"
 								priority
+								onError={(e) => {
+									const target = e.target as HTMLImageElement;
+									target.src = "/logo-wide-light-mode.png";
+								}}
 							/>
 						</div>
 						
@@ -92,6 +96,10 @@ export function Navbar() {
 								height={40}
 								className="h-auto w-auto max-h-10"
 								priority
+								onError={(e) => {
+									const target = e.target as HTMLImageElement;
+									target.src = "/logo-light-mode.png";
+								}}
 							/>
 						</div>
 						

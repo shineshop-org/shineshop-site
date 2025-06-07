@@ -4,7 +4,8 @@ const isDeployment = process.env.CF_PAGES === '1' || process.env.CLOUDFLARE === 
 
 const nextConfig = {
 	// Configure for Cloudflare Pages deployment
-	output: 'export',
+	// Only use static export for production deployment, not development
+	...(isDeployment && { output: 'export' }),
 	distDir: '.next',
 	images: {
 		unoptimized: true,
