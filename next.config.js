@@ -45,6 +45,19 @@ const nextConfig = {
 		]
 	},
 	
+	// Add rewrites to handle 404s for RSC files
+	async rewrites() {
+		return {
+			beforeFiles: [
+				// Handle missing RSC files
+				{
+					source: '/:path*\\.txt',
+					destination: '/api/empty-response',
+				},
+			],
+		};
+	},
+	
 	// Disable source maps in production to reduce build size
 	productionBrowserSourceMaps: false,
 	

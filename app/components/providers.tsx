@@ -33,6 +33,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
 					});
 			});
 		}
+		
+		// Suppress console errors for RSC 404s
+		const originalError = console.error;
+		console.error = function(...args) {
+			// Filter out RSC file not found errors
+			const errorText = args.length > 0 ? String(args[0]) : '';
+			if (errorText.includes('.txt?_rsc=') || errorText.includes('was preloaded using link preload')) {
+				// Silently ignore these specific errors
+				return;
+			}
+			
+			// Pass through other errors to the original console.error
+			return originalError.apply(console, args);
+		};
+		
+		return () => {
+			// Restore original console.error on cleanup
+			console.error = originalError;
+		};
 	}, []);
 	
 	return (
