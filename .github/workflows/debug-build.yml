@@ -1,0 +1,44 @@
+name: Debug Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      
+      - name: List all directories with square brackets
+        run: |
+          find app -type d -name "*\[*\]*" || echo "No directories with brackets found"
+          
+      - name: Look for catch-all routes
+        run: |
+          find app -type d -name "*\[\...\]*" || echo "No catch-all routes found"
+          
+      - name: List all page.tsx files
+        run: |
+          find app -name "page.tsx" | sort
+          
+      - name: Check if 2fa/[...slug] directory exists
+        run: |
+          ls -la app/service/2fa || echo "Directory not found"
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run build with verbose output
+        run: npm run export -- --debug
+        continue-on-error: true
+        
+      - name: List content of .next directory
+        run: |
+          ls -la .next || echo ".next directory not found" 
