@@ -256,15 +256,12 @@ export default function TwoFactorAuthPage() {
 						{error && (
 							<p className="text-xs text-red-500">{error}</p>
 						)}
-						<p className="text-xs text-muted-foreground">
-							{t('secretKeyDescription')}
-						</p>
 					</div>
 					
 					{secret && totpCode && (
 						<div className="space-y-4">
 							<div 
-								className="text-center p-8 bg-secondary rounded-lg cursor-pointer flex flex-col items-center justify-center"
+								className="text-center p-4 bg-secondary rounded-lg cursor-pointer flex flex-col items-center justify-center"
 								onClick={handleCopy}
 								title={t('copy')}
 							>
