@@ -15,7 +15,6 @@ export const initialProducts: Product[] = [
       "vi": "Nâng cấp Youtube Premium chính chủ."
     },
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png?updatedAt=1749032381807",
-    "category": "Subscription",
     "localizedCategory": {
       "en": "Entertainment",
       "vi": "Đăng ký"
@@ -105,7 +104,6 @@ export const initialProducts: Product[] = [
       "vi": "ChatGPT Plus Nâng cấp Chính chủ"
     },
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/openAI.png?updatedAt=1749225595506",
-    "category": "",
     "localizedCategory": {
       "en": "AI",
       "vi": "AI"

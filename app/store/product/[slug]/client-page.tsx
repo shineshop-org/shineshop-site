@@ -59,42 +59,118 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		return product.price;
 	}
 	
+	// Save options to local storage
+	const saveOptionsToLocalStorage = (productId: string, options: Record<string, string>, activeId: string) => {
+		try {
+			const optionsData = {
+				selectedOptions: options,
+				activeOptionId: activeId,
+				timestamp: Date.now()
+			};
+			localStorage.setItem(`product-options-${productId}`, JSON.stringify(optionsData));
+		} catch (e) {
+			console.warn('Failed to save options to localStorage', e);
+		}
+	};
+	
+	// Load options from local storage
+	const loadOptionsFromLocalStorage = (productId: string) => {
+		try {
+			const savedData = localStorage.getItem(`product-options-${productId}`);
+			if (savedData) {
+				const parsedData = JSON.parse(savedData);
+				// Only use saved data if it's less than 24 hours old
+				if (parsedData && Date.now() - parsedData.timestamp < 24 * 60 * 60 * 1000) {
+					return {
+						selectedOptions: parsedData.selectedOptions || {},
+						activeOptionId: parsedData.activeOptionId || ''
+					};
+				}
+			}
+		} catch (e) {
+			console.warn('Failed to load options from localStorage', e);
+		}
+		return null;
+	};
+	
 	// Initialize options for a product
 	const initializeOptions = (productData: Product) => {
 		if (productData.options && productData.options.length > 0) {
-			const initialOptions: Record<string, string> = {}
+			// Try to load saved options first
+			const savedOptions = loadOptionsFromLocalStorage(productData.id);
 			
-			// Set the first option as active
-			setActiveOptionId(productData.options[0].id)
-			
-			// Select the first value for each option
-			productData.options.forEach(option => {
-				if (option.values.length > 0) {
-					initialOptions[option.id] = option.values[0].value
+			if (savedOptions && Object.keys(savedOptions.selectedOptions).length > 0) {
+				// Use saved options
+				setSelectedOptions(savedOptions.selectedOptions);
+				setActiveOptionId(savedOptions.activeOptionId || productData.options[0].id);
+				
+				// Calculate price based on saved options
+				const activeOption = productData.options.find(opt => opt.id === savedOptions.activeOptionId);
+				if (activeOption) {
+					const activeValue = savedOptions.selectedOptions[activeOption.id];
+					const optionValue = activeOption.values.find(val => val.value === activeValue);
+					if (optionValue && optionValue.localizedPrice) {
+						const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi;
+						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
+						return;
+					}
 				}
-			})
-			
-			setSelectedOptions(initialOptions)
+			} else {
+				// Initialize with defaults
+				const initialOptions: Record<string, string> = {};
+				
+				// Set the first option as active
+				setActiveOptionId(productData.options[0].id);
+				
+				// Select the first value for each option
+				productData.options.forEach(option => {
+					if (option.values.length > 0) {
+						initialOptions[option.id] = option.values[0].value;
+					}
+				});
+				
+				setSelectedOptions(initialOptions);
+				
+				// Save the initial options to localStorage
+				saveOptionsToLocalStorage(productData.id, initialOptions, productData.options[0].id);
+			}
 			
 			// Calculate initial price
 			let initialPrice = productData.price;
 			if (productData.options[0] && productData.options[0].values.length > 0) {
-				const firstOptionFirstValue = productData.options[0].values[0]
+				const firstOptionFirstValue = productData.options[0].values[0];
 				// Require strict localized price - no fallback
 				if (firstOptionFirstValue.localizedPrice) {
-					const currentPrice = language === 'en' ? firstOptionFirstValue.localizedPrice.en : firstOptionFirstValue.localizedPrice.vi
+					const currentPrice = language === 'en' ? firstOptionFirstValue.localizedPrice.en : firstOptionFirstValue.localizedPrice.vi;
 					initialPrice = currentPrice;
 				} else {
-					console.warn(`Missing localized price for option ${productData.options[0].name}, value ${firstOptionFirstValue.value}`)
+					console.warn(`Missing localized price for option ${productData.options[0].name}, value ${firstOptionFirstValue.value}`);
 				}
 			}
 			
-			setPriceDisplay(formatPrice(initialPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+			setPriceDisplay(formatPrice(initialPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
 		} else {
 			// No options, use base price
-			setPriceDisplay(formatPrice(productData.price, language === 'vi' ? 'vi-VN' : 'en-US'))
+			setPriceDisplay(formatPrice(productData.price, language === 'vi' ? 'vi-VN' : 'en-US'));
 		}
-	}
+	};
+	
+	// Effect to update price display when language changes
+	useEffect(() => {
+		// Update price display when language changes
+		if (product && product.id) {
+			const currentPrice = getSelectedPrice()
+			setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+		}
+	}, [language])
+	
+	// Add an effect to persist options when the window loses focus
+	useEffect(() => {
+		if (product && product.id && Object.keys(selectedOptions).length > 0) {
+			// Save options whenever they change
+			saveOptionsToLocalStorage(product.id, selectedOptions, activeOptionId);
+		}
+	}, [selectedOptions, activeOptionId, product?.id]);
 	
 	useEffect(() => {
 		// Try to find the product in the store
@@ -185,6 +261,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					if (optionValue.localizedPrice) {
 						const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
 						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+						
+						// Save the updated active option
+						saveOptionsToLocalStorage(product.id, selectedOptions, optionId);
 						return;
 					} else {
 						console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
@@ -194,6 +273,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 		
 		setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'))
+		// Save the updated active option even if no price update
+		saveOptionsToLocalStorage(product.id, selectedOptions, optionId);
 	}
 	
 	// Handle option selection
@@ -215,6 +296,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				if (optionValue.localizedPrice) {
 					const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
 					setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+					
+					// Save the updated options
+					saveOptionsToLocalStorage(product.id, newSelectedOptions, activeOptionId);
 					return;
 				} else {
 					console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
@@ -223,6 +307,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 		
 		setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'))
+		// Save the updated options even if no price update
+		saveOptionsToLocalStorage(product.id, newSelectedOptions, activeOptionId);
 	}
 	
 	// Extract the lowest price from product options
@@ -350,33 +436,32 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							}}
 						/>
 					</div>
+					{/* Product tags and category below image */}
+					<div className="flex flex-wrap gap-1 mt-2">
+						{product.localizedCategory && (
+							<span className="text-sm px-3 py-1 bg-secondary/50 rounded-full">
+								{language === 'en' ? product.localizedCategory?.en : product.localizedCategory?.vi}
+							</span>
+						)}
+						{product.tags && product.tags.map(tag => (
+							<span key={tag} className="text-sm px-3 py-1 bg-secondary/30 rounded-full">
+								{tag}
+							</span>
+						))}
+					</div>
 				</div>
 				
 				{/* Product Info */}
-				<div ref={productInfoRef} className="space-y-4 flex flex-col py-3">
-					<div className="w-full mb-4">
-						<h1 className="text-3xl font-bold">{getProductName()}</h1>
+				<div ref={productInfoRef} className="space-y-2 flex flex-col py-3">
+					<div className="w-full mb-3">
+						<h1 className="text-3xl font-bold mb-2">{getProductName()}</h1>
 						<p className="text-3xl font-semibold jshine-gradient">
 							{priceDisplay || formatPrice(getSelectedPrice(), language === 'vi' ? 'vi-VN' : 'en-US')}
 						</p>
-						{product.category && (
-							<span className="inline-block mt-2 text-sm px-3 py-1 bg-secondary/50 rounded-full">
-								{language === 'en' ? product.localizedCategory?.en : product.localizedCategory?.vi || product.category}
-							</span>
-						)}
-						{product.tags && product.tags.length > 0 && (
-							<div className="flex flex-wrap gap-1 mt-2">
-								{product.tags.map(tag => (
-									<span key={tag} className="text-sm px-3 py-1 bg-secondary/30 rounded-full">
-										{tag}
-									</span>
-								))}
-							</div>
-						)}
 					</div>
 					
 					{/* Options - Always show main option even if it's the only one */}
-					<div className="space-y-4 my-2">
+					<div className="space-y-2 mt-0">
 						{/* Option Name Buttons */}
 						<div className="space-y-1">
 							<div className="flex flex-wrap gap-2">
@@ -402,7 +487,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						</div>
 						
 						{/* Divider between option sections */}
-						<div className="h-px bg-border/50 dark:bg-border/30 my-2 w-full"></div>
+						<div className="h-px bg-border/50 dark:bg-border/30 my-1 w-full"></div>
 						
 						{/* Render dynamic product options */}
 						{product.options && product.options
@@ -442,8 +527,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									<div>
 										{option.values.map((value) => (
 											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-4">
-													<span className="inline-block bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
+												<p key={value.value} className="text-sm text-muted-foreground mt-2">
+													<span className="inline-flex items-center justify-center bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
 														{getNoteLabel()}
 													</span> 
 													{value.description}
@@ -457,7 +542,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					</div>
 					
 					{/* Order Buttons - Push to bottom with flex-grow */}
-					<div className="flex flex-col space-y-3 mt-auto">
+					<div className="flex flex-col space-y-3 mt-10">
 						<div className="flex gap-4">
 							<Button
 								asChild
@@ -584,7 +669,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					-webkit-text-fill-color: transparent;
 					background-clip: text;
 					background-size: 1000% 100%;
-					animation: jshine 9s linear infinite;
+					animation: jshine 4.5s linear infinite;
 				}
 				
 				@keyframes jshine {

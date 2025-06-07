@@ -60,6 +60,15 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 		transition,
 	}
 	
+	// Function to get localized option name
+	const getOptionName = (option: ProductOption) => {
+		return option.localizedName && language === 'en' 
+			? option.localizedName.en 
+			: option.localizedName && language === 'vi'
+				? option.localizedName.vi
+				: option.name;
+	}
+	
 	return (
 		<div 
 			ref={setNodeRef}
@@ -90,11 +99,18 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 						{product.options && product.options.length > 0 ? (
 							product.options.slice(0, 3).map((option) => (
 								<Badge key={option.id} variant="secondary" className="text-xs">
-									{option.name}
+									{option.values && option.values.length > 0 
+										? `${getOptionName(option)}: ${option.values.length}`
+										: getOptionName(option)
+									}
 								</Badge>
 							))
 						) : (
-							<p className="text-xs text-muted-foreground">{product.category}</p>
+							<p className="text-xs text-muted-foreground">
+								{product.localizedCategory 
+									? (language === 'en' ? product.localizedCategory.en : product.localizedCategory.vi) 
+									: ''}
+							</p>
 						)}
 						{product.options && product.options.length > 3 && (
 							<Badge variant="outline" className="text-xs">
@@ -328,7 +344,6 @@ export default function AdminDashboard() {
 		description: '',
 		localizedDescription: { en: '', vi: '' },
 		image: '',
-		category: '',
 		localizedCategory: { en: '', vi: '' },
 		slug: '',
 		options: [] as ProductOption[],
@@ -425,8 +440,7 @@ export default function AdminDashboard() {
 			description: product.description || '',
 			localizedDescription: product.localizedDescription || { en: product.description || '', vi: product.description || '' },
 			image: product.image || '',
-			category: product.category || '',
-			localizedCategory: product.localizedCategory || { en: product.category || '', vi: product.category || '' },
+			localizedCategory: product.localizedCategory || { en: '', vi: '' },
 			slug: product.slug || '',
 			options: processedOptions,
 			relatedArticles: product.relatedArticles || [],
@@ -619,52 +633,60 @@ export default function AdminDashboard() {
 	
 	// Function to handle saving product
 	const handleSaveProduct = () => {
-		// Only require slug field
+		setIsSaving(true)
+		
 		if (!productForm.slug) {
-			alert('Please enter URL Slug to create/save product')
+			setIsSaving(false)
+			// Alert about missing required field
+			alert(t('slugRequired'))
 			return
 		}
 		
-		// Create or update product
-		const productData: Product = {
+		// Safely handle product options
+		const safeProductOptions = (form: any) => {
+			return form.options || []
+		}
+		
+		// Safety check for initial values
+		const productToSave: Product = {
 			id: editingProduct?.id || Date.now().toString(),
-			name: productForm.name || productForm.slug, // Default to slug if name is empty
-			localizedName: {
-				en: productForm.localizedName.en || productForm.slug,
-				vi: productForm.localizedName.vi || productForm.slug
-			},
-			price: 0,
+			name: productForm.name,
+			localizedName: productForm.localizedName,
+			price: 0, // Base price is always 0 - actual price is in options
 			description: productForm.description,
 			localizedDescription: productForm.localizedDescription,
 			image: productForm.image,
-			category: productForm.category,
 			localizedCategory: productForm.localizedCategory,
 			slug: productForm.slug,
-			options: productForm.options,
+			options: safeProductOptions(productForm),
 			relatedArticles: selectedArticles,
 			sortOrder: editingProduct?.sortOrder || products.length + 1,
 			isLocalized: true,
-			tags: productForm.tags || []
+			tags: productForm.tags
 		}
 		
-		if (editingProduct) {
-			updateProduct(editingProduct.id, productData)
-		} else {
-			addProduct(productData)
+		// Creating a new product
+		if (!editingProduct) {
+			addProduct(productToSave)
+		}
+		// Updating an existing product
+		else {
+			updateProduct(editingProduct.id, productToSave)
 		}
 		
-		// Reset price input values
-		setPriceInputValues({})
-		
-		// Reset form and close dialog
+		setProductDialog(false)
 		setEditingProduct(null)
+		setIsSaving(false)
+	}
+	
+	// Add new product logic
+	const handleAddProduct = () => {
 		setProductForm({
 			name: '',
 			localizedName: { en: '', vi: '' },
 			description: '',
 			localizedDescription: { en: '', vi: '' },
 			image: '',
-			category: '',
 			localizedCategory: { en: '', vi: '' },
 			slug: '',
 			options: [],
@@ -673,7 +695,7 @@ export default function AdminDashboard() {
 			tags: []
 		})
 		setSelectedArticles([])
-		setProductDialog(false)
+		setProductDialog(true)
 	}
 	
 	// Handle drag end event
@@ -880,7 +902,6 @@ export default function AdminDashboard() {
 				description: debouncedProductForm.description,
 				localizedDescription: debouncedProductForm.localizedDescription,
 				image: debouncedProductForm.image,
-				category: debouncedProductForm.category,
 				localizedCategory: debouncedProductForm.localizedCategory,
 				slug: debouncedProductForm.slug,
 				options: debouncedProductForm.options,
