@@ -543,7 +543,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					</div>
 					
 					{/* Order Buttons - Push to bottom with flex-grow */}
-					<div className="flex flex-col space-y-3" style={{ marginTop: '64px !important', paddingTop: '12px' }}>
+					<div className="flex flex-col space-y-3" style={{ marginTop: '8px !important', paddingTop: '12px' }}>
 						<div className="flex gap-4">
 							<Button
 								asChild
