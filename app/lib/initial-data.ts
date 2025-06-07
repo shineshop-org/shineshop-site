@@ -4,35 +4,90 @@ export const initialProducts: Product[] = [
 	{
 		id: 'youtube-premium',
 		name: 'Youtube Premium (chính chủ)',
+		price: 0,
 		description: `Youtube Premium subscription service.`,
 		image: 'https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png',
 		category: 'Subscription',
 		slug: 'youtube-premium',
-		sortOrder: 0,
+		sortOrder: 1,
+		localizedName: {
+			en: "Youtube Premium (Private Upgrade)",
+			vi: "Youtube Premium (Chính chủ)"
+		},
+		localizedDescription: {
+			en: "Youtube Premium subscription service.",
+			vi: "Dịch vụ đăng ký Youtube Premium."
+		},
+		localizedCategory: {
+			en: "Subscription",
+			vi: "Đăng ký"
+		},
 		options: [
 			{
 				id: 'duration',
 				name: 'Thời hạn',
 				type: 'select',
+				localizedName: {
+					en: "Duration",
+					vi: "Thời hạn"
+				},
 				values: [
 					{
 						value: '1 tháng',
 						price: 30000,
-						description: '30000đ cho tháng đầu tiên và sau đó là 25000đ nếu bạn gia hạn đúng thời điểm hoặc trước đó'
+						localizedValue: {
+							en: "1 month",
+							vi: "1 tháng"
+						},
+						localizedPrice: {
+							en: 3,
+							vi: 40000
+						},
+						description: ''
 					},
 					{
 						value: '3 tháng',
 						price: 30000,
+						localizedValue: {
+							en: "3 months",
+							vi: "3 tháng"
+						},
+						localizedPrice: {
+							en: 8,
+							vi: 100000
+						},
 						description: 'Hỗ trợ sửa lỗi "Không thể tham gia gia đình" do rời gia đình nhiều lần trong 12 tháng.'
 					},
 					{
 						value: '6 tháng',
 						price: 195000,
-						description: ''
+						localizedValue: {
+							en: "6 months",
+							vi: "6 tháng"
+						},
+						localizedPrice: {
+							en: 15,
+							vi: 195000
+						},
+						description: 'Hỗ trợ sửa lỗi "Không thể tham gia gia đình" do rời gia đình nhiều lần trong 12 tháng.'
+					},
+					{
+						value: '12 tháng',
+						price: 345000,
+						localizedValue: {
+							en: "12 months",
+							vi: "12 tháng"
+						},
+						localizedPrice: {
+							en: 25,
+							vi: 345000
+						},
+						description: 'Hỗ trợ sửa lỗi "Không thể tham gia gia đình" do rời gia đình nhiều lần trong 12 tháng.'
 					}
 				]
 			}
 		],
+		isLocalized: true
 	}
 ]
 
@@ -43,8 +98,8 @@ export const initialFAQArticles: FAQArticle[] = [
     content: "# How to make a purchase?\n\nMaking a purchase on our website is simple and secure. Follow these steps:\n\n1. **Browse our products** - Navigate through our product categories or use the search function\n2. **Select your product** - Click on any product to view details\n3. **Choose options** - Select size, color, or other available options\n4. **Contact us** - Click the \"Order Now\" button to contact us via Facebook or WhatsApp\n5. **Complete payment** - Follow the payment instructions provided by our team\n\nOur customer service team is available 24/7 to assist you with your purchase.",
     category: "Shopping",
     slug: "how-to-make-a-purchase",
-    createdAt: "2024-01-01T00:00:00.000Z",
-    updatedAt: "2024-01-01T00:00:00.000Z",
+    createdAt: new Date("2024-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2024-01-01T00:00:00.000Z"),
     tags: [
       "purchase",
       "shopping",
