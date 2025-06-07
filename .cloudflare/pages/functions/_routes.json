@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/_next/static/*",
+    "/favicon.ico",
+    "/sitemap.xml",
+    "/robots.txt"
+  ],
+  "rsc": {
+    "include": ["/**"],
+    "exclude": [
+      "/api/*",
+      "/_next/static/*",
+      "/favicon.ico",
+      "/sitemap.xml",
+      "/robots.txt"
+    ]
+  }
+} 

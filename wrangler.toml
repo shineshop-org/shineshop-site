@@ -2,10 +2,13 @@ name = "shineshop-site"
 compatibility_date = "2025-06-05"
 
 # Specify the build output directory
-pages_build_output_dir = "out"
+pages_build_output_dir = ".vercel/output/static"
 
 # Configure for Next.js App Router compatibility
 compatibility_flags = ["nodejs_compat"]
+
+# Set limits for proper RSC handling
+limits = { cpu_ms = 50 }
 
 # Environment variables
 [env.production]

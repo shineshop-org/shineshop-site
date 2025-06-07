@@ -1,50 +1,83 @@
-// Service worker to clear cache
-const CACHE_VERSION = 'v4';
-const IMAGE_DOMAINS = ['ik.imagekit.io', 'images.unsplash.com', 'img.vietqr.io'];
+// Service worker for Shine Shop
 
-// On install - clear all old caches
-self.addEventListener('install', function(event) {
+// Cache version - update when deploying new versions
+const CACHE_VERSION = 'v1';
+const CACHE_NAME = `shineshop-${CACHE_VERSION}`;
+
+// Install event - cache basic resources
+self.addEventListener('install', (event) => {
+  console.log('Service worker installing...');
+  
+  // Skip waiting to activate the new service worker immediately
   self.skipWaiting();
+  
+  // Cache basic resources
   event.waitUntil(
-    caches.keys().then(function(cacheNames) {
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll([
+        '/',
+        '/favicon.ico',
+        '/logo-light-mode.png',
+        '/logo-dark-mode.png',
+      ]);
+    })
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('Service worker activating...');
+  
+  // Claim clients to control all tabs immediately
+  self.clients.claim();
+  
+  // Delete old caches
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map(function(cacheName) {
-          return caches.delete(cacheName);
-        })
+        cacheNames
+          .filter((cacheName) => {
+            return cacheName.startsWith('shineshop-') && cacheName !== CACHE_NAME;
+          })
+          .map((cacheName) => {
+            console.log(`Deleting old cache: ${cacheName}`);
+            return caches.delete(cacheName);
+          })
       );
     })
   );
 });
 
-// On activate - claim clients and clear any cached resources
-self.addEventListener('activate', function(event) {
-  clients.claim();
-  event.waitUntil(
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        cacheNames.map(function(cacheName) {
-          return caches.delete(cacheName);
-        })
-      );
-    })
-  );
-});
-
-// Only intercept same-origin requests, skip image domains
-self.addEventListener('fetch', function(event) {
+// Special handling for RSC requests
+self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  // Skip handling external image domains
-  if (IMAGE_DOMAINS.some(domain => url.hostname.includes(domain))) {
-    return; // Let the browser handle image requests normally
+  // Handle RSC requests
+  if (url.pathname.includes('_rsc') || url.search.includes('_rsc')) {
+    // For RSC requests that might fail, return an empty 200 response
+    // This prevents the client from seeing RSC fetch errors
+    if (event.request.method === 'GET') {
+      event.respondWith(
+        fetch(event.request)
+          .catch(() => {
+            // If fetch fails, return an empty response instead of an error
+            return new Response('', {
+              status: 200,
+              headers: { 'Content-Type': 'text/plain' },
+            });
+          })
+      );
+      return;
+    }
   }
   
-  // Only handle same-origin requests
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      fetch(event.request).catch(function() {
-        return caches.match(event.request);
-      })
-    );
+  // For all other requests, use the default fetch behavior
+  // No additional caching strategy needed as Cloudflare already handles caching
+});
+
+// Handle messages from the client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 }); 

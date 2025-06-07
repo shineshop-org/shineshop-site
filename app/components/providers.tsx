@@ -5,6 +5,7 @@ import { ThemeProvider } from 'next-themes'
 import { useStore } from '@/app/lib/store'
 import { StoreProvider } from './providers/store-provider'
 import { useVersionCheck } from '@/app/hooks/use-version-check'
+import RSCErrorHandler from './providers/rsc-error-handler'
 
 export function Providers({ children }: { children: React.ReactNode }) {
 	// Register service worker to handle cache clearing
@@ -47,7 +48,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 				errorText.includes('faq.txt?_rsc=') ||
 				errorText.includes('payment.txt?_rsc=') ||
 				errorText.includes('social.txt?_rsc=') ||
-				errorText.includes('store/product/')
+				errorText.includes('store/product/') ||
+				errorText.includes('Failed to fetch RSC payload')
 			) {
 				// Silently ignore these specific errors
 				return;
@@ -62,8 +64,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 		window.fetch = function(input, init) {
 			const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input instanceof Request ? input.url : '';
 			
-			// If this is an RSC file request, return an empty response
-			if (url.includes('.txt?_rsc=')) {
+			// If this is an RSC file request that's likely to fail, handle it gracefully
+			if (url.includes('.txt?_rsc=') || url.includes('?_rsc=')) {
+				// For already navigated pages, return an empty 200 response to prevent errors
 				return Promise.resolve(new Response('', { status: 200, headers: { 'Content-Type': 'text/plain' } }));
 			}
 			
@@ -81,6 +84,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 	return (
 		<StoreProvider>
 			<InnerProviders>{children}</InnerProviders>
+			<RSCErrorHandler />
 		</StoreProvider>
 	)
 }

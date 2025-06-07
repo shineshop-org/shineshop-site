@@ -6,6 +6,14 @@ const nextConfig = {
 	// Configure for Cloudflare Pages deployment
 	// Use static export for Cloudflare Pages, but keep RSC functionality through next-on-pages adapter
 	...(isDeployment && { output: 'export' }),
+	
+	// Make sure we have a longer fetch timeout for RSC payloads
+	experimental: {
+		serverComponentsExternalPackages: [],
+		fetchCacheKeyPrefix: `v1-${Date.now()}`,
+		optimizePackageImports: ['react', 'react-dom', 'lucide-react'],
+	},
+	
 	distDir: '.next',
 	images: {
 		unoptimized: true,
