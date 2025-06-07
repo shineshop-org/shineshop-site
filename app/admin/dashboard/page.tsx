@@ -646,11 +646,15 @@ export default function AdminDashboard() {
 		}
 		
 		// Safety check for initial values
+		// Note: We always maintain the ID even though slug is unique
+		// ID is used as a database primary key and for React key props
+		// while slug is used for friendly URLs
 		const productToSave: Product = {
 			id: editingProduct?.id || Date.now().toString(),
 			name: productForm.name,
 			localizedName: productForm.localizedName,
-			price: 0, // Base price is always 0 - actual price is in options
+			// Base price is always 0 - actual price is determined from options
+			price: 0,
 			description: productForm.description,
 			localizedDescription: productForm.localizedDescription,
 			image: productForm.image,

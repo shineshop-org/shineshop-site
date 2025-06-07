@@ -34,7 +34,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	// Get current selected price based on options
 	const getSelectedPrice = () => {
 		if (!product.options || product.options.length === 0 || Object.keys(selectedOptions).length === 0) {
-			return product.price;
+			return product.price || 0;
 		}
 		
 		// Find price based on selected options
@@ -64,7 +64,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			}
 		}
 		
-		return product.price;
+		return product.price || 0;
 	}
 	
 	// Save options to local storage
@@ -153,7 +153,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			}
 			
 			// Calculate initial price
-			let initialPrice = productData.price;
+			let initialPrice = productData.price || 0;
 			if (productData.options[0] && productData.options[0].values.length > 0) {
 				const firstOptionFirstValue = productData.options[0].values[0];
 				// Require strict localized price - no fallback
@@ -167,8 +167,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			
 			setPriceDisplay(formatPrice(initialPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
 		} else {
-			// No options, use base price
-			setPriceDisplay(formatPrice(productData.price, language === 'vi' ? 'vi-VN' : 'en-US'));
+			// No options, use base price with default of 0
+			setPriceDisplay(formatPrice(productData.price || 0, language === 'vi' ? 'vi-VN' : 'en-US'));
 		}
 	};
 	
@@ -327,7 +327,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	// Extract the lowest price from product options
 	const getLowestPrice = () => {
 		if (!product.options || product.options.length === 0) {
-			return product.price;
+			return 0; // Return 0 instead of product.price as base price is no longer used
 		}
 		
 		const optionValues = product.options.flatMap(option => 
@@ -344,7 +344,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		).filter(price => price !== null) as number[];
 		
 		if (optionValues.length === 0) {
-			return product.price;
+			return 0; // Return 0 instead of product.price as base price is no longer used
 		}
 		
 		return Math.min(...optionValues);

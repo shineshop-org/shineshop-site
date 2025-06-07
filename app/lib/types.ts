@@ -5,7 +5,7 @@ export interface Product {
 		en: string
 		vi: string
 	}
-	price: number
+	price?: number
 	description: string
 	localizedDescription?: {
 		en: string

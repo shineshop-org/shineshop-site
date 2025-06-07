@@ -5,14 +5,17 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs))
 }
 
-export function formatPrice(price: number, locale = 'vi-VN'): string {
+export function formatPrice(price: number | undefined, locale = 'vi-VN'): string {
+	// Handle undefined by defaulting to 0
+	const safePrice = typeof price === 'number' ? price : 0;
+	
 	if (locale === 'en-US') {
 		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
 			currency: 'USD',
 			minimumFractionDigits: 2,
 			maximumFractionDigits: 2,
-		}).format(price)
+		}).format(safePrice)
 	}
 	
 	return new Intl.NumberFormat('vi-VN', {
@@ -20,7 +23,7 @@ export function formatPrice(price: number, locale = 'vi-VN'): string {
 		currency: 'VND',
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 0,
-	}).format(price)
+	}).format(safePrice)
 }
 
 export function generateSlug(text: string): string {
