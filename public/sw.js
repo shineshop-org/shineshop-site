@@ -11,15 +11,18 @@ self.addEventListener('install', (event) => {
   // Skip waiting to activate the new service worker immediately
   self.skipWaiting();
   
-  // Cache basic resources
+  // Only cache resources that definitely exist
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll([
         '/',
-        '/favicon.ico',
-        '/logo-light-mode.png',
-        '/logo-dark-mode.png',
-      ]);
+        '/favicon.ico'
+        // Removed logo files that might not exist
+      ]).catch(err => {
+        console.warn('Failed to cache some resources:', err);
+        // Don't fail the service worker installation if caching fails
+        return Promise.resolve();
+      });
     })
   );
 });
