@@ -543,7 +543,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					</div>
 					
 					{/* Order Buttons - Push to bottom with flex-grow */}
-					<div className="flex flex-col space-y-3" style={{ marginTop: '8px !important', paddingTop: '12px' }}>
+					<div className="flex flex-col space-y-1.5" style={{ marginTop: '8px !important', paddingTop: '12px' }}>
 						<div className="flex gap-4">
 							<Button
 								asChild
@@ -673,17 +673,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					-webkit-background-clip: text;
 					-webkit-text-fill-color: transparent;
 					background-clip: text;
-					background-size: 1000% 100%;
-					animation: jshine 4.5s linear infinite;
-				}
-				
-				@keyframes jshine {
-					0% {
-						background-position: 0% center;
-					}
-					100% {
-						background-position: 100% center;
-					}
+					background-size: 100% 100%;
 				}
 			`}</style>
 		</div>
