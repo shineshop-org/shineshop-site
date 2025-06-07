@@ -32,30 +32,59 @@
               "value": "1 tháng",
               "price": 30000,
               "localizedPrice": {
-                "en": 30000,
-                "vi": 30000
+                "en": 3,
+                "vi": 40000
               },
-              "description": "30000đ cho tháng đầu tiên và sau đó là 25000đ nếu bạn gia hạn đúng thời điểm hoặc trước đó"
+              "description": "",
+              "localizedValue": {
+                "en": "1 month",
+                "vi": "1 tháng"
+              }
             },
             {
               "value": "3 tháng",
               "price": 30000,
               "localizedPrice": {
-                "en": 30000,
-                "vi": 30000
+                "en": 0,
+                "vi": 100000
               },
-              "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
+              "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
+              "localizedValue": {
+                "en": "3 months",
+                "vi": "3 tháng"
+              }
             },
             {
               "value": "6 tháng",
               "price": 195000,
               "localizedPrice": {
-                "en": 195000,
+                "en": 123312123132123,
                 "vi": 195000
               },
-              "description": ""
+              "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
+              "localizedValue": {
+                "en": "6 tháng",
+                "vi": "6 tháng"
+              }
+            },
+            {
+              "value": "",
+              "localizedValue": {
+                "en": "1 year",
+                "vi": "12 tháng"
+              },
+              "price": 0,
+              "localizedPrice": {
+                "en": 12312312123132,
+                "vi": 345000
+              },
+              "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
             }
-          ]
+          ],
+          "localizedName": {
+            "en": "Add to Family",
+            "vi": "Thời hạn"
+          }
         }
       ],
       "relatedArticles": [],
