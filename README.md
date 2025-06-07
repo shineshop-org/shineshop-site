@@ -192,4 +192,7 @@ This ensures that your changes are reflected in both development and production 
 
 ## Development
 
-// ... existing code ... 
+// ... existing code ...
+
+# Note on Deployment
+When updating static data, you may need to clear the Cloudflare cache after deployment. 

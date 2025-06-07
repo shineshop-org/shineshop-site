@@ -2,12 +2,12 @@ name = "shineshop-site"
 compatibility_date = "2025-06-05"
 pages_build_output_dir = "out"
 
-# KV Namespace for storing data
-[[kv_namespaces]]
-binding = "STORE_KV"
-id = "shineshop-store-kv"
-preview_id = "shineshop-store-kv-preview"
-
 # Environment variables
 [env.production]
-vars = { CF_PAGES = "1" } 
+vars = { CF_PAGES = "1" }
+
+# KV Namespace for storing data
+[[env.production.kv_namespaces]]
+binding = "STORE_KV"
+id = "shineshop-store-kv"
+preview_id = "shineshop-store-kv-preview" 
