@@ -652,28 +652,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			{/* Custom CSS Animation */}
 			<style jsx global>{`
 				.jshine-gradient {
-					background: linear-gradient(
-						to right,
-						#06b6d4, /* cyan */
-						#0ea5e9, /* sky/light blue */
-						#8b5cf6, /* violet */
-						#a855f7, /* purple */
-						#d946ef, /* fuchsia */
-						#ec4899, /* pink */
-						#f43f5e, /* rose */
-						#ef4444, /* red */
-						#f97316, /* orange */
-						#f59e0b, /* amber */
-						#eab308, /* yellow */
-						#84cc16, /* lime */
-						#22c55e, /* green */
-						#10b981, /* emerald */
-						#06b6d4  /* back to cyan for seamless loop */
-					);
-					-webkit-background-clip: text;
-					-webkit-text-fill-color: transparent;
-					background-clip: text;
-					background-size: 100% 100%;
+					color: #0ea5e9; /* JShine color (sky blue) instead of gradient */
 				}
 			`}</style>
 		</div>

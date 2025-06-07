@@ -109,7 +109,7 @@ export default function StorePage() {
 	return (
 		<div className="space-y-12 pb-12 page-transition">
 			{/* Hero Section */}
-			<section className="mt-8 text-center space-y-4">
+			<section className="mt-8 text-center space-y-2">
 				<h1 className="text-4xl md:text-6xl font-bold jshine-gradient">
 					{siteConfig.heroTitle}
 				</h1>
