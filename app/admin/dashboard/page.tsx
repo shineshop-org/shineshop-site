@@ -69,6 +69,15 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 				: option.name;
 	}
 	
+	// Function to get localized option value
+	const getOptionValue = (value: any) => {
+		return value.localizedValue && language === 'en'
+			? value.localizedValue.en
+			: value.localizedValue && language === 'vi'
+				? value.localizedValue.vi
+				: value.value;
+	}
+	
 	return (
 		<div 
 			ref={setNodeRef}
@@ -100,7 +109,7 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 							product.options.slice(0, 3).map((option) => (
 								<Badge key={option.id} variant="secondary" className="text-xs">
 									{option.values && option.values.length > 0 
-										? `${getOptionName(option)}: ${option.values.length}`
+										? `${getOptionName(option)}: ${option.values[0] ? getOptionValue(option.values[0]) : ''}`
 										: getOptionName(option)
 									}
 								</Badge>

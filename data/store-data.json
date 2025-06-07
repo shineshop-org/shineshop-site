@@ -87,7 +87,8 @@
       ],
       "relatedArticles": [],
       "sortOrder": 1,
-      "isLocalized": true
+      "isLocalized": true,
+      "tags": []
     },
     {
       "id": "1749268374071",
@@ -150,7 +151,8 @@
       ],
       "relatedArticles": [],
       "sortOrder": 2,
-      "isLocalized": true
+      "isLocalized": true,
+      "tags": []
     }
   ],
   "faqArticles": [

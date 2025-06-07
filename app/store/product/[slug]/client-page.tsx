@@ -526,12 +526,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 								{selectedOptions[option.id] && (
 									<div>
 										{option.values.map((value) => (
-											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-2">
+											value.value === selectedOptions[option.id] && (
+												<p key={value.value} className="text-sm text-muted-foreground mt-2" style={{ minHeight: '80px' }}>
 													<span className="inline-flex items-center justify-center bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
 														{getNoteLabel()}
 													</span> 
-													{value.description}
+													{value.description || '\u00A0'}
 												</p>
 											)
 										))}
