@@ -1,7 +1,7 @@
 // Script to force reload page and clear cache
 (function() {
   // Set a version number in localStorage
-  const CURRENT_VERSION = '20240717-v3';
+  const CURRENT_VERSION = '20240717-v4';
   const STORED_VERSION = localStorage.getItem('site-version');
   
   // Clear all cache storage
@@ -30,4 +30,27 @@
     console.log('New version detected, reloading page...');
     window.location.reload(true);
   }
+  
+  // Image error handler - reload images that fail to load
+  window.addEventListener('load', function() {
+    // Find all images
+    const images = document.querySelectorAll('img');
+    
+    // Add error handler to each image
+    images.forEach(function(img) {
+      img.addEventListener('error', function() {
+        console.log('Image failed to load, attempting to reload:', img.src);
+        
+        // Add timestamp or random query param to force reload
+        const src = img.src;
+        const hasParams = src.includes('?');
+        const newSrc = hasParams 
+          ? `${src}&t=${Date.now()}` 
+          : `${src}?t=${Date.now()}`;
+          
+        // Set new source to reload
+        img.src = newSrc;
+      });
+    });
+  });
 })(); 

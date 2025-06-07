@@ -9,6 +9,7 @@ const nextConfig = {
 	distDir: '.next',
 	images: {
 		unoptimized: true,
+		domains: ['ik.imagekit.io', 'images.unsplash.com', 'img.vietqr.io'],
 		remotePatterns: [
 			{
 				protocol: 'https',
@@ -23,6 +24,11 @@ const nextConfig = {
 				hostname: 'ik.imagekit.io',
 			},
 		],
+		minimumCacheTTL: 0,
+		disableStaticImages: false,
+		dangerouslyAllowSVG: true,
+		contentDispositionType: 'attachment',
+		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
 	// Disable features not supported in static export
 	trailingSlash: true,

@@ -281,11 +281,14 @@ function ProductCard({ product, language }: ProductCardProps) {
 				<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
 					{product.image && product.image.trim() !== '' ? (
 						<Image
-							src={product.image}
+							src={`${product.image}?v=${Date.now()}`}
 							alt={getProductName()}
 							fill
 							className="object-cover transition-transform duration-300 group-hover:scale-105"
 							sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 20vw"
+							loading="eager"
+							priority
+							unoptimized
 						/>
 					) : (
 						<div className="absolute inset-0 bg-muted flex items-center justify-center">
