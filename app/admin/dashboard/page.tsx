@@ -31,6 +31,7 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { DataBackupRestore } from './components/DataBackupRestore'
 
 // Add the jshine-gradient CSS class as in the product page
 const jshineGradientClassName = "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
@@ -1917,6 +1918,9 @@ export default function AdminDashboard() {
 					{activeTab === 'data' && (
 						<div className="space-y-6">
 							<h2 className="text-xl font-semibold">Quản lý dữ liệu</h2>
+							
+							<DataBackupRestore />
+							
 							<Card className="mb-6">
 								<CardHeader>
 									<CardTitle>Đồng bộ dữ liệu Production</CardTitle>

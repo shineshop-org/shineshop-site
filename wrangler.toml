@@ -4,10 +4,4 @@ pages_build_output_dir = "out"
 
 # Environment variables
 [env.production]
-vars = { CF_PAGES = "1" }
-
-# KV Namespace for storing data
-[[env.production.kv_namespaces]]
-binding = "STORE_KV"
-id = "shineshop-store-kv"
-preview_id = "shineshop-store-kv-preview" 
+vars = { CF_PAGES = "1" } 
