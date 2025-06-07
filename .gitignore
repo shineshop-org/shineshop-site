@@ -55,9 +55,8 @@ Thumbs.db
 # Optional eslint cache
 .eslintcache
 
-# data storage (local store data)
-/data/
-data/*.json
+# Các file backup trong thư mục data, nhưng giữ lại store-data.json
+/data/store-backup-*.json
 
 # Wrangler
 .wrangler/ 
