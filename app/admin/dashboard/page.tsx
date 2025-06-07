@@ -33,7 +33,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 
 // Add the jshine-gradient CSS class as in the product page
-const jshineGradientClassName = "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
+const jshineGradientClassName = "text-[#0ea5e9]" // JShine color (sky blue)
 
 type TabType = 'products' | 'faq' | 'social' | 'tos' | 'data' | 'settings'
 type ProductTabType = 'details' | 'card-order'
@@ -1034,38 +1034,7 @@ export default function AdminDashboard() {
 		<div className="flex flex-col min-h-screen">
 			<style jsx global>{`
 				.jshine-gradient {
-					background: linear-gradient(
-						to right,
-						#06b6d4, /* cyan */
-						#0ea5e9, /* sky/light blue */
-						#8b5cf6, /* violet */
-						#a855f7, /* purple */
-						#d946ef, /* fuchsia */
-						#ec4899, /* pink */
-						#f43f5e, /* rose */
-						#ef4444, /* red */
-						#f97316, /* orange */
-						#f59e0b, /* amber */
-						#eab308, /* yellow */
-						#84cc16, /* lime */
-						#22c55e, /* green */
-						#10b981, /* emerald */
-						#06b6d4  /* back to cyan for seamless loop */
-					);
-					-webkit-background-clip: text;
-					-webkit-text-fill-color: transparent;
-					background-clip: text;
-					background-size: 1000% 100%;
-					animation: jshine 9s linear infinite;
-				}
-				
-				@keyframes jshine {
-					0% {
-						background-position: 0% center;
-					}
-					100% {
-						background-position: 100% center;
-					}
+					color: #0ea5e9; /* JShine color (sky blue) instead of gradient */
 				}
 			`}</style>
 			<div className="container flex h-16 items-center px-4 sm:px-6 justify-between">
@@ -1808,8 +1777,8 @@ export default function AdminDashboard() {
 									setShowMarkdownPreview(false)
 								}
 							}}>
-								<DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col" aria-describedby="faq-dialog-description">
-									<DialogHeader>
+								<DialogContent className="max-w-6xl h-[90vh] overflow-hidden flex flex-col" aria-describedby="faq-dialog-description">
+									<DialogHeader className="flex-shrink-0">
 										<DialogTitle>{editingFaq 
 											? (language === 'en' ? 'Edit FAQ Article' : 'Chỉnh sửa FAQ') 
 											: (language === 'en' ? 'Add FAQ Article' : 'Thêm FAQ mới')}
@@ -1820,7 +1789,7 @@ export default function AdminDashboard() {
 												: 'Viết nội dung FAQ sử dụng định dạng Markdown'}
 										</DialogDescription>
 									</DialogHeader>
-									<div className="flex-1 overflow-hidden">
+									<div className="flex-1 overflow-y-auto">
 										<div className="space-y-4 pb-4">
 											<div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-1">
 												<div className="space-y-2">
@@ -1857,7 +1826,7 @@ export default function AdminDashboard() {
 											</div>
 										</div>
 										
-										<div className="flex-1 overflow-hidden px-1">
+										<div className="px-1">
 											<div className="flex items-center justify-between mb-2">
 												<label className="text-sm font-medium">{language === 'en' ? 'Content' : 'Nội dung'}</label>
 												<Button
@@ -1876,7 +1845,7 @@ export default function AdminDashboard() {
 												</Button>
 											</div>
 											
-											<div className={`grid ${showMarkdownPreview ? 'grid-cols-2 gap-4' : 'grid-cols-1'} h-[400px]`}>
+											<div className={`grid ${showMarkdownPreview ? 'grid-cols-2 gap-4' : 'grid-cols-1'} h-[350px]`}>
 												<div className="border rounded-md overflow-hidden flex flex-col">
 													<MarkdownToolbar 
 														onInsert={(text) => {
@@ -1898,7 +1867,7 @@ export default function AdminDashboard() {
 													/>
 													<textarea
 														id="faq-content"
-														className="flex-1 w-full p-3 resize-none font-mono text-sm"
+														className="flex-1 w-full p-3 resize-none font-mono text-sm overflow-y-auto"
 														value={faqForm.content}
 														onChange={(e) => setFaqForm({...faqForm, content: e.target.value})}
 														placeholder={language === 'en' 
@@ -1930,7 +1899,7 @@ export default function AdminDashboard() {
 											</div>
 										</div>
 									</div>
-									<DialogFooter className="mt-4">
+									<DialogFooter className="flex-shrink-0 mt-4">
 										<Button
 											type="button"
 											variant="outline"
