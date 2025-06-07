@@ -965,14 +965,17 @@ export default function AdminDashboard() {
 	// Handle publishing to production by updating static data file
 	const handlePublishToProduction = async () => {
 		if (!confirm(language === 'en' 
-			? 'This will update all code to GitHub and Cloudflare will auto-deploy. Continue?' 
-			: 'Thao tác này sẽ cập nhật toàn bộ code lên GitHub và Cloudflare sẽ tự động deploy. Tiếp tục?')) {
+			? 'This will update all content including titles, FAQ, TOS, and products to the static file and push to GitHub for deployment. Continue?' 
+			: 'Thao tác này sẽ cập nhật tất cả nội dung bao gồm tiêu đề, FAQ, TOS, và sản phẩm vào file tĩnh và đẩy lên GitHub để triển khai. Tiếp tục?')) {
 			return
 		}
 		
 		setIsPublishing(true)
 		
 		try {
+			// First ensure all local changes are saved to the server
+			await useStore.getState().syncDataToServer()
+			
 			// Step 1: Update the static data file
 			const updateResponse = await fetch('/api/dev/update-file', {
 				method: 'POST',
@@ -1009,8 +1012,8 @@ export default function AdminDashboard() {
 			
 			if (pushResponse.ok) {
 				alert(language === 'en' 
-					? 'Successfully published to GitHub! Cloudflare will auto-deploy in a few minutes.' 
-					: 'Đã xuất bản thành công lên GitHub! Cloudflare sẽ tự động deploy trong vài phút.')
+					? 'Successfully published to GitHub! All content including titles, FAQ, and TOS have been updated. Cloudflare will auto-deploy in a few minutes.' 
+					: 'Đã xuất bản thành công lên GitHub! Tất cả nội dung bao gồm tiêu đề, FAQ, và TOS đã được cập nhật. Cloudflare sẽ tự động deploy trong vài phút.')
 			} else {
 				throw new Error(pushData.error || 'Failed to push changes to GitHub')
 			}

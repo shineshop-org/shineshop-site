@@ -1,7 +1,17 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Language, Product, FAQArticle, SocialLink, PaymentInfo, SiteConfig } from './types'
-import { initialProducts, initialFAQArticles, initialSocialLinks, dataVersion } from './initial-data'
+import { 
+	initialProducts, 
+	initialFAQArticles, 
+	initialSocialLinks, 
+	initialTOSContent,
+	initialSiteConfig,
+	initialPaymentInfo,
+	initialLanguage,
+	initialTheme,
+	dataVersion 
+} from './initial-data'
 
 // Lưu trữ phiên bản hiện tại của dữ liệu
 const CURRENT_DATA_VERSION = dataVersion
@@ -133,14 +143,14 @@ export const useStore = create<StoreState>()(
 	persist(
 		(set, get) => ({
 			// Language
-			language: 'vi',
+			language: initialLanguage || 'vi',
 			setLanguage: (language) => {
 				set({ language })
 				get().syncDataToServer()
 			},
 			
 			// Theme
-			theme: 'light',
+			theme: initialTheme || 'light',
 			setTheme: (theme) => {
 				set({ theme })
 				get().syncDataToServer()
@@ -206,7 +216,7 @@ export const useStore = create<StoreState>()(
 			},
 			
 			// Payment Info
-			paymentInfo: {
+			paymentInfo: initialPaymentInfo || {
 				bankName: 'Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam',
 				accountNumber: 'MS00T09331707449347',
 				accountName: 'SHINE SHOP',
@@ -220,7 +230,7 @@ export const useStore = create<StoreState>()(
 			},
 			
 			// Site Config
-			siteConfig: {
+			siteConfig: initialSiteConfig || {
 				heroTitle: 'Welcome to Shine Shop',
 				heroQuote: 'Your trusted online shopping destination',
 				contactLinks: {
@@ -234,7 +244,7 @@ export const useStore = create<StoreState>()(
 			},
 			
 			// TOS
-			tosContent: '',
+			tosContent: initialTOSContent || '',
 			setTosContent: (content) => {
 				set({ tosContent: content })
 				get().syncDataToServer()
@@ -253,6 +263,25 @@ export const useStore = create<StoreState>()(
 			// Load data from server
 			loadDataFromServer: async () => {
 				try {
+					// Only attempt to load from server in development mode
+					const isDevelopment = process.env.NODE_ENV === 'development'
+					
+					if (!isDevelopment) {
+						// In production, just mark as initialized and use static data
+						set({ isInitialized: true })
+						return {
+							products: initialProducts,
+							faqArticles: initialFAQArticles,
+							socialLinks: initialSocialLinks,
+							language: initialLanguage,
+							theme: initialTheme,
+							paymentInfo: initialPaymentInfo,
+							siteConfig: initialSiteConfig,
+							tosContent: initialTOSContent,
+							dataVersion: CURRENT_DATA_VERSION
+						}
+					}
+					
 					const data = await loadFromServer()
 					// Strict data requirement - no fallbacks
 					set({
@@ -270,7 +299,20 @@ export const useStore = create<StoreState>()(
 					return data
 				} catch (error) {
 					console.error('Failed to load data from server, using local storage data', error)
-					set({ isInitialized: true })
+					
+					// In case of error, ensure we're still initialized with static data
+					set({ 
+						isInitialized: true,
+						products: initialProducts,
+						faqArticles: initialFAQArticles,
+						socialLinks: initialSocialLinks,
+						language: initialLanguage || 'vi',
+						theme: initialTheme || 'light',
+						paymentInfo: initialPaymentInfo,
+						siteConfig: initialSiteConfig,
+						tosContent: initialTOSContent
+					})
+					
 					throw error
 				}
 			},
@@ -291,6 +333,13 @@ export const useStore = create<StoreState>()(
 						siteConfig: state.siteConfig,
 						tosContent: state.tosContent,
 						dataVersion: CURRENT_DATA_VERSION
+					}
+					
+					// Only attempt to save to server in development mode
+					const isDevelopment = process.env.NODE_ENV === 'development'
+					if (!isDevelopment) {
+						console.log('Running in production mode, skipping server sync')
+						return
 					}
 					
 					// Save to server
@@ -318,6 +367,11 @@ export const useStore = create<StoreState>()(
 						state.products = initialProducts;
 						state.faqArticles = initialFAQArticles;
 						state.socialLinks = initialSocialLinks;
+						state.siteConfig = initialSiteConfig;
+						state.tosContent = initialTOSContent;
+						state.language = initialLanguage || 'vi';
+						state.theme = initialTheme || 'light';
+						state.paymentInfo = initialPaymentInfo;
 						state.dataVersion = CURRENT_DATA_VERSION;
 						
 						// Lưu trạng thái mới ngay lập tức
@@ -327,11 +381,11 @@ export const useStore = create<StoreState>()(
 									products: initialProducts,
 									faqArticles: initialFAQArticles,
 									socialLinks: initialSocialLinks,
-									language: state.language || 'vi',
-									theme: state.theme || 'light',
-									paymentInfo: state.paymentInfo,
-									siteConfig: state.siteConfig,
-									tosContent: state.tosContent || '',
+									language: initialLanguage || 'vi',
+									theme: initialTheme || 'light',
+									paymentInfo: initialPaymentInfo,
+									siteConfig: initialSiteConfig,
+									tosContent: initialTOSContent,
 									dataVersion: CURRENT_DATA_VERSION
 								}
 							}));
@@ -361,7 +415,9 @@ export const useStore = create<StoreState>()(
 						// Continue with sync, but at least we tried to throttle
 					}
 					
-					if (shouldSync) {
+					// Only try to sync in development mode
+					const isDevelopment = process.env.NODE_ENV === 'development';
+					if (shouldSync && isDevelopment) {
 						state.syncDataToServer().catch(error => {
 							console.error('Auto-sync failed:', error);
 						});

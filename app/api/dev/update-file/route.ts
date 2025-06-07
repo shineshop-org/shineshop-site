@@ -64,15 +64,18 @@ export async function POST(request: NextRequest) {
 // Function to generate the content for initial-data.ts
 function generateInitialDataContent(storeData: any, dataVersion: number = 2): string {
   const { 
-    products, 
-    faqArticles, 
-    socialLinks, 
-    tosContent,
-    siteConfig
+    products = [], 
+    faqArticles = [], 
+    socialLinks = [], 
+    tosContent = '',
+    siteConfig = {},
+    language = 'vi',
+    theme = 'light',
+    paymentInfo = {}
   } = storeData
 
   // Create a string representation of the data in TypeScript format
-  let content = `import { Product, FAQArticle, SocialLink, SiteConfig } from './types'\n\n`
+  let content = `import { Product, FAQArticle, SocialLink, SiteConfig, PaymentInfo } from './types'\n\n`
 
   // Generate products section
   content += `export const initialProducts: Product[] = ${formatTsArray(products)}\n\n`
@@ -83,15 +86,18 @@ function generateInitialDataContent(storeData: any, dataVersion: number = 2): st
   // Generate social links section
   content += `export const initialSocialLinks: SocialLink[] = ${formatTsArray(socialLinks)}\n\n`
 
-  // Generate TOS content section
-  if (tosContent) {
-    content += `export const initialTOSContent = \`${escapeBackticks(tosContent)}\`\n\n`
-  }
+  // Generate TOS content section with proper escaping
+  content += `export const initialTOSContent = \`${escapeBackticks(tosContent)}\`\n\n`
 
   // Generate site configuration section (contains gradient titles, small titles, etc.)
-  if (siteConfig) {
-    content += `export const initialSiteConfig: SiteConfig = ${formatTsObject(siteConfig)}\n\n`
-  }
+  content += `export const initialSiteConfig: SiteConfig = ${formatTsObject(siteConfig)}\n\n`
+
+  // Generate payment info section
+  content += `export const initialPaymentInfo: PaymentInfo = ${formatTsObject(paymentInfo)}\n\n`
+
+  // Generate initial language and theme settings
+  content += `export const initialLanguage = "${language}"\n\n`
+  content += `export const initialTheme = "${theme}"\n\n`
 
   // Add dataVersion at the end
   content += `// Track data version for sync and migration\nexport const dataVersion = ${dataVersion}`

@@ -1,4 +1,4 @@
-import { Product, FAQArticle, SocialLink, SiteConfig } from './types'
+import { Product, FAQArticle, SocialLink, SiteConfig, PaymentInfo } from './types'
 
 export const initialProducts: Product[] = [
   {
@@ -313,6 +313,19 @@ export const initialSiteConfig: SiteConfig = {
     "whatsapp": "https://wa.me/84123456789"
   }
 }
+
+export const initialPaymentInfo: PaymentInfo = {
+  bankName: 'Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam',
+  accountNumber: 'MS00T09331707449347',
+  accountName: 'SHINE SHOP',
+  qrTemplate: 'compact',
+  wiseEmail: 'payment@shineshop.org',
+  paypalEmail: 'paypal@shineshop.org'
+}
+
+export const initialLanguage = 'vi'
+
+export const initialTheme = 'light'
 
 // Track data version for sync and migration
 export const dataVersion = 2
