@@ -171,6 +171,31 @@ export default function TwoFactorAuthPage() {
 		}
 	}, [secret, generateTOTP, isValidBase32])
 	
+	// Calculate next TOTP code (for 5s preview)
+	const getNextTOTPCode = useCallback(() => {
+		if (secret && isValidBase32(secret)) {
+			try {
+				// Create TOTP object with standard parameters but with future time
+				const futureTime = Math.floor(Date.now() / 1000) + 30
+				const totp = new OTPAuth.TOTP({
+					issuer: 'ShineShop',
+					label: 'TOTP',
+					algorithm: 'SHA1',
+					digits: 6,
+					period: 30,
+					secret: OTPAuth.Secret.fromBase32(secret)
+				})
+				
+				// Generate future token
+				return totp.generate({ timestamp: futureTime * 1000 })
+			} catch (error) {
+				console.error('Error generating next TOTP:', error)
+				return ''
+			}
+		}
+		return ''
+	}, [secret, isValidBase32])
+	
 	// Update countdown timer
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -234,26 +259,19 @@ export default function TwoFactorAuthPage() {
 						<p className="text-xs text-muted-foreground">
 							{t('secretKeyDescription')}
 						</p>
-						<p className="text-xs text-muted-foreground mt-1">
-							Valid format: Base32 characters (A-Z, 2-7) without spaces or special characters.
-						</p>
 					</div>
 					
 					{secret && totpCode && (
 						<div className="space-y-4">
 							<div 
-								className="text-center p-8 bg-secondary rounded-lg cursor-pointer"
+								className="text-center p-8 bg-secondary rounded-lg cursor-pointer flex flex-col items-center justify-center"
 								onClick={handleCopy}
 								title={t('copy')}
 							>
-								<p className="text-sm text-muted-foreground mb-2">{t('totpCode')}</p>
-								<div className="text-5xl font-mono font-bold tracking-wider">
+								<div className="text-5xl font-mono font-bold tracking-wider jshine-gradient">
 									{totpCode.slice(0, 3)} {totpCode.slice(3)}
 								</div>
-								<div className="mt-4 flex items-center justify-center gap-4">
-									<div className="text-sm text-muted-foreground">
-										{t('expiresIn')}: <span className="font-semibold">{timeRemaining}{t('seconds')}</span>
-									</div>
+								<div className="mt-4 flex items-center justify-center">
 									<Button
 										size="sm"
 										variant={copied ? 'default' : 'outline'}
@@ -278,19 +296,26 @@ export default function TwoFactorAuthPage() {
 							<div className="relative">
 								<div className="h-2 bg-secondary rounded-full overflow-hidden">
 									<div
-										className="h-full bg-primary transition-all duration-1000 ease-linear"
+										className={`h-full transition-all duration-1000 ease-linear ${
+											timeRemaining <= 5 
+												? 'bg-red-500' 
+												: timeRemaining <= 10 
+													? 'bg-yellow-500' 
+													: 'bg-primary'
+										}`}
 										style={{ width: `${(timeRemaining / 30) * 100}%` }}
 									/>
 								</div>
+								{timeRemaining <= 5 && (
+									<div className="text-center mt-2">
+										<span className="text-xs text-muted-foreground opacity-60 font-mono">
+											{getNextTOTPCode().slice(0, 3)} {getNextTOTPCode().slice(3)}
+										</span>
+									</div>
+								)}
 							</div>
 						</div>
 					)}
-					
-					<div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
-						<p className="text-sm text-amber-800 dark:text-amber-200">
-							<strong>{t('securityNote')}:</strong> {t('securityNoteText')}
-						</p>
-					</div>
 				</CardContent>
 			</Card>
 		</div>
