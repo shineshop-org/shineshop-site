@@ -37,22 +37,29 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			return product.price;
 		}
 		
-		// Tìm giá dựa trên tùy chọn được chọn
+		// Find price based on selected options
 		for (const option of product.options) {
-			// Tìm giá trị được chọn cho tùy chọn này
-			const selectedValue = selectedOptions[option.id]
-			if (!selectedValue) continue
+			// Find selected value for this option
+			const selectedValue = selectedOptions[option.id];
+			if (!selectedValue) continue;
 			
-			// Tìm thông tin tùy chọn
-			const optionValue = option.values.find(val => val.value === selectedValue)
+			// Extract valueIndex from the format "optionId-valueIndex"
+			const valueParts = selectedValue.split('-');
+			if (valueParts.length !== 2) continue;
+			
+			const valueIndex = parseInt(valueParts[1], 10);
+			if (isNaN(valueIndex) || valueIndex < 0 || valueIndex >= option.values.length) continue;
+			
+			// Get the option value at the index
+			const optionValue = option.values[valueIndex];
 			if (optionValue) {
 				// Require strict localized price - no fallback
 				if (!optionValue.localizedPrice) {
-					console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
-					continue
+					console.warn(`Missing localized price for option ${option.name}, value index ${valueIndex}`);
+					continue;
 				}
 				
-				const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
+				const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi;
 				return currentPrice;
 			}
 		}
@@ -109,11 +116,20 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				const activeOption = productData.options.find(opt => opt.id === savedOptions.activeOptionId);
 				if (activeOption) {
 					const activeValue = savedOptions.selectedOptions[activeOption.id];
-					const optionValue = activeOption.values.find(val => val.value === activeValue);
-					if (optionValue && optionValue.localizedPrice) {
-						const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi;
-						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
-						return;
+					if (activeValue) {
+						// Extract valueIndex from the format "optionId-valueIndex"
+						const valueParts = activeValue.split('-');
+						if (valueParts.length === 2) {
+							const valueIndex = parseInt(valueParts[1], 10);
+							if (!isNaN(valueIndex) && valueIndex >= 0 && valueIndex < activeOption.values.length) {
+								const optionValue = activeOption.values[valueIndex];
+								if (optionValue && optionValue.localizedPrice) {
+									const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi;
+									setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
+									return;
+								}
+							}
+						}
 					}
 				}
 			} else {
@@ -126,7 +142,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				// Select the first value for each option
 				productData.options.forEach(option => {
 					if (option.values.length > 0) {
-						initialOptions[option.id] = option.values[0].value;
+						initialOptions[option.id] = `${option.id}-0`;
 					}
 				});
 				
@@ -145,7 +161,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					const currentPrice = language === 'en' ? firstOptionFirstValue.localizedPrice.en : firstOptionFirstValue.localizedPrice.vi;
 					initialPrice = currentPrice;
 				} else {
-					console.warn(`Missing localized price for option ${productData.options[0].name}, value ${firstOptionFirstValue.value}`);
+					console.warn(`Missing localized price for first option value of ${productData.options[0].name}`);
 				}
 			}
 			
@@ -279,36 +295,32 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	}
 	
 	// Handle option selection
-	const handleOptionChange = (optionId: string, value: string) => {
+	const handleOptionChange = (optionId: string, valueIndex: number) => {
+		// Find the actual option value object
+		const selectedOption = product.options?.find(opt => opt.id === optionId);
+		if (!selectedOption || valueIndex >= selectedOption.values.length) return;
+		
+		const optionValue = selectedOption.values[valueIndex];
+		
+		// Create a unique identifier for this option value
+		const valueKey = `${optionId}-${valueIndex}`;
+		
 		const newSelectedOptions = {
 			...selectedOptions,
-			[optionId]: value
-		}
+			[optionId]: valueKey
+		};
 		
-		setSelectedOptions(newSelectedOptions)
+		setSelectedOptions(newSelectedOptions);
 		
 		// Update price display immediately
-		const option = product.options?.find(opt => opt.id === optionId)
-		if (option) {
-			// For localized products, we need to find the value by the actual stored value, not the display value
-			const optionValue = option.values.find(val => val.value === value)
-			if (optionValue) {
-				// Require strict localized price - no fallback
-				if (optionValue.localizedPrice) {
-					const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
-					setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
-					
-					// Save the updated options
-					saveOptionsToLocalStorage(product.id, newSelectedOptions, activeOptionId);
-					return;
-				} else {
-					console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
-				}
-			}
+		if (optionValue.localizedPrice) {
+			const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi;
+			setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
+		} else {
+			setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'));
 		}
 		
-		setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'))
-		// Save the updated options even if no price update
+		// Save the updated options
 		saveOptionsToLocalStorage(product.id, newSelectedOptions, activeOptionId);
 	}
 	
@@ -322,14 +334,14 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			option.values.map(value => {
 				// Require strict localized price - no fallback
 				if (!value.localizedPrice) {
-					console.warn(`Missing localized price for option ${option.name}, value ${value.value}`)
-					return null
+					console.warn(`Missing localized price for an option value`);
+					return null;
 				}
 				
-				const currentPrice = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi
+				const currentPrice = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi;
 				return currentPrice;
 			})
-		).filter(price => price !== null) as number[]
+		).filter(price => price !== null) as number[];
 		
 		if (optionValues.length === 0) {
 			return product.price;
@@ -365,9 +377,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	// Get the localized option value
 	const getOptionValue = (value: NonNullable<Product['options']>[0]['values'][0]) => {
 		if (product.isLocalized && value.localizedValue) {
-			return value.localizedValue[language as 'en' | 'vi'] || value.value
+			return value.localizedValue[language as 'en' | 'vi'] || ''
 		}
-		return value.value
+		return value.value || ''
 	}
 	
 	// Get note label based on language
@@ -492,15 +504,15 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 							<div key={option.id} className="space-y-1">
 								<div className="flex flex-wrap gap-2">
 									{option.values.map((value, valueIndex) => {
-										// Tạo id duy nhất cho mỗi option value
-										const uniqueId = `${option.id}-${valueIndex}`
-										const inputName = `package-type-${option.id}`
+										// Create unique id for each option value
+										const uniqueId = `${option.id}-${valueIndex}`;
+										const inputName = `package-type-${option.id}`;
 										
 										return (
 											<label
 												key={uniqueId}
 												className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary ${
-													selectedOptions[option.id] === value.value 
+													selectedOptions[option.id] === uniqueId 
 														? 'bg-primary text-primary-foreground border-primary' 
 														: 'bg-background border-input hover:bg-accent/50'
 												}`}
@@ -508,9 +520,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 												<input
 													type="radio"
 													name={inputName}
-													value={value.value}
-													checked={selectedOptions[option.id] === value.value}
-													onChange={() => handleOptionChange(option.id, value.value)}
+													value={uniqueId}
+													checked={selectedOptions[option.id] === uniqueId}
+													onChange={() => handleOptionChange(option.id, valueIndex)}
 													className="sr-only"
 													readOnly={false}
 												/>
@@ -521,16 +533,19 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 								</div>
 								{selectedOptions[option.id] && (
 									<div>
-										{option.values.map((value) => (
-											value.value === selectedOptions[option.id] && value.description && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-2">
-													<span className="inline-flex items-center justify-center bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
-														{getNoteLabel()}
-													</span> 
-													{value.description}
-												</p>
-											)
-										))}
+										{option.values.map((value, valueIndex) => {
+											const uniqueId = `${option.id}-${valueIndex}`;
+											return (
+												selectedOptions[option.id] === uniqueId && value.description && (
+													<p key={uniqueId} className="text-sm text-muted-foreground mt-2">
+														<span className="inline-flex items-center justify-center bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
+															{getNoteLabel()}
+														</span> 
+														{value.description}
+													</p>
+												)
+											);
+										})}
 									</div>
 								)}
 							</div>
@@ -622,34 +637,20 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 									<Link
 										key={article.id}
 										href={`/faq/${article.slug}`}
-										className="block p-3 rounded-md hover:bg-accent dark:hover:bg-primary/20 transition-all duration-200"
+										className="text-sm text-muted-foreground/50 hover:text-primary"
 									>
-										<h4 className="font-medium line-clamp-2">{article.title}</h4>
-										<p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-											{article.content.substring(0, 100)}...
-										</p>
-										<div className="flex items-center mt-2 text-sm text-muted-foreground">
-											<ExternalLink className="mr-1 h-3 w-3" />
-											Read More
-										</div>
+										{article.title}
 									</Link>
 								))
 							) : (
-								<p className="text-muted-foreground/50 italic text-center py-4">
-									No related articles available
+								<p className="text-muted-foreground/50 italic">
+									No related articles found
 								</p>
 							)}
 						</CardContent>
 					</Card>
 				</div>
 			</div>
-			
-			{/* Custom CSS Animation */}
-			<style jsx global>{`
-				.jshine-gradient {
-					color: #0ea5e9; /* JShine color (sky blue) instead of gradient */
-				}
-			`}</style>
 		</div>
 	)
-} 
+}

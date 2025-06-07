@@ -419,8 +419,8 @@ export default function AdminDashboard() {
 			localizedName: option.localizedName || { en: option.name, vi: option.name },
 			values: option.values.map(value => ({
 				...value,
-				localizedValue: value.localizedValue || { en: value.value, vi: value.value },
-				localizedPrice: value.localizedPrice || { en: value.price, vi: value.price }
+				localizedValue: value.localizedValue || { en: '', vi: '' },
+				localizedPrice: value.localizedPrice || { en: 0, vi: 0 }
 			}))
 		}))
 		
@@ -474,9 +474,7 @@ export default function AdminDashboard() {
 					localizedName: { en: '', vi: '' },
 					type: 'select',
 					values: [{ 
-						value: '', 
 						localizedValue: { en: '', vi: '' },
-						price: 0, 
 						localizedPrice: { en: 0, vi: 0 },
 						description: '' 
 					}]
@@ -540,9 +538,7 @@ export default function AdminDashboard() {
 		const newValueIndex = updatedOptions[optionIndex].values.length
 		
 		updatedOptions[optionIndex].values.push({ 
-			value: '', 
 			localizedValue: { en: '', vi: '' },
-			price: 0, 
 			localizedPrice: { en: 0, vi: 0 },
 			description: '' 
 		})
@@ -611,10 +607,10 @@ export default function AdminDashboard() {
 				...updatedOptions[optionIndex].values[valueIndex],
 				localizedPrice: value as { en: number; vi: number }
 			}
-		} else {
+		} else if (property === 'description') {
 			updatedOptions[optionIndex].values[valueIndex] = {
 				...updatedOptions[optionIndex].values[valueIndex],
-				[property]: property === 'price' ? Number(value) : value
+				description: value as string
 			}
 		}
 		
