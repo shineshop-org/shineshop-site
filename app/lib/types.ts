@@ -22,6 +22,7 @@ export interface Product {
 	slug: string
 	sortOrder: number
 	isLocalized?: boolean
+	tags?: string[]
 }
 
 export interface ProductOption {

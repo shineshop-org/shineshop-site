@@ -88,7 +88,8 @@ export const initialProducts: Product[] = [
     ],
     "relatedArticles": [],
     "sortOrder": 1,
-    "isLocalized": true
+    "isLocalized": true,
+    "tags": ["Subscription", "Entertainment"]
   },
   {
     "id": "1749268374071",
@@ -151,7 +152,8 @@ export const initialProducts: Product[] = [
     ],
     "relatedArticles": [],
     "sortOrder": 2,
-    "isLocalized": true
+    "isLocalized": true,
+    "tags": ["AI", "GPT"]
   }
 ]
 

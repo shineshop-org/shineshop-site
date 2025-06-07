@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/ta
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/app/components/ui/dialog'
-import { Product, FAQArticle, SocialLink, Language } from '@/app/lib/types'
+import { Product, FAQArticle, SocialLink, Language, ProductOption } from '@/app/lib/types'
 import { generateSlug } from '@/app/lib/utils'
 import { ADMIN_ACCESS_COOKIE } from '@/app/lib/auth'
 import { Badge } from '@/app/components/ui/badge'
@@ -331,9 +331,10 @@ export default function AdminDashboard() {
 		category: '',
 		localizedCategory: { en: '', vi: '' },
 		slug: '',
-		options: [] as NonNullable<Product['options']>,
+		options: [] as ProductOption[],
 		relatedArticles: [] as string[],
-		isLocalized: true  // Always true
+		isLocalized: true,
+		tags: [] as string[]
 	})
 	
 	useEffect(() => {
@@ -429,7 +430,8 @@ export default function AdminDashboard() {
 			slug: product.slug || '',
 			options: processedOptions,
 			relatedArticles: product.relatedArticles || [],
-			isLocalized: true  // Always true
+			isLocalized: true,
+			tags: product.tags || []
 		})
 		setSelectedArticles(product.relatedArticles || [])
 		setProductDialog(true)
@@ -641,7 +643,8 @@ export default function AdminDashboard() {
 			options: productForm.options,
 			relatedArticles: selectedArticles,
 			sortOrder: editingProduct?.sortOrder || products.length + 1,
-			isLocalized: true
+			isLocalized: true,
+			tags: productForm.tags || []
 		}
 		
 		if (editingProduct) {
@@ -666,7 +669,8 @@ export default function AdminDashboard() {
 			slug: '',
 			options: [],
 			relatedArticles: [],
-			isLocalized: true
+			isLocalized: true,
+			tags: []
 		})
 		setSelectedArticles([])
 		setProductDialog(false)
@@ -881,7 +885,8 @@ export default function AdminDashboard() {
 				slug: debouncedProductForm.slug,
 				options: debouncedProductForm.options,
 				relatedArticles: debouncedSelectedArticles,
-				isLocalized: true
+				isLocalized: true,
+				tags: debouncedProductForm.tags || []
 			}
 			
 			updateProduct(editingProduct.id, productData)
@@ -1161,6 +1166,20 @@ export default function AdminDashboard() {
 																+{product.options.length - 2} {t('moreOptions')}
 															</Badge>
 														)}
+														{product.tags && product.tags.length > 0 && (
+															<div className="flex flex-wrap gap-1 mt-1">
+																{product.tags.slice(0, 2).map(tag => (
+																	<Badge key={tag} variant="secondary" className="text-xs">
+																		{tag}
+																	</Badge>
+																))}
+																{product.tags.length > 2 && (
+																	<Badge variant="secondary" className="text-xs">
+																		+{product.tags.length - 2}
+																	</Badge>
+																)}
+															</div>
+														)}
 													</div>
 												</CardHeader>
 												<CardContent className="p-4 pt-0">
@@ -1362,6 +1381,19 @@ export default function AdminDashboard() {
 													}
 												}}
 												placeholder={language === 'en' ? "Category in English" : "Danh mục bằng tiếng Việt"}
+											/>
+										</div>
+										
+										<div className="space-y-2">
+											<label>{t('tags')} <span className="text-xs text-muted-foreground">(comma separated, optional)</span></label>
+											<Input 
+												value={productForm.tags.join(', ')}
+												onChange={(e) => setProductForm({
+													...productForm, 
+													tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+												})}
+												placeholder="tag1, tag2, tag3"
+												className="w-full"
 											/>
 										</div>
 										

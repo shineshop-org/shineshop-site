@@ -354,11 +354,25 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				
 				{/* Product Info */}
 				<div ref={productInfoRef} className="space-y-4 flex flex-col py-3">
-					<div className="space-y-1">
+					<div className="w-full mb-4">
 						<h1 className="text-3xl font-bold">{getProductName()}</h1>
 						<p className="text-3xl font-semibold jshine-gradient">
 							{priceDisplay || formatPrice(getSelectedPrice(), language === 'vi' ? 'vi-VN' : 'en-US')}
 						</p>
+						{product.category && (
+							<span className="inline-block mt-2 text-sm px-3 py-1 bg-secondary/50 rounded-full">
+								{language === 'en' ? product.localizedCategory?.en : product.localizedCategory?.vi || product.category}
+							</span>
+						)}
+						{product.tags && product.tags.length > 0 && (
+							<div className="flex flex-wrap gap-1 mt-2">
+								{product.tags.map(tag => (
+									<span key={tag} className="text-sm px-3 py-1 bg-secondary/30 rounded-full">
+										{tag}
+									</span>
+								))}
+							</div>
+						)}
 					</div>
 					
 					{/* Options - Always show main option even if it's the only one */}
