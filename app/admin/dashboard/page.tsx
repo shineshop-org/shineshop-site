@@ -249,34 +249,41 @@ export default function AdminDashboard() {
 		setAdminAuthenticated,
 		products,
 		addProduct,
-		updateProduct,
-		deleteProduct,
-		tosContent,
-		setTosContent,
 		faqArticles,
 		addFaqArticle,
-		updateFaqArticle,
 		deleteFaqArticle,
 		setFaqArticles,
 		socialLinks,
 		setSocialLinks,
+		updateProduct,
+		updateFaqArticle,
 		updateSocialLink,
+		deleteProduct,
+		tosContent,
+		setTosContent,
+		siteConfig,
+		setSiteConfig,
 		language,
 		setLanguage,
-		siteConfig,
-		setSiteConfig
 	} = useStore()
+	
 	const { t } = useTranslation()
+	
+	const [isLoading, setIsLoading] = useState(true)
+	const [isPushing, setIsPushing] = useState(false)
+	const [isPublishing, setIsPublishing] = useState(false)
 	const [activeTab, setActiveTab] = useState<TabType>('products')
 	const [productTab, setProductTab] = useState<ProductTabType>('details')
+	
+	// Kiểm tra môi trường
+	const isDevelopment = process.env.NODE_ENV === 'development'
+	
 	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 	const [productDialog, setProductDialog] = useState(false)
-	const [isLoading, setIsLoading] = useState(true)
 	const [tosForm, setTosForm] = useState(tosContent || '')
 	const [selectedArticles, setSelectedArticles] = useState<string[]>([])
 	const [sortableProducts, setSortableProducts] = useState<Product[]>([])
 	const [isSaving, setIsSaving] = useState(false)
-	const [isPushing, setIsPushing] = useState(false)
 	const [faqDialog, setFaqDialog] = useState(false)
 	const [editingFaq, setEditingFaq] = useState<FAQArticle | null>(null)
 	const [faqForm, setFaqForm] = useState({
@@ -292,9 +299,6 @@ export default function AdminDashboard() {
 	
 	// Added state object to track price input string values
 	const [priceInputValues, setPriceInputValues] = useState<Record<string, string>>({})
-	
-	// Kiểm tra môi trường
-	const isDevelopment = process.env.NODE_ENV === 'development'
 	
 	// Setup sensors for drag and drop
 	const sensors = useSensors(
@@ -936,6 +940,58 @@ export default function AdminDashboard() {
 	useEffect(() => {
 		setEditingSiteConfig(siteConfig)
 	}, [siteConfig])
+	
+	// Handle publishing to production by updating static data file
+	const handlePublishToProduction = async () => {
+		if (!confirm('This will update the static data file (initial-data.ts) used during production builds. Continue?')) {
+			return
+		}
+		
+		setIsPublishing(true)
+		
+		try {
+			// Step 1: Update the static data file
+			const updateResponse = await fetch('/api/dev/update-file', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				}
+			})
+			
+			if (!updateResponse.ok) {
+				const errorData = await updateResponse.json()
+				throw new Error(errorData.error || 'Failed to update static data file')
+			}
+			
+			// Step 2: Push changes to GitHub
+			const pushResponse = await fetch('/api/dev/git-push', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					commands: [
+						'git add -A',
+						'git commit -m "feat: update static data file for production"',
+						'git push origin main'
+					]
+				}),
+			})
+			
+			const pushData = await pushResponse.json()
+			
+			if (pushResponse.ok) {
+				alert('Successfully published to production! The static data file has been updated and changes pushed to GitHub. Cloudflare will auto-deploy in a few minutes.')
+			} else {
+				throw new Error(pushData.error || 'Failed to push changes to GitHub')
+			}
+		} catch (error) {
+			console.error('Error publishing to production:', error)
+			alert(`Error publishing to production: ${(error as Error).message}`)
+		} finally {
+			setIsPublishing(false)
+		}
+	}
 	
 	// Nếu đang loading, hiển thị thông báo
 	if (isLoading) {
@@ -1861,6 +1917,40 @@ export default function AdminDashboard() {
 					{activeTab === 'data' && (
 						<div className="space-y-6">
 							<h2 className="text-xl font-semibold">Quản lý dữ liệu</h2>
+							<Card className="mb-6">
+								<CardHeader>
+									<CardTitle>Đồng bộ dữ liệu Production</CardTitle>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									<p className="text-sm text-muted-foreground">
+										Cập nhật tệp dữ liệu tĩnh (initial-data.ts) được sử dụng khi build production. Điều này đảm bảo các thay đổi trong Admin Dashboard 
+										cũng được áp dụng cho phiên bản production khi deploy.
+									</p>
+									
+									<Button 
+										onClick={handlePublishToProduction}
+										disabled={isPublishing}
+										className="w-full"
+										size="lg"
+										variant="default"
+									>
+										<Database className="mr-2 h-5 w-5" />
+										{isPublishing ? 'Đang xuất bản...' : 'Xuất bản lên Production'}
+									</Button>
+									
+									<div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
+										<p className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">
+											ℹ️ Điều này làm gì:
+										</p>
+										<ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-disc list-inside">
+											<li>Cập nhật tệp dữ liệu tĩnh với dữ liệu hiện tại</li>
+											<li>Đẩy thay đổi lên GitHub để trigger deploy</li>
+											<li>Đảm bảo trang web hiển thị đúng dữ liệu trong production</li>
+										</ul>
+									</div>
+								</CardContent>
+							</Card>
+							
 							<Card>
 								<CardHeader>
 									<CardTitle>Đẩy code lên GitHub</CardTitle>

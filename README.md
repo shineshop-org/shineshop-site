@@ -164,4 +164,32 @@ This project is licensed under the MIT License.
 
 ## Support
 
-For support, email support@shineshop.org or visit our FAQ section. 
+For support, email support@shineshop.org or visit our FAQ section.
+
+## Admin Dashboard
+
+The admin dashboard is available at `/admin/dashboard` and allows you to:
+
+- Manage products
+- Manage FAQ articles
+- Manage social links
+- Edit Terms of Service
+- Configure site settings
+
+### Publishing Changes to Production
+
+When you make changes in the admin dashboard, they are saved to the dynamic data source (`data/store-data.json`). To make these changes available in the production environment, you need to:
+
+1. Go to the "Data Management" tab in the admin dashboard
+2. Click the "Publish to Production" button
+
+This will:
+- Update the static data file (`app/lib/initial-data.ts`) with the current data
+- Commit the changes to GitHub
+- Trigger a deployment on Cloudflare
+
+This ensures that your changes are reflected in both development and production environments.
+
+## Development
+
+// ... existing code ... 
