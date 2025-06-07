@@ -66,8 +66,6 @@ const nextConfig = {
 		return `build-${Date.now()}`
 	},
 	
-	// Disable build cache
-	minify: true, // Use minify instead of swcMinify
 	webpack: (config, { dev, isServer }) => {
 		// Disable webpack caching in production
 		if (!dev) {
