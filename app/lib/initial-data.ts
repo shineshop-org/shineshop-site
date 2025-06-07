@@ -15,7 +15,6 @@ export const initialProducts: Product[] = [
       "vi": "Nâng cấp Youtube Premium chính chủ."
     },
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png?updatedAt=1749032381807",
-    "category": "Subscription",
     "localizedCategory": {
       "en": "Entertainment",
       "vi": "Giải trí"
@@ -28,51 +27,43 @@ export const initialProducts: Product[] = [
         "type": "select",
         "values": [
           {
-            "value": "1 tháng",
-            "price": 30000,
+            "localizedValue": {
+              "en": "1 month",
+              "vi": "1 tháng"
+            },
             "localizedPrice": {
               "en": 3.5,
               "vi": 40000
             },
-            "description": "",
-            "localizedValue": {
-              "en": "1 month",
-              "vi": "1 tháng"
-            }
+            "description": ""
           },
           {
-            "value": "3 tháng",
-            "price": 30000,
+            "localizedValue": {
+              "en": "3 months",
+              "vi": "3 tháng"
+            },
             "localizedPrice": {
               "en": 8.99,
               "vi": 100000
             },
-            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
-            "localizedValue": {
-              "en": "3 months",
-              "vi": "3 tháng"
-            }
+            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
           },
           {
-            "value": "6 tháng",
-            "price": 195000,
+            "localizedValue": {
+              "en": "6 months",
+              "vi": "6 tháng"
+            },
             "localizedPrice": {
               "en": 16.99,
               "vi": 195000
             },
-            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
-            "localizedValue": {
-              "en": "6 months",
-              "vi": "6 tháng"
-            }
+            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
           },
           {
-            "value": "12 tháng",
             "localizedValue": {
               "en": "12 months",
               "vi": "12 tháng"
             },
-            "price": 345000,
             "localizedPrice": {
               "en": 29.99,
               "vi": 345000
@@ -105,7 +96,6 @@ export const initialProducts: Product[] = [
       "vi": "ChatGPT Plus Nâng cấp Chính chủ"
     },
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/openAI.png?updatedAt=1749225595506",
-    "category": "",
     "localizedCategory": {
       "en": "AI",
       "vi": "AI"
@@ -122,12 +112,10 @@ export const initialProducts: Product[] = [
         "type": "select",
         "values": [
           {
-            "value": "",
             "localizedValue": {
               "en": "Shared Account",
               "vi": "Tài khoản dùng chung"
             },
-            "price": 0,
             "localizedPrice": {
               "en": 5.99,
               "vi": 150000
@@ -135,12 +123,10 @@ export const initialProducts: Product[] = [
             "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
           },
           {
-            "value": "",
             "localizedValue": {
               "en": "Private Upgrade",
               "vi": "Nâng cấp chính chủ"
             },
-            "price": 0,
             "localizedPrice": {
               "en": 15,
               "vi": 380000

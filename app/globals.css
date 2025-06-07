@@ -123,7 +123,25 @@
 
 /* JShine gradient with improved seamless animation */
 .jshine-gradient {
-	color: #0ea5e9; /* JShine color (sky blue) */
+	background: linear-gradient(
+		to right, 
+		#0ea5e9, /* sky blue */
+		#6366f1, /* indigo */
+		#8b5cf6, /* violet */
+		#ec4899, /* pink */
+		#0ea5e9  /* back to sky blue for seamless loop */
+	);
+	background-size: 200% auto;
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	animation: shine 6s linear infinite;
+}
+
+@keyframes shine {
+	to {
+		background-position: 200% center;
+	}
 }
 
 /* Page transition animations */

@@ -36,12 +36,12 @@ export interface ProductOption {
 }
 
 export interface OptionValue {
-	value: string
+	value?: string
 	localizedValue?: {
 		en: string
 		vi: string
 	}
-	price: number
+	price?: number
 	localizedPrice?: {
 		en: number
 		vi: number
