@@ -1,5 +1,6 @@
 // Service worker to clear cache
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
+const IMAGE_DOMAINS = ['ik.imagekit.io', 'images.unsplash.com', 'img.vietqr.io'];
 
 // On install - clear all old caches
 self.addEventListener('install', function(event) {
@@ -29,11 +30,21 @@ self.addEventListener('activate', function(event) {
   );
 });
 
-// Force network-first strategy for all requests
+// Only intercept same-origin requests, skip image domains
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    fetch(event.request).catch(function() {
-      return caches.match(event.request);
-    })
-  );
+  const url = new URL(event.request.url);
+  
+  // Skip handling external image domains
+  if (IMAGE_DOMAINS.some(domain => url.hostname.includes(domain))) {
+    return; // Let the browser handle image requests normally
+  }
+  
+  // Only handle same-origin requests
+  if (url.origin === self.location.origin) {
+    event.respondWith(
+      fetch(event.request).catch(function() {
+        return caches.match(event.request);
+      })
+    );
+  }
 }); 

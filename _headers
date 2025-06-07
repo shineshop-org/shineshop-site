@@ -8,4 +8,8 @@
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: no-referrer
   Clear-Site-Data: "cache", "cookies", "storage"
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
+  Content-Security-Policy: default-src 'self'; img-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io data:; connect-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io; script-src 'self' 'unsafe-inline';
 */ 
