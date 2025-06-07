@@ -3,8 +3,10 @@ import { notFound } from 'next/navigation'
 
 // This is required for static export
 export function generateStaticParams() {
-  // Return an empty array since we'll handle the catch-all route in the component
-  return []
+  // Return at least one fallback path for static export
+  return [
+    { slug: ['fallback'] }
+  ]
 }
 
 export default function TwoFASlugPage({ params }: { params: { slug: string[] } }) {
