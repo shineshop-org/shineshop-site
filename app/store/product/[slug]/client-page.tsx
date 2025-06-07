@@ -33,7 +33,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	// Get current selected price based on options
 	const getSelectedPrice = () => {
 		if (!product.options || product.options.length === 0 || Object.keys(selectedOptions).length === 0) {
-			return typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
+			return product.price;
 		}
 		
 		// Tìm giá dựa trên tùy chọn được chọn
@@ -52,14 +52,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				}
 				
 				const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
-				
-				if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
-					return currentPrice
-				}
+				return currentPrice;
 			}
 		}
 		
-		return typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
+		return product.price;
 	}
 	
 	// Initialize options for a product
@@ -80,16 +77,13 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			setSelectedOptions(initialOptions)
 			
 			// Calculate initial price
-			let initialPrice = typeof productData.price === 'number' && !isNaN(productData.price) ? productData.price : 0;
+			let initialPrice = productData.price;
 			if (productData.options[0] && productData.options[0].values.length > 0) {
 				const firstOptionFirstValue = productData.options[0].values[0]
 				// Require strict localized price - no fallback
 				if (firstOptionFirstValue.localizedPrice) {
 					const currentPrice = language === 'en' ? firstOptionFirstValue.localizedPrice.en : firstOptionFirstValue.localizedPrice.vi
-					
-					if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
-						initialPrice = currentPrice
-					}
+					initialPrice = currentPrice;
 				} else {
 					console.warn(`Missing localized price for option ${productData.options[0].name}, value ${firstOptionFirstValue.value}`)
 				}
@@ -98,8 +92,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			setPriceDisplay(formatPrice(initialPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
 		} else {
 			// No options, use base price
-			const safePrice = typeof productData.price === 'number' && !isNaN(productData.price) ? productData.price : 0;
-			setPriceDisplay(formatPrice(safePrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+			setPriceDisplay(formatPrice(productData.price, language === 'vi' ? 'vi-VN' : 'en-US'))
 		}
 	}
 	
@@ -191,11 +184,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					// Require strict localized price - no fallback
 					if (optionValue.localizedPrice) {
 						const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
-						
-						if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
-							setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
-							return;
-						}
+						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+						return;
 					} else {
 						console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
 					}
@@ -203,9 +193,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			}
 		}
 		
-		// Fallback to base price if no valid price was found
-		const safePrice = typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
-		setPriceDisplay(formatPrice(safePrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+		setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'))
 	}
 	
 	// Handle option selection
@@ -226,26 +214,21 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				// Require strict localized price - no fallback
 				if (optionValue.localizedPrice) {
 					const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
-					
-					if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
-						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
-						return;
-					}
+					setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+					return;
 				} else {
 					console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
 				}
 			}
 		}
 		
-		// Fallback to base price if no valid price was found
-		const safePrice = typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
-		setPriceDisplay(formatPrice(safePrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+		setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'))
 	}
 	
 	// Extract the lowest price from product options
 	const getLowestPrice = () => {
 		if (!product.options || product.options.length === 0) {
-			return typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
+			return product.price;
 		}
 		
 		const optionValues = product.options.flatMap(option => 
@@ -257,17 +240,15 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				}
 				
 				const currentPrice = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi
-				return typeof currentPrice === 'number' && !isNaN(currentPrice) && isFinite(currentPrice) ? currentPrice : null
+				return currentPrice;
 			})
 		).filter(price => price !== null) as number[]
 		
-		// Nếu không có giá trị nào hợp lệ, trả về 0
 		if (optionValues.length === 0) {
-			return 0;
+			return product.price;
 		}
 		
-		const lowestPrice = Math.min(...optionValues)
-		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : 0
+		return Math.min(...optionValues);
 	}
 	
 	// Get the product name based on language and localization settings
@@ -403,20 +384,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 										<span>{getOptionName(option)}</span>
 									</label>
 								))}
-								{/* Fallback if no options */}
-								{(!product.options || product.options.length === 0) && (
-									<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
-										<input
-											type="radio"
-											name="option-name"
-											value="default"
-											checked={true}
-											readOnly
-											className="sr-only"
-										/>
-										<span>Thời hạn</span>
-									</label>
-								)}
 							</div>
 						</div>
 						
@@ -473,31 +440,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 								)}
 							</div>
 						))}
-						
-						{/* If there are no options, create a single option for display consistency */}
-						{(!product.options || product.options.length === 0) && (
-							<div className="space-y-1">
-								<div className="flex flex-wrap gap-2">
-									<label className="cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all bg-primary text-primary-foreground border-primary">
-										<input
-											type="radio"
-											name="default-option"
-											value="default"
-											checked={true}
-											readOnly
-											className="sr-only"
-										/>
-										<span>Thời hạn</span>
-									</label>
-								</div>
-								<p className="text-sm text-muted-foreground mt-4">
-									<span className="inline-block bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
-										{getNoteLabel()}
-									</span> 
-									40000 cho tháng đầu tiên và sau đó là 35000 nếu bạn gia hạn đúng thời điểm hoặc trước đó.
-								</p>
-							</div>
-						)}
 					</div>
 					
 					{/* Order Buttons - Push to bottom with flex-grow */}
