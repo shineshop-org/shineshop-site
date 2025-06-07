@@ -617,28 +617,20 @@ export default function AdminDashboard() {
 	
 	// Function to handle saving product
 	const handleSaveProduct = () => {
-		// Strict validation - require both slug and name
+		// Only require slug field
 		if (!productForm.slug) {
 			alert('Please enter URL Slug to create/save product')
-			return
-		}
-		
-		if (!productForm.name) {
-			alert('Please enter product name to create/save product')
-			return
-		}
-
-		// Validate that localized names are properly filled
-		if (!productForm.localizedName.en || !productForm.localizedName.vi) {
-			alert('Please provide product name in both English and Vietnamese')
 			return
 		}
 		
 		// Create or update product
 		const productData: Product = {
 			id: editingProduct?.id || Date.now().toString(),
-			name: productForm.name,
-			localizedName: productForm.localizedName,
+			name: productForm.name || productForm.slug, // Default to slug if name is empty
+			localizedName: {
+				en: productForm.localizedName.en || productForm.slug,
+				vi: productForm.localizedName.vi || productForm.slug
+			},
 			price: 0,
 			description: productForm.description,
 			localizedDescription: productForm.localizedDescription,
@@ -1255,7 +1247,9 @@ export default function AdminDashboard() {
 											<div>
 												<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
 												<DialogDescription id="product-dialog-description">
-													{editingProduct ? t('editProductDescription') : t('addProductDescription')}
+													{editingProduct 
+														? t('editProductDescription')
+														: "Only the URL slug is required. All other fields are optional. When URL slug is provided, the product page will be created automatically."}
 												</DialogDescription>
 											</div>
 										</div>
@@ -1285,7 +1279,7 @@ export default function AdminDashboard() {
 											</div>
 										</div>
 										<div className="space-y-2">
-											<label>{t('name')}</label>
+											<label>{t('name')} <span className="text-xs text-muted-foreground">(optional)</span></label>
 											<Input 
 												value={language === 'en' ? productForm.localizedName.en : productForm.localizedName.vi} 
 												onChange={(e) => {
@@ -1313,19 +1307,23 @@ export default function AdminDashboard() {
 										
 										{/* Custom URL Slug */}
 										<div className="space-y-2">
-											<label>URL Slug <span className="text-xs text-muted-foreground">(/product/...)</span></label>
+											<label>URL Slug <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(/product/...)</span></label>
 											<Input 
 												value={productForm.slug} 
 												onChange={(e) => setProductForm({...productForm, slug: e.target.value})}
 												placeholder="custom-product-url"
+												required
 											/>
 											<p className="text-xs text-muted-foreground">
 												{t('fullURL')}: {typeof window !== 'undefined' ? window.location.origin : ''}/store/product/{productForm.slug}
 											</p>
+											<p className="text-xs text-blue-500 font-medium">
+												This is the only required field. All other fields are optional.
+											</p>
 										</div>
 										
 										<div className="space-y-2">
-											<label>{t('imageURL')}</label>
+											<label>{t('imageURL')} <span className="text-xs text-muted-foreground">(optional)</span></label>
 											<Input 
 												value={productForm.image} 
 												onChange={(e) => setProductForm({...productForm, image: e.target.value})}
@@ -1341,7 +1339,7 @@ export default function AdminDashboard() {
 											)}
 										</div>
 										<div className="space-y-2">
-											<label>{t('category')}</label>
+											<label>{t('category')} <span className="text-xs text-muted-foreground">(optional)</span></label>
 											<Input 
 												value={language === 'en' ? productForm.localizedCategory.en : productForm.localizedCategory.vi} 
 												onChange={(e) => {
@@ -1370,7 +1368,7 @@ export default function AdminDashboard() {
 										{/* Product Options - Nested Options */}
 										<div className="space-y-4 border-t pt-4">
 											<div className="flex justify-between items-center">
-												<h3 className="text-lg font-semibold">{t('productOptions')}</h3>
+												<h3 className="text-lg font-semibold">{t('productOptions')} <span className="text-xs text-muted-foreground">(optional)</span></h3>
 												<Button 
 													size="sm" 
 													variant="outline" 
@@ -1529,7 +1527,7 @@ export default function AdminDashboard() {
 										
 										{/* Description - Markdown */}
 										<div className="space-y-2 border-t pt-4">
-											<label>{t('description')} <span className="text-xs text-muted-foreground">(Markdown)</span></label>
+											<label>{t('description')} <span className="text-xs text-muted-foreground">(Markdown, optional)</span></label>
 											<textarea 
 												className="w-full p-2 border rounded-md min-h-[200px]"
 												value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
@@ -1552,15 +1550,12 @@ export default function AdminDashboard() {
 														})
 													}
 												}}
-												placeholder={language === 'en' 
-													? "Product description in English (Markdown format)..." 
-													: "Mô tả sản phẩm bằng tiếng Việt (định dạng Markdown)..."}
 											/>
 										</div>
 										
 										{/* Related Articles */}
 										<div className="space-y-4 border-t pt-4">
-											<h3 className="text-lg font-semibold">{t('relatedArticles')}</h3>
+											<h3 className="text-lg font-semibold">{t('relatedArticles')} <span className="text-xs text-muted-foreground">(optional)</span></h3>
 											
 											<div className="relative">
 												<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
