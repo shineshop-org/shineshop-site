@@ -9,10 +9,12 @@ const nextConfig = {
 	
 	// Make sure we have a longer fetch timeout for RSC payloads
 	experimental: {
-		serverComponentsExternalPackages: [],
 		fetchCacheKeyPrefix: `v1-${Date.now()}`,
 		optimizePackageImports: ['react', 'react-dom', 'lucide-react'],
 	},
+	
+	// External packages that should be handled by server components
+	serverExternalPackages: [],
 	
 	distDir: '.next',
 	images: {

@@ -11,7 +11,7 @@
     "export": "npm run deploy",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "npm run build && npx @cloudflare/next-on-pages --experimental-minify --experimental-tree-shake"
+    "deploy": "npm run build && npx @cloudflare/next-on-pages --experimental-minify"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
