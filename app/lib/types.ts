@@ -12,6 +12,7 @@ export interface Product {
 		vi: string
 	}
 	image: string
+	category?: string
 	localizedCategory?: {
 		en: string
 		vi: string

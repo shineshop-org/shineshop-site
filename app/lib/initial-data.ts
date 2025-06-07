@@ -154,6 +154,76 @@ export const initialProducts: Product[] = [
     "sortOrder": 2,
     "isLocalized": true,
     "tags": []
+  },
+  {
+    "id": "1749309085391",
+    "name": "canva-pro",
+    "localizedName": {
+      "en": "Canva Pro",
+      "vi": "Canva Pro"
+    },
+    "price": 0,
+    "description": "",
+    "localizedDescription": {
+      "en": "",
+      "vi": ""
+    },
+    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/canva.png?updatedAt=1749227851164",
+    "localizedCategory": {
+      "en": "Design",
+      "vi": "Thiết kế"
+    },
+    "slug": "canva-pro",
+    "options": [
+      {
+        "id": "1749308925118",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Thời gian"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "1 months",
+              "vi": "1 tháng"
+            },
+            "localizedPrice": {
+              "en": 0.99,
+              "vi": 10000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "1 year",
+              "vi": "1 năm"
+            },
+            "localizedPrice": {
+              "en": 4.99,
+              "vi": 65000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "LIFE TIME",
+              "vi": "Vĩnh viễn"
+            },
+            "localizedPrice": {
+              "en": 20,
+              "vi": 295000
+            },
+            "description": "Bảo hành 5 năm - tính từ ngày mua hàng"
+          }
+        ]
+      }
+    ],
+    "relatedArticles": [],
+    "sortOrder": 3,
+    "isLocalized": true,
+    "tags": []
   }
 ]
 
@@ -323,7 +393,7 @@ export const initialPaymentInfo: PaymentInfo = {
   "paypalEmail": "paypal@shineshop.org"
 }
 
-export const initialLanguage = "vi"
+export const initialLanguage = "en"
 
 export const initialTheme = "dark"
 
