@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Tag } from 'lucide-react'
@@ -70,13 +70,33 @@ export default function StorePage() {
 		}
 	}, [])
 	
-	// Get unique categories
-	const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))]
+	// Get unique categories with localized values
+	const categories = useMemo(() => {
+		// Start with 'all' category
+		const uniqueCategories = ['all'];
+		
+		// Get localized categories based on current language
+		products.forEach(product => {
+			const localizedCat = product.localizedCategory?.[language as 'en' | 'vi'] || '';
+			if (localizedCat && !uniqueCategories.includes(localizedCat)) {
+				uniqueCategories.push(localizedCat);
+			}
+		});
+		
+		return uniqueCategories;
+	}, [products, language]);
 	
-	// Filter products by category
-	const filteredProducts = selectedCategory === 'all' 
-		? products 
-		: products.filter(p => p.category === selectedCategory)
+	// Filter products by localized category
+	const filteredProducts = useMemo(() => {
+		if (selectedCategory === 'all') {
+			return products;
+		}
+		
+		return products.filter(product => {
+			const localizedCat = product.localizedCategory?.[language as 'en' | 'vi'] || '';
+			return localizedCat === selectedCategory;
+		});
+	}, [products, selectedCategory, language]);
 	
 	// Sort products by sortOrder
 	const sortedProducts = [...filteredProducts].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -172,6 +192,10 @@ interface ProductCardProps {
 			vi: string
 		}
 		category?: string
+		localizedCategory?: {
+			en: string
+			vi: string
+		}
 		tags?: string[]
 	}
 	language: string
