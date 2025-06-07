@@ -33,7 +33,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	// Get current selected price based on options
 	const getSelectedPrice = () => {
 		if (!product.options || product.options.length === 0 || Object.keys(selectedOptions).length === 0) {
-			return product.price
+			return typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
 		}
 		
 		// Tìm giá dựa trên tùy chọn được chọn
@@ -59,7 +59,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			}
 		}
 		
-		return product.price
+		return typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
 	}
 	
 	// Initialize options for a product
@@ -80,7 +80,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			setSelectedOptions(initialOptions)
 			
 			// Calculate initial price
-			let initialPrice = productData.price
+			let initialPrice = typeof productData.price === 'number' && !isNaN(productData.price) ? productData.price : 0;
 			if (productData.options[0] && productData.options[0].values.length > 0) {
 				const firstOptionFirstValue = productData.options[0].values[0]
 				// Require strict localized price - no fallback
@@ -98,7 +98,8 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			setPriceDisplay(formatPrice(initialPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
 		} else {
 			// No options, use base price
-			setPriceDisplay(formatPrice(productData.price, language === 'vi' ? 'vi-VN' : 'en-US'))
+			const safePrice = typeof productData.price === 'number' && !isNaN(productData.price) ? productData.price : 0;
+			setPriceDisplay(formatPrice(safePrice, language === 'vi' ? 'vi-VN' : 'en-US'))
 		}
 	}
 	
@@ -193,6 +194,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						
 						if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
 							setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+							return;
 						}
 					} else {
 						console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
@@ -200,6 +202,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				}
 			}
 		}
+		
+		// Fallback to base price if no valid price was found
+		const safePrice = typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
+		setPriceDisplay(formatPrice(safePrice, language === 'vi' ? 'vi-VN' : 'en-US'))
 	}
 	
 	// Handle option selection
@@ -223,18 +229,23 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					
 					if (typeof currentPrice === 'number' && !isNaN(currentPrice)) {
 						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+						return;
 					}
 				} else {
 					console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
 				}
 			}
 		}
+		
+		// Fallback to base price if no valid price was found
+		const safePrice = typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
+		setPriceDisplay(formatPrice(safePrice, language === 'vi' ? 'vi-VN' : 'en-US'))
 	}
 	
 	// Extract the lowest price from product options
 	const getLowestPrice = () => {
 		if (!product.options || product.options.length === 0) {
-			return product.price
+			return typeof product.price === 'number' && !isNaN(product.price) ? product.price : 0;
 		}
 		
 		const optionValues = product.options.flatMap(option => 
@@ -250,11 +261,13 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			})
 		).filter(price => price !== null) as number[]
 		
-		const lowestPrice = optionValues.length > 0 
-			? Math.min(...optionValues)
-			: product.price
-			
-		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : product.price
+		// Nếu không có giá trị nào hợp lệ, trả về 0
+		if (optionValues.length === 0) {
+			return 0;
+		}
+		
+		const lowestPrice = Math.min(...optionValues)
+		return !isNaN(lowestPrice) && isFinite(lowestPrice) ? lowestPrice : 0
 	}
 	
 	// Get the product name based on language and localization settings
