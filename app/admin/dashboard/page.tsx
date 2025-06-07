@@ -31,7 +31,6 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { DataBackupRestore } from './components/DataBackupRestore'
 
 // Add the jshine-gradient CSS class as in the product page
 const jshineGradientClassName = "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
@@ -105,27 +104,9 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 				<div className="flex-1">
 					<p className="font-medium">{product.name}</p>
 					<div className="flex flex-wrap gap-1 mt-1">
-						{product.options && product.options.length > 0 ? (
-							product.options.slice(0, 3).map((option) => (
-								<Badge key={option.id} variant="secondary" className="text-xs">
-									{option.values && option.values.length > 0 
-										? `${getOptionName(option)}: ${option.values[0] ? getOptionValue(option.values[0]) : ''}`
-										: getOptionName(option)
-									}
-								</Badge>
-							))
-						) : (
-							<p className="text-xs text-muted-foreground">
-								{product.localizedCategory 
-									? (language === 'en' ? product.localizedCategory.en : product.localizedCategory.vi) 
-									: ''}
-							</p>
-						)}
-						{product.options && product.options.length > 3 && (
-							<Badge variant="outline" className="text-xs">
-								+{product.options.length - 3}
-							</Badge>
-						)}
+						{product.localizedCategory 
+							? (language === 'en' ? product.localizedCategory.en : product.localizedCategory.vi) 
+							: ''}
 					</div>
 				</div>
 			</div>
@@ -213,10 +194,12 @@ function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
 				type="button"
 				variant="ghost"
 				size="sm"
-				className="h-8 w-8 p-0"
-				onClick={() => onInsert('[link](url)')}
+				className="h-8 w-8 p-0 relative"
+				onClick={() => onInsert('[link text](https://example.com)')}
+				title="Insert Obsidian-style link: [text](url)"
 			>
 				<Link className="h-4 w-4" />
+				<span className="absolute bottom-0 right-0 text-[8px] font-bold text-primary">Ob</span>
 			</Button>
 			<Button
 				type="button"
@@ -312,13 +295,23 @@ export default function AdminDashboard() {
 	const [isSaving, setIsSaving] = useState(false)
 	const [faqDialog, setFaqDialog] = useState(false)
 	const [editingFaq, setEditingFaq] = useState<FAQArticle | null>(null)
-	const [faqForm, setFaqForm] = useState({
+	const [faqForm, setFaqForm] = useState<{
+		id: string;
+		title: string;
+		slug: string;
+		content: string;
+		category: string;
+		tags: string[];
+	}>({
+		id: '',
 		title: '',
+		slug: '',
 		content: '',
-		category: 'general',
-		tags: [] as string[]
+		category: '',
+		tags: []
 	})
 	const [showMarkdownPreview, setShowMarkdownPreview] = useState(false)
+	const [showProductDescriptionPreview, setShowProductDescriptionPreview] = useState(false)
 	const [articleSearchQuery, setArticleSearchQuery] = useState('')
 	const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false)
 	const [productToDelete, setProductToDelete] = useState<Product | null>(null)
@@ -971,7 +964,9 @@ export default function AdminDashboard() {
 	
 	// Handle publishing to production by updating static data file
 	const handlePublishToProduction = async () => {
-		if (!confirm('This will update the static data file (initial-data.ts) used during production builds. Continue?')) {
+		if (!confirm(language === 'en' 
+			? 'This will update all code to GitHub and Cloudflare will auto-deploy. Continue?' 
+			: 'Thao tác này sẽ cập nhật toàn bộ code lên GitHub và Cloudflare sẽ tự động deploy. Tiếp tục?')) {
 			return
 		}
 		
@@ -1009,13 +1004,17 @@ export default function AdminDashboard() {
 			const pushData = await pushResponse.json()
 			
 			if (pushResponse.ok) {
-				alert('Successfully published to production! The static data file has been updated and changes pushed to GitHub. Cloudflare will auto-deploy in a few minutes.')
+				alert(language === 'en' 
+					? 'Successfully published to GitHub! Cloudflare will auto-deploy in a few minutes.' 
+					: 'Đã xuất bản thành công lên GitHub! Cloudflare sẽ tự động deploy trong vài phút.')
 			} else {
 				throw new Error(pushData.error || 'Failed to push changes to GitHub')
 			}
 		} catch (error) {
 			console.error('Error publishing to production:', error)
-			alert(`Error publishing to production: ${(error as Error).message}`)
+			alert(language === 'en' 
+				? `Error publishing: ${(error as Error).message}` 
+				: `Lỗi khi xuất bản: ${(error as Error).message}`)
 		} finally {
 			setIsPublishing(false)
 		}
@@ -1105,7 +1104,7 @@ export default function AdminDashboard() {
 						onClick={() => setActiveTab('faq')}
 					>
 						<HelpCircle className="mr-2 h-4 w-4" />
-						FAQ
+						{language === 'en' ? 'FAQ' : 'Câu hỏi thường gặp'}
 					</Button>
 					<Button 
 						variant={activeTab === 'social' ? 'default' : 'ghost'} 
@@ -1113,7 +1112,7 @@ export default function AdminDashboard() {
 						onClick={() => setActiveTab('social')}
 					>
 						<Share2 className="mr-2 h-4 w-4" />
-						Social Links
+						{language === 'en' ? 'Social Links' : 'Liên kết mạng xã hội'}
 					</Button>
 					<Button 
 						variant={activeTab === 'tos' ? 'default' : 'ghost'} 
@@ -1129,7 +1128,7 @@ export default function AdminDashboard() {
 						onClick={() => setActiveTab('data')}
 					>
 						<Database className="mr-2 h-4 w-4" />
-						Quản lý dữ liệu
+						{language === 'en' ? 'Data Management' : 'Quản lý dữ liệu'}
 					</Button>
 					<Button 
 						variant={activeTab === 'settings' ? 'default' : 'ghost'} 
@@ -1137,7 +1136,7 @@ export default function AdminDashboard() {
 						onClick={() => setActiveTab('settings')}
 					>
 						<Settings className="mr-2 h-4 w-4" />
-						Cài đặt chung
+						{language === 'en' ? 'General Settings' : 'Cài đặt chung'}
 					</Button>
 				</div>
 				
@@ -1185,32 +1184,20 @@ export default function AdminDashboard() {
 												</div>
 												<CardHeader className="p-4">
 													<CardTitle className="text-lg">{product.name}</CardTitle>
-													<div className="flex flex-wrap gap-1 mt-1">
-														{product.options?.slice(0, 2).map((option) => (
-															<Badge key={option.id} variant="outline" className="text-xs">
-																{option.name}: {option.values.length}
-															</Badge>
-														))}
-														{product.options && product.options.length > 2 && (
-															<Badge variant="outline" className="text-xs">
-																+{product.options.length - 2} {t('moreOptions')}
-															</Badge>
-														)}
-														{product.tags && product.tags.length > 0 && (
-															<div className="flex flex-wrap gap-1 mt-1">
-																{product.tags.slice(0, 2).map(tag => (
-																	<Badge key={tag} variant="secondary" className="text-xs">
-																		{tag}
-																	</Badge>
-																))}
-																{product.tags.length > 2 && (
-																	<Badge variant="secondary" className="text-xs">
-																		+{product.tags.length - 2}
-																	</Badge>
-																)}
-															</div>
-														)}
-													</div>
+													{product.tags && product.tags.length > 0 && (
+														<div className="flex flex-wrap gap-1 mt-1">
+															{product.tags.slice(0, 2).map(tag => (
+																<Badge key={tag} variant="secondary" className="text-xs">
+																	{tag}
+																</Badge>
+															))}
+															{product.tags.length > 2 && (
+																<Badge variant="secondary" className="text-xs">
+																	+{product.tags.length - 2}
+																</Badge>
+															)}
+														</div>
+													)}
 												</CardHeader>
 												<CardContent className="p-4 pt-0">
 													<div className="flex space-x-2">
@@ -1589,30 +1576,105 @@ export default function AdminDashboard() {
 										
 										{/* Description - Markdown */}
 										<div className="space-y-2 border-t pt-4">
-											<label>{t('description')} <span className="text-xs text-muted-foreground">(Markdown, optional)</span></label>
-											<textarea 
-												className="w-full p-2 border rounded-md min-h-[200px]"
-												value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
-												onChange={(e) => {
-													if (language === 'en') {
-														setProductForm({
-															...productForm, 
-															localizedDescription: {
-																...productForm.localizedDescription,
-																en: e.target.value
+											<div className="flex items-center justify-between mb-2">
+												<label>{t('description')} <span className="text-xs text-muted-foreground">(Markdown, optional)</span></label>
+												<Button
+													type="button"
+													variant="ghost"
+													size="sm"
+													onClick={() => setShowProductDescriptionPreview(!showProductDescriptionPreview)}
+												>
+													{showProductDescriptionPreview ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+													{showProductDescriptionPreview ? 'Hide Preview' : 'Show Preview'}
+												</Button>
+											</div>
+											
+											<div className={`grid ${showProductDescriptionPreview ? 'grid-cols-2 gap-4' : 'grid-cols-1'} min-h-[200px]`}>
+												<div className="border rounded-md overflow-hidden flex flex-col">
+													<MarkdownToolbar 
+														onInsert={(text) => {
+															const textarea = document.getElementById('product-description') as HTMLTextAreaElement
+															if (textarea) {
+																const start = textarea.selectionStart
+																const end = textarea.selectionEnd
+																const currentValue = language === 'en' 
+																	? productForm.localizedDescription.en 
+																	: productForm.localizedDescription.vi
+																const newValue = currentValue.substring(0, start) + text + currentValue.substring(end)
+																
+																if (language === 'en') {
+																	setProductForm({
+																		...productForm, 
+																		localizedDescription: {
+																			...productForm.localizedDescription,
+																			en: newValue
+																		}
+																	})
+																} else {
+																	setProductForm({
+																		...productForm, 
+																		localizedDescription: {
+																			...productForm.localizedDescription,
+																			vi: newValue
+																		}
+																	})
+																}
+																
+																// Restore cursor position
+																setTimeout(() => {
+																	textarea.focus()
+																	textarea.setSelectionRange(start + text.length, start + text.length)
+																}, 0)
 															}
-														})
-													} else {
-														setProductForm({
-															...productForm, 
-															localizedDescription: {
-																...productForm.localizedDescription,
-																vi: e.target.value
+														}}
+													/>
+													<textarea 
+														id="product-description"
+														className="w-full p-2 border-0 rounded-none min-h-[200px] flex-1 font-mono text-sm"
+														value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
+														onChange={(e) => {
+															if (language === 'en') {
+																setProductForm({
+																	...productForm, 
+																	localizedDescription: {
+																		...productForm.localizedDescription,
+																		en: e.target.value
+																	}
+																})
+															} else {
+																setProductForm({
+																	...productForm, 
+																	localizedDescription: {
+																		...productForm.localizedDescription,
+																		vi: e.target.value
+																	}
+																})
 															}
-														})
-													}
-												}}
-											/>
+														}}
+													/>
+												</div>
+												
+												{showProductDescriptionPreview && (
+													<div className="border rounded-md p-4 overflow-y-auto bg-muted/10">
+														<div 
+															className="prose prose-sm dark:prose-invert max-w-none"
+															dangerouslySetInnerHTML={{
+																__html: (language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi)
+																	.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
+																	.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-semibold mt-6 mb-3">$1</h2>')
+																	.replace(/^### (.*?)$/gm, '<h3 class="text-xl font-medium mt-5 mb-2">$1</h3>')
+																	.replace(/^#### (.*?)$/gm, '<h4 class="text-lg font-medium mt-4 mb-2">$1</h4>')
+																	.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+																	.replace(/\*(.*?)\*/g, '<em>$1</em>')
+																	.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="jshine-gradient">$1</a>')
+																	.replace(/^- (.*?)$/gm, '<li class="ml-4">$1</li>')
+																	.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-md my-4" />')
+																	.replace(/\n/g, '<br>')
+															}}
+														/>
+													</div>
+												)}
+											</div>
 										</div>
 										
 										{/* Related Articles */}
@@ -1667,60 +1729,37 @@ export default function AdminDashboard() {
 					{activeTab === 'faq' && (
 						<div className="space-y-6">
 							<div className="flex justify-between items-center">
-								<h2 className="text-xl font-semibold">FAQ Management</h2>
+								<h2 className="text-xl font-semibold">{language === 'en' ? 'FAQ Management' : 'Quản lý FAQ'}</h2>
 								<Button 
 									onClick={() => {
-										const newArticle: FAQArticle = {
-											id: Date.now().toString(),
-											title: 'New FAQ Article',
-											content: '# New FAQ Article\n\nWrite your content here...',
-											category: 'general',
-											slug: 'new-faq-' + Date.now(),
-											createdAt: new Date(),
-											updatedAt: new Date(),
-											tags: []
-										}
-										addFaqArticle(newArticle)
-										setEditingFaq(newArticle)
 										setFaqForm({
-											title: newArticle.title,
-											content: newArticle.content,
-											category: newArticle.category,
-											tags: newArticle.tags
+											id: '',
+											title: '',
+											slug: '',
+											content: '',
+											category: '',
+											tags: []
 										})
 										setFaqDialog(true)
 									}}
 								>
 									<Plus className="mr-2 h-4 w-4" />
-									Add FAQ
+									{language === 'en' ? 'Add FAQ' : 'Thêm FAQ'}
 								</Button>
 							</div>
 							
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+							<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
 								{faqArticles.map((article) => (
-									<Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+									<Card key={article.id} className="overflow-hidden">
 										<CardHeader className="p-4">
 											<CardTitle className="text-lg">{article.title}</CardTitle>
-											<div className="flex flex-wrap gap-1 mt-2">
-												<Badge variant="secondary" className="text-xs">
+											<div className="flex flex-wrap gap-1 mt-1">
+												<Badge variant="secondary">
 													{article.category}
 												</Badge>
-												{article.tags.slice(0, 2).map(tag => (
-													<Badge key={tag} variant="outline" className="text-xs">
-														{tag}
-													</Badge>
-												))}
-												{article.tags.length > 2 && (
-													<Badge variant="outline" className="text-xs">
-														+{article.tags.length - 2}
-													</Badge>
-												)}
 											</div>
 										</CardHeader>
 										<CardContent className="p-4 pt-0">
-											<p className="text-sm mb-4 line-clamp-3 text-muted-foreground">
-												{article.content.replace(/[#*\[\]]/g, '').substring(0, 150)}...
-											</p>
 											<div className="flex space-x-2">
 												<Button 
 													variant="outline" 
@@ -1729,29 +1768,31 @@ export default function AdminDashboard() {
 													onClick={() => {
 														setEditingFaq(article)
 														setFaqForm({
+															id: article.id,
 															title: article.title,
-															content: article.content,
+															slug: article.slug,
 															category: article.category,
-															tags: article.tags
+															tags: article.tags || [],
+															content: article.content
 														})
 														setFaqDialog(true)
 													}}
 												>
 													<Edit className="mr-2 h-3 w-3" />
-													Edit
+													{language === 'en' ? 'Edit' : 'Chỉnh sửa'}
 												</Button>
 												<Button 
 													variant="outline" 
 													size="sm" 
 													className="flex-1 text-destructive hover:text-destructive"
 													onClick={() => {
-														if (confirm('Delete this FAQ?')) {
-															deleteFaqArticle(article.id)
+														if (confirm(language === 'en' ? 'Delete this FAQ?' : 'Xóa FAQ này?')) {
+															setFaqArticles(faqArticles.filter(a => a.id !== article.id))
 														}
 													}}
 												>
 													<Trash2 className="mr-2 h-3 w-3" />
-													Delete
+													{language === 'en' ? 'Delete' : 'Xóa'}
 												</Button>
 											</div>
 										</CardContent>
@@ -1769,59 +1810,69 @@ export default function AdminDashboard() {
 							}}>
 								<DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col" aria-describedby="faq-dialog-description">
 									<DialogHeader>
-										<DialogTitle>{editingFaq ? 'Edit FAQ Article' : 'Add FAQ Article'}</DialogTitle>
+										<DialogTitle>{editingFaq 
+											? (language === 'en' ? 'Edit FAQ Article' : 'Chỉnh sửa FAQ') 
+											: (language === 'en' ? 'Add FAQ Article' : 'Thêm FAQ mới')}
+										</DialogTitle>
 										<DialogDescription id="faq-dialog-description">
-											Write your FAQ content using Markdown formatting
+											{language === 'en' 
+												? 'Write your FAQ content using Markdown formatting' 
+												: 'Viết nội dung FAQ sử dụng định dạng Markdown'}
 										</DialogDescription>
 									</DialogHeader>
 									<div className="flex-1 overflow-hidden">
 										<div className="space-y-4 pb-4">
-											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-1">
 												<div className="space-y-2">
-													<label className="text-sm font-medium">Title</label>
+													<label className="text-sm font-medium">{language === 'en' ? 'Title' : 'Tiêu đề'}</label>
 													<Input 
 														value={faqForm.title}
 														onChange={(e) => setFaqForm({...faqForm, title: e.target.value})}
-														placeholder="FAQ title..."
+														placeholder={language === 'en' ? "FAQ title..." : "Tiêu đề FAQ..."}
 														className="w-full"
 													/>
 												</div>
 												<div className="space-y-2">
-													<label className="text-sm font-medium">Category</label>
+													<label className="text-sm font-medium">{language === 'en' ? 'Category' : 'Danh mục'}</label>
 													<Input 
 														value={faqForm.category}
 														onChange={(e) => setFaqForm({...faqForm, category: e.target.value})}
-														placeholder="e.g., general, technical, billing"
+														placeholder={language === 'en' ? "e.g., general, technical, billing" : "VD: chung, kỹ thuật, thanh toán"}
 														className="w-full"
 													/>
 												</div>
 											</div>
 											
-											<div className="space-y-2">
-												<label className="text-sm font-medium">Tags (comma separated)</label>
+											<div className="space-y-2 px-1">
+												<label className="text-sm font-medium">{language === 'en' ? 'Tags (comma separated)' : 'Thẻ (phân cách bằng dấu phẩy)'}</label>
 												<Input 
 													value={faqForm.tags.join(', ')}
 													onChange={(e) => setFaqForm({
 														...faqForm, 
 														tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
 													})}
-													placeholder="tag1, tag2, tag3"
+													placeholder={language === 'en' ? "tag1, tag2, tag3" : "thẻ1, thẻ2, thẻ3"}
 													className="w-full"
 												/>
 											</div>
 										</div>
 										
-										<div className="flex-1 overflow-hidden">
+										<div className="flex-1 overflow-hidden px-1">
 											<div className="flex items-center justify-between mb-2">
-												<label className="text-sm font-medium">Content</label>
+												<label className="text-sm font-medium">{language === 'en' ? 'Content' : 'Nội dung'}</label>
 												<Button
 													type="button"
 													variant="ghost"
 													size="sm"
 													onClick={() => setShowMarkdownPreview(!showMarkdownPreview)}
 												>
-													{showMarkdownPreview ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
-													{showMarkdownPreview ? 'Hide Preview' : 'Show Preview'}
+													{showMarkdownPreview 
+														? <EyeOff className="h-4 w-4 mr-1" /> 
+														: <Eye className="h-4 w-4 mr-1" />
+													}
+													{showMarkdownPreview 
+														? (language === 'en' ? 'Hide Preview' : 'Ẩn xem trước') 
+														: (language === 'en' ? 'Show Preview' : 'Xem trước')}
 												</Button>
 											</div>
 											
@@ -1850,7 +1901,9 @@ export default function AdminDashboard() {
 														className="flex-1 w-full p-3 resize-none font-mono text-sm"
 														value={faqForm.content}
 														onChange={(e) => setFaqForm({...faqForm, content: e.target.value})}
-														placeholder="Write your FAQ content in Markdown..."
+														placeholder={language === 'en' 
+															? "Write your FAQ content in Markdown..." 
+															: "Viết nội dung FAQ bằng Markdown..."}
 													/>
 												</div>
 												
@@ -1860,12 +1913,13 @@ export default function AdminDashboard() {
 															className="prose prose-sm dark:prose-invert max-w-none"
 															dangerouslySetInnerHTML={{
 																__html: faqForm.content
-																	.replace(/^# (.*?)$/gm, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
-																	.replace(/^## (.*?)$/gm, '<h2 class="text-xl font-semibold mb-3">$1</h2>')
-																	.replace(/^### (.*?)$/gm, '<h3 class="text-lg font-semibold mb-2">$1</h3>')
+																	.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
+																	.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-semibold mt-6 mb-3">$1</h2>')
+																	.replace(/^### (.*?)$/gm, '<h3 class="text-xl font-medium mt-5 mb-2">$1</h3>')
+																	.replace(/^#### (.*?)$/gm, '<h4 class="text-lg font-medium mt-4 mb-2">$1</h4>')
 																	.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 																	.replace(/\*(.*?)\*/g, '<em>$1</em>')
-																	.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary underline">$1</a>')
+																	.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="jshine-gradient">$1</a>')
 																	.replace(/^- (.*?)$/gm, '<li class="ml-4">$1</li>')
 																	.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-md my-4" />')
 																	.replace(/\n/g, '<br>')
@@ -1876,7 +1930,62 @@ export default function AdminDashboard() {
 											</div>
 										</div>
 									</div>
-									<DialogFooter className="mt-4"></DialogFooter>
+									<DialogFooter className="mt-4">
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => {
+												setFaqDialog(false)
+												setEditingFaq(null)
+												setShowMarkdownPreview(false)
+											}}
+										>
+											{language === 'en' ? 'Cancel' : 'Hủy'}
+										</Button>
+										<Button
+											type="button"
+											onClick={() => {
+												if (!faqForm.title || !faqForm.content) {
+													alert(language === 'en' ? 'Title and content are required!' : 'Tiêu đề và nội dung là bắt buộc!')
+													return
+												}
+												
+												const slug = faqForm.slug || generateSlug(faqForm.title)
+												
+												if (editingFaq) {
+													// Edit existing
+													setFaqArticles(faqArticles.map(a => 
+														a.id === editingFaq.id 
+															? { 
+																...faqForm, 
+																slug,
+																createdAt: editingFaq.createdAt,
+																updatedAt: new Date()
+															} 
+															: a
+													))
+												} else {
+													// Add new
+													setFaqArticles([
+														...faqArticles,
+														{ 
+															...faqForm, 
+															id: Date.now().toString(), 
+															slug,
+															createdAt: new Date(),
+															updatedAt: new Date()
+														}
+													])
+												}
+												
+												setFaqDialog(false)
+												setEditingFaq(null)
+												setShowMarkdownPreview(false)
+											}}
+										>
+											{language === 'en' ? 'Save' : 'Lưu'}
+										</Button>
+									</DialogFooter>
 								</DialogContent>
 							</Dialog>
 						</div>
@@ -1885,7 +1994,7 @@ export default function AdminDashboard() {
 					{activeTab === 'social' && (
 						<div className="space-y-6">
 							<div className="flex justify-between items-center">
-								<h2 className="text-xl font-semibold">Social Links Management</h2>
+								<h2 className="text-xl font-semibold">{language === 'en' ? 'Social Links Management' : 'Quản lý liên kết mạng xã hội'}</h2>
 								<Button 
 									onClick={() => {
 										const newLink: SocialLink = {
@@ -1898,7 +2007,7 @@ export default function AdminDashboard() {
 									}}
 								>
 									<Plus className="mr-2 h-4 w-4" />
-									Add Social Link
+									{language === 'en' ? 'Add Social Link' : 'Thêm liên kết'}
 								</Button>
 							</div>
 							
@@ -1918,27 +2027,27 @@ export default function AdminDashboard() {
 													size="sm" 
 													className="flex-1"
 													onClick={() => {
-														const newUrl = prompt('New URL:', link.url)
+														const newUrl = prompt(language === 'en' ? 'New URL:' : 'URL mới:', link.url)
 														if (newUrl) {
 															updateSocialLink(link.id, { url: newUrl })
 														}
 													}}
 												>
 													<Edit className="mr-2 h-3 w-3" />
-													Edit
+													{language === 'en' ? 'Edit' : 'Chỉnh sửa'}
 												</Button>
 												<Button 
 													variant="outline" 
 													size="sm" 
 													className="flex-1 text-destructive hover:text-destructive"
 													onClick={() => {
-														if (confirm('Delete this social link?')) {
+														if (confirm(language === 'en' ? 'Delete this social link?' : 'Xóa liên kết mạng xã hội này?')) {
 															setSocialLinks(socialLinks.filter(l => l.id !== link.id))
 														}
 													}}
 												>
 													<Trash2 className="mr-2 h-3 w-3" />
-													Delete
+													{language === 'en' ? 'Delete' : 'Xóa'}
 												</Button>
 											</div>
 										</CardContent>
@@ -1954,11 +2063,11 @@ export default function AdminDashboard() {
 							<div className="space-y-4">
 								<Card>
 									<CardHeader>
-										<CardTitle>{t('editTOS')}</CardTitle>
+										<CardTitle>{language === 'en' ? 'Edit Terms of Service' : 'Chỉnh sửa điều khoản dịch vụ'}</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">{t('tosContent')}</label>
+											<label className="text-sm font-medium">{language === 'en' ? 'Terms of Service Content' : 'Nội dung điều khoản dịch vụ'}</label>
 											<textarea 
 												className="w-full p-2 border rounded-md min-h-[400px]"
 												value={tosForm} 
@@ -1974,18 +2083,17 @@ export default function AdminDashboard() {
 					
 					{activeTab === 'data' && (
 						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">Quản lý dữ liệu</h2>
-							
-							<DataBackupRestore />
+							<h2 className="text-xl font-semibold">{language === 'en' ? 'Data Management' : 'Quản lý dữ liệu'}</h2>
 							
 							<Card className="mb-6">
 								<CardHeader>
-									<CardTitle>Đồng bộ dữ liệu Production</CardTitle>
+									<CardTitle>{language === 'en' ? 'Publish to Cloudflare' : 'Xuất bản lên Cloudflare'}</CardTitle>
 								</CardHeader>
 								<CardContent className="space-y-4">
 									<p className="text-sm text-muted-foreground">
-										Cập nhật tệp dữ liệu tĩnh (initial-data.ts) được sử dụng khi build production. Điều này đảm bảo các thay đổi trong Admin Dashboard 
-										cũng được áp dụng cho phiên bản production khi deploy.
+										{language === 'en' 
+											? 'Update all code to GitHub and Cloudflare will auto-deploy the changes.' 
+											: 'Cập nhật toàn bộ code lên GitHub và Cloudflare sẽ tự động deploy các thay đổi.'}
 									</p>
 									
 									<Button 
@@ -1995,53 +2103,11 @@ export default function AdminDashboard() {
 										size="lg"
 										variant="default"
 									>
-										<Database className="mr-2 h-5 w-5" />
-										{isPublishing ? 'Đang xuất bản...' : 'Xuất bản lên Production'}
-									</Button>
-									
-									<div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
-										<p className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">
-											ℹ️ Điều này làm gì:
-										</p>
-										<ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-disc list-inside">
-											<li>Cập nhật tệp dữ liệu tĩnh với dữ liệu hiện tại</li>
-											<li>Đẩy thay đổi lên GitHub để trigger deploy</li>
-											<li>Đảm bảo trang web hiển thị đúng dữ liệu trong production</li>
-										</ul>
-									</div>
-								</CardContent>
-							</Card>
-							
-							<Card>
-								<CardHeader>
-									<CardTitle>Đẩy code lên GitHub</CardTitle>
-								</CardHeader>
-								<CardContent className="space-y-4">
-									<p className="text-sm text-muted-foreground">
-										Khi bạn thay đổi bất kỳ nội dung nào trong Admin Dashboard, các thay đổi sẽ được lưu tự động. 
-										Nhấn nút bên dưới để đẩy toàn bộ code lên GitHub và Cloudflare sẽ tự động deploy trong vài phút.
-									</p>
-									
-									<Button 
-										onClick={handlePushToGitHub}
-										disabled={isPushing}
-										className="w-full"
-										size="lg"
-									>
 										<Upload className="mr-2 h-5 w-5" />
-										{isPushing ? 'Đang đẩy lên GitHub...' : 'Đẩy code lên GitHub'}
+										{isPublishing 
+											? (language === 'en' ? 'Publishing...' : 'Đang xuất bản...') 
+											: (language === 'en' ? 'Publish' : 'Xuất bản')}
 									</Button>
-									
-									<div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 p-4">
-										<p className="text-sm font-medium text-amber-900 dark:text-amber-200 mb-1">
-											⚠️ Lưu ý:
-										</p>
-										<ul className="text-sm text-amber-800 dark:text-amber-300 space-y-1 list-disc list-inside">
-											<li>Chỉ sử dụng tính năng này khi bạn đã hoàn thành các thay đổi</li>
-											<li>Sau khi push, Cloudflare sẽ tự động build và deploy trong 2-5 phút</li>
-											<li>Kiểm tra trạng thái deploy tại Cloudflare Dashboard</li>
-										</ul>
-									</div>
 								</CardContent>
 							</Card>
 						</div>
@@ -2049,7 +2115,7 @@ export default function AdminDashboard() {
 					
 					{activeTab === 'settings' && (
 						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">Cài đặt chung</h2>
+							<h2 className="text-xl font-semibold">{language === 'en' ? 'General Settings' : 'Cài đặt chung'}</h2>
 							
 							{showSavedNotification && (
 								<div className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 flex items-center text-green-700 dark:text-green-300">
@@ -2065,13 +2131,13 @@ export default function AdminDashboard() {
 											clipRule="evenodd" 
 										/>
 									</svg>
-									Đã lưu thay đổi!
+									{language === 'en' ? 'Changes saved!' : 'Đã lưu thay đổi!'}
 								</div>
 							)}
 							
 							<Card className="mb-6">
 								<CardHeader>
-									<CardTitle>Xem trước</CardTitle>
+									<CardTitle>{language === 'en' ? 'Preview' : 'Xem trước'}</CardTitle>
 								</CardHeader>
 								<CardContent>
 									<div className="flex flex-col items-center justify-center p-6 border rounded-lg bg-background">
@@ -2088,15 +2154,15 @@ export default function AdminDashboard() {
 							<div className="grid gap-4 md:grid-cols-2">
 								<Card>
 									<CardHeader>
-										<CardTitle>Tiêu đề gradient</CardTitle>
+										<CardTitle>{language === 'en' ? 'Gradient Title' : 'Tiêu đề gradient'}</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Tiêu đề chính trên trang chủ</label>
+											<label className="text-sm font-medium">{language === 'en' ? 'Main title on homepage' : 'Tiêu đề chính trên trang chủ'}</label>
 											<Input 
 												value={editingSiteConfig.heroTitle}
 												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroTitle: e.target.value})}
-												placeholder="Nhập tiêu đề..."
+												placeholder={language === 'en' ? 'Enter title...' : 'Nhập tiêu đề...'}
 											/>
 										</div>
 									</CardContent>
@@ -2104,15 +2170,15 @@ export default function AdminDashboard() {
 								
 								<Card>
 									<CardHeader>
-										<CardTitle>Tiêu đề nhỏ</CardTitle>
+										<CardTitle>{language === 'en' ? 'Subtitle' : 'Tiêu đề nhỏ'}</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<div className="space-y-2">
-											<label className="text-sm font-medium">Tiêu đề nhỏ hiển thị bên dưới</label>
+											<label className="text-sm font-medium">{language === 'en' ? 'Subtitle displayed below' : 'Tiêu đề nhỏ hiển thị bên dưới'}</label>
 											<Input 
 												value={editingSiteConfig.heroQuote}
 												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroQuote: e.target.value})}
-												placeholder="Nhập tiêu đề nhỏ..."
+												placeholder={language === 'en' ? 'Enter subtitle...' : 'Nhập tiêu đề nhỏ...'}
 											/>
 										</div>
 									</CardContent>

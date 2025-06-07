@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Shield, Copy, Check } from 'lucide-react'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app/components/ui/card'
@@ -18,19 +18,19 @@ export default function TwoFactorAuthPage() {
 	const initialLoadRef = useRef(true)
 	
 	// Format input to uppercase and remove spaces
-	const formatInput = (input: string) => {
+	const formatInput = useCallback((input: string) => {
 		return input.toUpperCase().replace(/\s+/g, '')
-	}
+	}, [])
 
 	// Validate if the secret is a valid Base32 string
-	const isValidBase32 = (input: string) => {
+	const isValidBase32 = useCallback((input: string) => {
 		// Base32 characters only include A-Z and 2-7
 		const base32Regex = /^[A-Z2-7]+$/
 		return base32Regex.test(input)
-	}
+	}, [])
 
 	// Generate TOTP code using standard RFC 6238 implementation
-	const generateTOTP = (secret: string) => {
+	const generateTOTP = useCallback((secret: string) => {
 		try {
 			if (!isValidBase32(secret)) {
 				setError('Invalid secret key format')
@@ -54,10 +54,10 @@ export default function TwoFactorAuthPage() {
 			setError('Error generating TOTP code')
 			return ''
 		}
-	}
+	}, [isValidBase32, setError])
 
 	// Extract secret from URL path or hash
-	const extractSecretFromUrl = () => {
+	const extractSecretFromUrl = useCallback(() => {
 		// Only run in browser
 		if (typeof window !== 'undefined') {
 			try {
@@ -106,7 +106,7 @@ export default function TwoFactorAuthPage() {
 			}
 		}
 		return ''
-	}
+	}, [formatInput, isValidBase32, setError])
 
 	// Set initial secret from URL path or hash if available
 	useEffect(() => {
@@ -123,7 +123,7 @@ export default function TwoFactorAuthPage() {
 				window.history.replaceState({ path: newUrl }, '', newUrl)
 			}
 		}
-	}, [])
+	}, [extractSecretFromUrl])
 	
 	// Update URL only when secret is manually changed
 	useEffect(() => {
@@ -169,7 +169,7 @@ export default function TwoFactorAuthPage() {
 		} else {
 			setTotpCode('')
 		}
-	}, [secret])
+	}, [secret, generateTOTP, isValidBase32])
 	
 	// Update countdown timer
 	useEffect(() => {

@@ -28,6 +28,17 @@ const nextConfig = {
 	trailingSlash: true,
 	skipTrailingSlashRedirect: true,
 	
+	// Add redirects configuration
+	async redirects() {
+		return [
+			{
+				source: '/sheet',
+				destination: 'https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit?gid=1592107766#gid=1592107766',
+				permanent: true,
+			},
+		]
+	},
+	
 	// Disable source maps in production to reduce build size
 	productionBrowserSourceMaps: false,
 	
@@ -55,16 +66,8 @@ const nextConfig = {
 		return `build-${Date.now()}`
 	},
 	
-	// Ensure all dependencies are included in the build
-	experimental: {
-		// Include data dependencies in the build
-		outputFileTracingIncludes: {
-			'/**': ['./app/lib/**/*']
-		}
-	},
-	
 	// Disable build cache
-	swcMinify: true, // Enable SWC minifier but without caching
+	minify: true, // Use minify instead of swcMinify
 	webpack: (config, { dev, isServer }) => {
 		// Disable webpack caching in production
 		if (!dev) {
@@ -74,4 +77,4 @@ const nextConfig = {
 	},
 }
 
-module.exports = nextConfig 
+export default nextConfig 

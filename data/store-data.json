@@ -163,7 +163,7 @@
       "category": "Shopping",
       "slug": "how-to-make-a-purchase",
       "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2025-06-07T05:30:54.966Z",
       "tags": [
         "purchase",
         "shopping",
@@ -475,7 +475,7 @@
       "icon": "youtube"
     }
   ],
-  "language": "en",
+  "language": "vi",
   "theme": "dark",
   "paymentInfo": {
     "bankName": "Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam",
@@ -486,8 +486,8 @@
     "paypalEmail": "paypal@shineshop.org"
   },
   "siteConfig": {
-    "heroTitle": "Welcome to Shine Shop",
-    "heroQuote": "Your trusted online shopping destination",
+    "heroTitle": "ádjbhashjdkhkjadsjhbads",
+    "heroQuote": "ádhjasjghjdhagsjahdsjhadsjahds",
     "contactLinks": {
       "facebook": "https://facebook.com/shineshop",
       "whatsapp": "https://wa.me/84123456789"

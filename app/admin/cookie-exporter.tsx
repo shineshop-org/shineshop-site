@@ -54,7 +54,7 @@ export function CookieExporter() {
           <AlertDescription className="text-yellow-700">
             Cookie đặc biệt này là bắt buộc để truy cập trang admin. Nếu không có cookie này, 
             trang admin sẽ hiển thị lỗi 404. Tải xuống tệp cookie và nhập vào trình duyệt của bạn 
-            hoặc sử dụng nút "Áp dụng cookie" để thiết lập cookie cho trình duyệt hiện tại.
+            hoặc sử dụng nút {'Áp dụng cookie'} để thiết lập cookie cho trình duyệt hiện tại.
           </AlertDescription>
         </Alert>
         
@@ -79,7 +79,7 @@ export function CookieExporter() {
               className="flex items-center justify-center gap-2"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? "Đã sao chép" : "Sao chép giá trị"}
+              {copied ? 'Đã sao chép' : 'Sao chép giá trị'}
             </Button>
             
             <Button 
@@ -88,7 +88,7 @@ export function CookieExporter() {
               className="flex items-center justify-center gap-2"
             >
               {cookieApplied ? <Check className="h-4 w-4" /> : null}
-              {cookieApplied ? "Đã áp dụng" : "Áp dụng cookie"}
+              {cookieApplied ? 'Đã áp dụng' : 'Áp dụng cookie'}
             </Button>
           </div>
         </div>
@@ -96,9 +96,9 @@ export function CookieExporter() {
         <div className="text-sm space-y-2 border-t pt-3">
           <h3 className="font-medium">Hướng dẫn import cookie vào trình duyệt:</h3>
           <ol className="list-decimal pl-5 space-y-1 text-gray-700">
-            <li>Tải xuống tệp cookie bằng cách nhấn "Tải tệp cookie"</li>
+            <li>Tải xuống tệp cookie bằng cách nhấn {'Tải tệp cookie'}</li>
             <li>Trong Chrome, mở DevTools (F12) &gt; Application &gt; Cookies</li>
-            <li>Trong Firefox, sử dụng tiện ích "Cookie Quick Manager"</li>
+            <li>Trong Firefox, sử dụng tiện ích {'Cookie Quick Manager'}</li>
             <li>Trong Edge, mở DevTools &gt; Application &gt; Cookies</li>
             <li>Import tệp cookie vào trình duyệt</li>
             <li>Làm mới trang để áp dụng cookie mới</li>

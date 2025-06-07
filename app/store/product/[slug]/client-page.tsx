@@ -12,6 +12,7 @@ import { useStore } from '@/app/lib/store'
 import { Product, FAQArticle } from '@/app/lib/types'
 import { useTranslation } from '@/app/hooks/use-translations'
 import ReactMarkdown from 'react-markdown'
+import { RenderWithJShineLinks, JShineLink } from '@/app/components/ui/jshine-link'
 
 interface ProductClientProps {
 	slug: string
@@ -526,12 +527,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 								{selectedOptions[option.id] && (
 									<div>
 										{option.values.map((value) => (
-											value.value === selectedOptions[option.id] && (
-												<p key={value.value} className="text-sm text-muted-foreground mt-2" style={{ minHeight: '80px' }}>
+											value.value === selectedOptions[option.id] && value.description && (
+												<p key={value.value} className="text-sm text-muted-foreground mt-2">
 													<span className="inline-flex items-center justify-center bg-primary/15 px-2 py-0.5 rounded-md text-xs font-semibold mr-1 text-primary border border-primary/20">
 														{getNoteLabel()}
 													</span> 
-													{value.description || '\u00A0'}
+													{value.description}
 												</p>
 											)
 										))}
@@ -542,7 +543,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 					</div>
 					
 					{/* Order Buttons - Push to bottom with flex-grow */}
-					<div className="flex flex-col space-y-3 mt-10">
+					<div className="flex flex-col space-y-3" style={{ marginTop: '64px !important', paddingTop: '12px' }}>
 						<div className="flex gap-4">
 							<Button
 								asChild
@@ -577,9 +578,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						{/* TOS agreement text */}
 						<p className="text-center text-sm text-foreground italic">
 							Khi bạn đã mua hàng đồng nghĩa rằng việc bạn hoàn toàn đồng ý và tuân thủ{' '}
-							<Link href="/tos" className="bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 bg-clip-text text-transparent hover:underline font-medium">
+							<JShineLink href="/tos">
 								Điều khoản và Điều kiện
-							</Link>
+							</JShineLink>
 							{' '}của chúng tôi
 						</p>
 					</div>
@@ -597,7 +598,11 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 						<CardContent className="pb-8">
 							{getProductDescription() ? (
 								<div className="prose dark:prose-invert prose-sm max-w-none">
-									<ReactMarkdown>
+									<ReactMarkdown
+										components={{
+											a: ({ href, children }) => <a href={href} className="jshine-gradient">{children}</a>
+										}}
+									>
 										{getProductDescription()}
 									</ReactMarkdown>
 								</div>
