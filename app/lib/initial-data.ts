@@ -583,3 +583,6 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 ---
 
 By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
+
+// Current data version used for migrations and updates
+export const dataVersion = 1;

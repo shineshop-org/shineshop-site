@@ -339,8 +339,34 @@ export const useStore = create<StoreState>()(
 							console.error('Failed to update localStorage with new version', error);
 						}
 					}
+					
+					// Only sync data with the server if needed, and add a way to prevent loops
+					// Avoid auto-sync when just loading the page to prevent infinite loops
+					let shouldSync = true;
+					
+					try {
+						const lastSyncTime = sessionStorage.getItem('last-data-sync-time');
+						const currentTime = Date.now();
+						
+						// Only sync if it's been more than 5 seconds since the last sync
+						// This prevents rapid sync loops while still allowing intentional data changes to sync
+						if (lastSyncTime && (currentTime - parseInt(lastSyncTime)) <= 5000) {
+							shouldSync = false;
+						} else {
+							sessionStorage.setItem('last-data-sync-time', currentTime.toString());
+						}
+					} catch (err) {
+						// Fallback if sessionStorage is not available (SSR or cookies disabled)
+						console.warn('SessionStorage not available, using limited sync prevention');
+						// Continue with sync, but at least we tried to throttle
+					}
+					
+					if (shouldSync) {
+						state.syncDataToServer().catch(error => {
+							console.error('Auto-sync failed:', error);
+						});
+					}
 				}
-				state?.syncDataToServer();
 			}
 		}
 	)
