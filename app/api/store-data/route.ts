@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
+// Configure as force-static for compatibility with static exports
+export const dynamic = 'force-static'
+
 const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'store-data.json')
 const BACKUP_DIR = path.join(process.cwd(), 'data')
 

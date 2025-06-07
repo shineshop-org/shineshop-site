@@ -5,6 +5,9 @@ import fs from 'fs'
 import path from 'path'
 import os from 'os'
 
+// Configure as force-static for compatibility with static exports
+export const dynamic = 'force-static'
+
 const execPromise = promisify(exec)
 
 // Function to check if git is installed and repository is configured
@@ -60,6 +63,46 @@ function isHarmlessWarning(stderr: string): boolean {
          !stderr.includes('fatal:');
 }
 
+// Function to check if git push was successful
+function isSuccessfulPush(command: string, stderr: string): boolean {
+  // If it's not a push command, this doesn't apply
+  if (!command.includes('git push')) {
+    return false
+  }
+  
+  // Common successful push patterns
+  const successPatterns = [
+    // Pattern when changes are pushed
+    /To .*\n.*[a-f0-9]+\.\.[a-f0-9]+ +\w+ -> \w+/,
+    // Pattern when everything is up to date
+    /Everything up-to-date/,
+    // Pattern for GitHub URLs
+    /To https:\/\/github\.com\//
+  ]
+  
+  // Check for common error patterns
+  const errorPatterns = [
+    'error:',
+    'fatal:',
+    'Permission denied',
+    'could not read Username',
+    'Authentication failed',
+    'could not read Password'
+  ]
+  
+  // If any error patterns are present, it's not successful
+  if (errorPatterns.some(pattern => stderr.includes(pattern))) {
+    return false
+  }
+  
+  // Check for success patterns
+  return successPatterns.some(pattern => 
+    typeof pattern === 'string' 
+      ? stderr.includes(pattern) || stderr.includes(pattern) 
+      : pattern.test(stderr)
+  )
+}
+
 export async function POST(request: NextRequest) {
   try {
     // First, check if git is properly set up
@@ -101,7 +144,13 @@ export async function POST(request: NextRequest) {
         })
         
         // Only treat as error if stderr contains actual errors, not just warnings
-        if (stderr && !stderr.includes('Warning') && !stderr.includes('hint:') && !isHarmlessWarning(stderr)) {
+        // Or if it's a git push command, check specifically if it was successful
+        if (stderr && 
+            !stderr.includes('Warning') && 
+            !stderr.includes('hint:') && 
+            !isHarmlessWarning(stderr) && 
+            !(command.includes('git push') && isSuccessfulPush(command, stderr))) {
+          
           console.error(`Command '${command}' error:`, stderr)
           return NextResponse.json(
             { 

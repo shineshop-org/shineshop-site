@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
+// Configure as force-static for compatibility with static exports
+export const dynamic = 'force-static'
+
 export async function POST(request: NextRequest) {
   try {
     // Parse the request body

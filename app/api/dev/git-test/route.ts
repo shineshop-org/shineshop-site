@@ -3,6 +3,9 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import os from 'os'
 
+// Configure as force-static for compatibility with static exports
+export const dynamic = 'force-static'
+
 const execPromise = promisify(exec)
 
 export async function GET() {
