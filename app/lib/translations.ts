@@ -91,8 +91,8 @@ export const translations: Translations = {
 		vi: 'Dịch vụ'
 	},
 	twoFactorAuth: {
-		en: '2FA Code Decoder',
-		vi: 'Giải mã mã 2FA'
+		en: '2FA Code Generator',
+		vi: 'Lấy mã 2FA'
 	},
 	netflixCode: {
 		en: 'Netflix Code from Email',
@@ -416,16 +416,16 @@ export const translations: Translations = {
 	},
 	// 2FA page translations
 	secretKey: {
-		en: 'Secret Key',
-		vi: 'Khóa bí mật'
+		en: 'Token',
+		vi: 'Token'
 	},
 	enterSecretKey: {
-		en: 'Enter your 2FA secret key',
-		vi: 'Nhập khóa bí mật 2FA của bạn'
+		en: 'Enter the code sent by SHINE SHOP',
+		vi: 'Nhập đoạn mã mà SHINE SHOP gửi cho bạn'
 	},
 	secretKeyDescription: {
-		en: 'Enter the secret key provided by the service you\'re setting up 2FA for',
-		vi: 'Nhập khóa bí mật được cung cấp bởi dịch vụ bạn đang thiết lập 2FA'
+		en: 'Enter the code sent by SHINE SHOP',
+		vi: 'Nhập đoạn mã mà SHINE SHOP gửi cho bạn'
 	},
 	totpCode: {
 		en: 'Your TOTP Code',
@@ -452,8 +452,8 @@ export const translations: Translations = {
 		vi: 'Không bao giờ chia sẻ khóa bí mật của bạn với bất kỳ ai. Công cụ này chạy hoàn toàn trong trình duyệt của bạn và không gửi bất kỳ dữ liệu nào đến máy chủ của chúng tôi.'
 	},
 	generateTotpDesc: {
-		en: 'Generate time-based one-time passwords (TOTP) for two-factor authentication',
-		vi: 'Tạo mật khẩu một lần dựa trên thời gian (TOTP) cho xác thực hai yếu tố'
+		en: 'Generate 2FA authentication code',
+		vi: 'Lấy mã xác thực hai yếu tố'
 	},
 	
 	// Product card order

@@ -72,9 +72,6 @@ export default function PaymentPage() {
 		<div className="max-w-6xl mx-auto py-8 page-transition">
 			<div className="text-center mb-8">
 				<h1 className="text-4xl font-bold jshine-gradient">{t('payment')}</h1>
-				<p className="text-muted-foreground mt-2">
-					Choose your preferred payment method
-				</p>
 			</div>
 			
 			{/* Payment Method Selection */}
