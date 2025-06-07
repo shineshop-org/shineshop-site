@@ -45,7 +45,7 @@
               "value": "3 tháng",
               "price": 30000,
               "localizedPrice": {
-                "en": 0,
+                "en": 8,
                 "vi": 100000
               },
               "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
@@ -58,31 +58,31 @@
               "value": "6 tháng",
               "price": 195000,
               "localizedPrice": {
-                "en": 123312123132123,
+                "en": 15,
                 "vi": 195000
               },
               "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
               "localizedValue": {
-                "en": "6 tháng",
+                "en": "6 months",
                 "vi": "6 tháng"
               }
             },
             {
-              "value": "",
+              "value": "12 tháng",
               "localizedValue": {
-                "en": "1 year",
+                "en": "12 months",
                 "vi": "12 tháng"
               },
-              "price": 0,
+              "price": 345000,
               "localizedPrice": {
-                "en": 12312312123132,
+                "en": 25,
                 "vi": 345000
               },
               "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
             }
           ],
           "localizedName": {
-            "en": "Add to Family",
+            "en": "Duration",
             "vi": "Thời hạn"
           }
         }
