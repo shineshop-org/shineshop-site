@@ -1,8 +1,5 @@
 import { Product, FAQArticle, SocialLink } from './types'
 
-// Add version timestamp to force fresh data on build
-export const dataVersion = Date.now();
-
 export const initialProducts: Product[] = [
   {
     "id": "1749230782074",
@@ -11,16 +8,16 @@ export const initialProducts: Product[] = [
       "en": "Youtube Premium (Private Upgrade)",
       "vi": "Youtube Premium (Chính chủ)"
     },
-    "price": 40000,
+    "price": 0,
     "description": "Youtube Premium subscription service.",
     "localizedDescription": {
       "en": "Youtube Premium subscription service.",
-      "vi": "Dịch vụ đăng ký Youtube Premium."
+      "vi": "Nâng cấp Youtube Premium chính chủ."
     },
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png?updatedAt=1749032381807",
     "category": "Subscription",
     "localizedCategory": {
-      "en": "Subscription",
+      "en": "Entertainment",
       "vi": "Đăng ký"
     },
     "slug": "youtube-premium",
@@ -32,7 +29,7 @@ export const initialProducts: Product[] = [
         "values": [
           {
             "value": "1 tháng",
-            "price": 40000,
+            "price": 30000,
             "localizedPrice": {
               "en": 3.5,
               "vi": 40000
@@ -84,8 +81,8 @@ export const initialProducts: Product[] = [
           }
         ],
         "localizedName": {
-          "en": "Duration",
-          "vi": "Thời hạn"
+          "en": "Add to Family",
+          "vi": "Thêm vào Gia Đình"
         }
       }
     ],

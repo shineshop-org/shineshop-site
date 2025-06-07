@@ -13,12 +13,12 @@
       "description": "Youtube Premium subscription service.",
       "localizedDescription": {
         "en": "Youtube Premium subscription service.",
-        "vi": "Dịch vụ đăng ký Youtube Premium."
+        "vi": "Nâng cấp Youtube Premium chính chủ."
       },
       "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png?updatedAt=1749032381807",
       "category": "Subscription",
       "localizedCategory": {
-        "en": "Subscription",
+        "en": "Entertainment",
         "vi": "Đăng ký"
       },
       "slug": "youtube-premium",
@@ -82,8 +82,8 @@
             }
           ],
           "localizedName": {
-            "en": "Duration",
-            "vi": "Thời hạn"
+            "en": "Add to Family",
+            "vi": "Thêm vào Gia Đình"
           }
         }
       ],
