@@ -39,16 +39,6 @@ const nextConfig = {
 		]
 	},
 	
-	// Handle catch-all routes for static export
-	exportPathMap: async function (defaultPathMap) {
-		// Add fallback paths for catch-all routes
-		return {
-			...defaultPathMap,
-			'/service/2fa/fallback': { page: '/service/catch-all-slug' },
-			'/service/2fa/fallback/sub': { page: '/service/catch-all-slug' },
-		}
-	},
-	
 	// Disable source maps in production to reduce build size
 	productionBrowserSourceMaps: false,
 	

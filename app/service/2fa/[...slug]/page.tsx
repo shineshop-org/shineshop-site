@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 // This is required for static export
 export function generateStaticParams() {
-  // Return at least one fallback path for static export
+  // For static export, we need to return at least one fallback path
   return [
     { slug: ['fallback'] }
   ]
