@@ -1,8 +1,8 @@
 name = "shineshop-site"
 compatibility_date = "2025-06-05"
 
-# Remove static export directory configuration
-# pages_build_output_dir = "out"
+# Specify the build output directory
+pages_build_output_dir = "out"
 
 # Configure for Next.js App Router compatibility
 compatibility_flags = ["nodejs_compat"]

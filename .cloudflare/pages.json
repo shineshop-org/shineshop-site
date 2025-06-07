@@ -12,5 +12,9 @@
       "script": "return new Response('Not found', { status: 404 })"
     },
     { "pattern": "/api/*", "script": "return new Response('Not found', { status: 404 })" }
-  ]
+  ],
+  "buildConfig": {
+    "outputDirectory": "out"
+  },
+  "deploymentStrategy": "owner-first"
 } 

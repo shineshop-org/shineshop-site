@@ -1,2 +1,2 @@
 [build]
-command = "npm install --legacy-peer-deps && npm run build && npx @cloudflare/next-on-pages" 
+command = "npm install --legacy-peer-deps && npm install -D @cloudflare/next-on-pages && npm run deploy" 
