@@ -9,7 +9,13 @@ export function generateStaticParams() {
   ]
 }
 
-export default function CatchAllSlugPage({ params }: { params: { slug: string[] } }) {
-  // Redirect to the main 2FA page, or handle specific slug paths if needed
+interface CatchAllSlugPageProps {
+  params: {
+    slug: string[]
+  }
+}
+
+export default function CatchAllSlugPage({ params }: CatchAllSlugPageProps) {
+  // Redirect to the main page, or handle specific slug paths if needed
   return notFound()
 } 
