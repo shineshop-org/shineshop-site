@@ -10,6 +10,10 @@ const INITIAL_DATA_PATH = path.join(process.cwd(), 'app', 'lib', 'initial-data.t
 
 export async function POST(request: NextRequest) {
   try {
+    // Get request body
+    const body = await request.json().catch(() => ({}))
+    const { forceUpdate = false, dataVersion = 2 } = body
+
     // Read store-data.json
     if (!fs.existsSync(STORE_DATA_PATH)) {
       return NextResponse.json(
@@ -22,6 +26,14 @@ export async function POST(request: NextRequest) {
     const storeDataRaw = fs.readFileSync(STORE_DATA_PATH, 'utf-8')
     const storeData = JSON.parse(storeDataRaw)
 
+    // If forceUpdate is true, ensure the dataVersion is updated
+    if (forceUpdate) {
+      storeData.dataVersion = dataVersion
+      
+      // Save updated store data back to file
+      fs.writeFileSync(STORE_DATA_PATH, JSON.stringify(storeData, null, 2), 'utf-8')
+    }
+
     // Check if initial-data.ts exists
     if (!fs.existsSync(INITIAL_DATA_PATH)) {
       return NextResponse.json(
@@ -31,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate the new content for initial-data.ts
-    const initialDataContent = generateInitialDataContent(storeData)
+    const initialDataContent = generateInitialDataContent(storeData, dataVersion)
 
     // Write the updated content to initial-data.ts
     fs.writeFileSync(INITIAL_DATA_PATH, initialDataContent, 'utf-8')
@@ -50,7 +62,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Function to generate the content for initial-data.ts
-function generateInitialDataContent(storeData: any): string {
+function generateInitialDataContent(storeData: any, dataVersion: number = 2): string {
   const { 
     products, 
     faqArticles, 
@@ -78,8 +90,11 @@ function generateInitialDataContent(storeData: any): string {
 
   // Generate site configuration section (contains gradient titles, small titles, etc.)
   if (siteConfig) {
-    content += `export const initialSiteConfig: SiteConfig = ${formatTsObject(siteConfig)}`
+    content += `export const initialSiteConfig: SiteConfig = ${formatTsObject(siteConfig)}\n\n`
   }
+
+  // Add dataVersion at the end
+  content += `// Track data version for sync and migration\nexport const dataVersion = ${dataVersion}`
 
   return content
 }

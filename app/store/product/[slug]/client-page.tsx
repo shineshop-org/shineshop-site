@@ -444,11 +444,6 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 								{language === 'en' ? product.localizedCategory?.en : product.localizedCategory?.vi}
 							</span>
 						)}
-						{product.tags && product.tags.map(tag => (
-							<span key={tag} className="text-sm px-3 py-1 bg-secondary/30 rounded-full">
-								{tag}
-							</span>
-						))}
 					</div>
 				</div>
 				

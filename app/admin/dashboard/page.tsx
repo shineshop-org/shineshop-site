@@ -978,7 +978,11 @@ export default function AdminDashboard() {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-				}
+				},
+				body: JSON.stringify({
+					forceUpdate: true, // Force update all content
+					dataVersion: 2 // Ensure the latest data version is used
+				})
 			})
 			
 			if (!updateResponse.ok) {

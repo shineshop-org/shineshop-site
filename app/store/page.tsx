@@ -297,20 +297,6 @@ function ProductCard({ product, language }: ProductCardProps) {
 					<h3 className="font-semibold text-sm truncate mb-1" title={getProductName()}>
 						{getProductName()}
 					</h3>
-					{product.tags && product.tags.length > 0 && (
-						<div className="flex flex-wrap gap-1 mb-1">
-							{product.tags.slice(0, 2).map(tag => (
-								<span key={tag} className="text-xs px-2 py-0.5 bg-secondary/50 rounded-full">
-									{tag}
-								</span>
-							))}
-							{product.tags.length > 2 && (
-								<span className="text-xs px-2 py-0.5 bg-secondary/50 rounded-full">
-									+{product.tags.length - 2}
-								</span>
-							)}
-						</div>
-					)}
 					<div className="flex items-center justify-end gap-1">
 						<span className="text-xs text-muted-foreground self-center">
 							{language === 'vi' ? 'chỉ từ' : 'from'}
