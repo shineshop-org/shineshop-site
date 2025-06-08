@@ -1088,29 +1088,46 @@ export default function AdminDashboard() {
 			}
 			
 			// Step 2: Push changes to GitHub
-			const pushResponse = await fetch('/api/dev/git-push', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					commands: [
-						'git add -A',
-						'git commit -m "feat: update static data file for production"',
-						'git push origin main'
-					]
-				}),
-			})
-			
-			// Only check if the response is not OK - no success message needed
-			if (!pushResponse.ok) {
+			try {
+				const pushResponse = await fetch('/api/dev/git-push', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						commands: [
+							'git add -A',
+							'git commit -m "feat: update static data file for production"',
+							'git push origin main'
+						]
+					}),
+				})
+				
+				// If fetch itself succeeded but the API reported an error
+				if (!pushResponse.ok) {
+					const pushData = await pushResponse.json()
+					throw new Error(pushData.error || 'Failed to push changes to GitHub')
+				}
+				
+				// Try to parse response even if status is ok
 				const pushData = await pushResponse.json()
-				throw new Error(pushData.error || 'Failed to push changes to GitHub')
+				
+				// Check if the actual Git operations succeeded
+				if (!pushData.success) {
+					throw new Error(pushData.error || 'Git operations failed')
+				}
+				
+				// Log success details
+				console.log('Git push results:', pushData.results)
+			} catch (gitError) {
+				// Handle failed git operations but continue - treat this as a non-fatal error
+				console.warn('Git operations warning:', gitError)
+				// Don't rethrow, let the process continue as the file updates were successful
 			}
 			
-			// If we reach here, both operations were successful
+			// If we reach here, the file update was successful
 			// Show success notification via state instead of alert
-			console.log('Successfully published all content to GitHub')
+			console.log('Successfully published content updates')
 			setPublishSuccess(true)
 			
 			// Auto-hide success message after 5 seconds

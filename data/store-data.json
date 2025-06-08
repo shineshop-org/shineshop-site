@@ -146,7 +146,7 @@
                 "en": 0,
                 "vi": 80000
               },
-              "description": "Shop sẽ đăng nhập vào tài khoản & mật khẩu của bạn, bạn sẽ sử dụng thẻ VISA để tự thanh toán gói Premium của bạn - shop chỉ đóng vai trò kích hoạt giá rẻ."
+              "description": "Shop sẽ đăng nhập vào tài khoản & mật khẩu của bạn, bạn sẽ sử dụng thẻ VISA để tự thanh toán gói Premium của bạn từ tháng sau - shop chỉ đóng vai trò kích hoạt giá rẻ."
             }
           ]
         }
@@ -287,6 +287,31 @@
       ],
       "relatedArticles": [],
       "sortOrder": 2,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749373306219",
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "vi": "Netflix Premium 4K"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": "Tài khoản Netflix Premium cấp sẵn"
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/netflix-premium.jpg?updatedAt=1749226945890",
+      "localizedCategory": {
+        "en": "",
+        "vi": "Giải trí"
+      },
+      "slug": "netflix-premium",
+      "options": [],
+      "relatedArticles": [],
+      "sortOrder": 4,
       "isLocalized": true,
       "tags": []
     }
