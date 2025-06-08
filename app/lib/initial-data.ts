@@ -6,7 +6,7 @@ export const initialProducts: Product[] = [
     "name": "youtube-premium",
     "localizedName": {
       "en": "Youtube Premium (Private Upgrade)",
-      "vi": "Youtube Premium (Chính chủ)"
+      "vi": "Youtube/Music Premium"
     },
     "price": 0,
     "description": "Youtube Premium subscription service.",
@@ -84,6 +84,72 @@ export const initialProducts: Product[] = [
           "en": "Add to Family",
           "vi": "Thêm vào Gia Đình"
         }
+      },
+      {
+        "id": "1749372245550",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Tài khoản sẵn"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "3 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 60000
+            },
+            "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "6 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 110000
+            },
+            "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 năm"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 195000
+            },
+            "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
+          }
+        ]
+      },
+      {
+        "id": "1749372304383",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Cá nhân"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "Gói kích hoạt"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 80000
+            },
+            "description": "Shop sẽ đăng nhập vào tài khoản & mật khẩu của bạn, bạn sẽ sử dụng thẻ VISA để tự thanh toán gói Premium của bạn - shop chỉ đóng vai trò kích hoạt giá rẻ."
+          }
+        ]
       }
     ],
     "relatedArticles": [],
@@ -376,7 +442,6 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
 
 export const initialSiteConfig: SiteConfig = {
-  "siteTitle": "SHINE SHOP",
   "heroTitle": "Welcome to SHINE SHOP!",
   "heroQuote": "heheehh!",
   "contactLinks": {

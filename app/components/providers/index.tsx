@@ -2,6 +2,7 @@
 
 import { StoreProvider } from './store-provider';
 import RSCErrorHandler from './rsc-error-handler';
+import { NavigationTracker } from './navigation-tracker';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <StoreProvider>
         {children}
       </StoreProvider>
+      <NavigationTracker />
       <RSCErrorHandler />
     </>
   );
