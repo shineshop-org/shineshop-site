@@ -309,7 +309,74 @@
         "vi": "Giải trí"
       },
       "slug": "netflix-premium",
-      "options": [],
+      "options": [
+        {
+          "id": "1749373321967",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Việt Nam"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tuần"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 25000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 70000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 195000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749373382731",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Nước ngoài"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 30000
+              },
+              "description": "Sử dụng VPN để đăng nhập cũng như sử dụng."
+            }
+          ]
+        }
+      ],
       "relatedArticles": [],
       "sortOrder": 4,
       "isLocalized": true,
