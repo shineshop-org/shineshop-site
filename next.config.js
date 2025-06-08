@@ -9,7 +9,7 @@ const nextConfig = {
 	
 	// Make sure we have a longer fetch timeout for RSC payloads
 	experimental: {
-		fetchCacheKeyPrefix: `v1-${Date.now()}`,
+		fetchCacheKeyPrefix: 'v1',
 		optimizePackageImports: ['react', 'react-dom', 'lucide-react'],
 	},
 	
@@ -92,12 +92,12 @@ const nextConfig = {
 		maxInactiveAge: 0,
 	},
 	
-	// Force page rebuilds on each deployment with timestamp
+	// Keep build consistent for Cloudflare deployments
 	generateBuildId: async () => {
-		return `build-${Date.now()}`
+		return 'stable-build-id'
 	},
 	
-	// Force page revalidation with every request
+	// Headers for caching - modified for Cloudflare compatibility
 	headers: async () => {
 		return [
 			{
@@ -105,39 +105,19 @@ const nextConfig = {
 				headers: [
 					{
 						key: 'Cache-Control',
-						value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0',
+						value: 'public, max-age=3600, s-maxage=86400',
 					},
 					{
-						key: 'Pragma',
-						value: 'no-cache',
-					},
-					{
-						key: 'Expires',
-						value: '0',
-					},
-					{
-						key: 'Surrogate-Control',
-						value: 'no-store',
-					},
-					{
-						key: 'X-Content-Build-Id',
-						value: `build-${Date.now()}`,
+						key: 'X-Content-Type-Options',
+						value: 'nosniff',
 					},
 				],
 			},
 		];
 	},
 	
-	webpack: (config, { dev, isServer }) => {
-		// Disable webpack caching in production
-		if (!dev) {
-			config.cache = false;
-		}
-		
-		// Add timestamp to bundle filename to prevent caching
-		config.output.filename = `[name].${Date.now()}.[contenthash].js`;
-		config.output.chunkFilename = `[name].${Date.now()}.[contenthash].js`;
-		
+	// Simplified webpack config for better compatibility
+	webpack: (config) => {
 		return config;
 	},
 }
