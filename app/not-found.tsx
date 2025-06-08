@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { FileWarning } from 'lucide-react'
 
-export default function NotFound() {
+// Inner component to be wrapped in Suspense
+function NotFoundInner() {
 	const { t } = useTranslation()
 
 	useEffect(() => {
@@ -43,5 +44,13 @@ export default function NotFound() {
 				{t('returnHome')}
 			</Link>
 		</div>
+	)
+}
+
+export default function NotFound() {
+	return (
+		<Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center">Loading...</div>}>
+			<NotFoundInner />
+		</Suspense>
 	)
 } 

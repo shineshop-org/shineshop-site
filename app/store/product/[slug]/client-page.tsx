@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MessageCircle, ExternalLink } from 'lucide-react'
@@ -20,7 +20,8 @@ interface ProductClientProps {
 	initialProduct: Product
 }
 
-export default function ProductClient({ slug, initialProduct }: ProductClientProps) {
+// Main component inner implementation
+function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 	const { products, faqArticles, language } = useStore()
 	const { t } = useTranslation()
 	const [product, setProduct] = useState<Product>(initialProduct)
@@ -291,155 +292,137 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 	}, [slug, products, faqArticles, initialProduct])
 	
-	// Handle option name selection
 	const handleOptionNameChange = (optionId: string) => {
-		setActiveOptionId(optionId)
+		setActiveOptionId(optionId);
 		
-		// Find the corresponding option
-		const option = product.options?.find(opt => opt.id === optionId)
-		if (option && option.values.length > 0) {
-			// Always select the first value (index 0) when switching to a new option
-			const valueKey = `${optionId}-0`
-			
-			// Update selectedOptions to select the first value of the newly selected option
-			const newSelectedOptions = {
-				...selectedOptions,
-				[optionId]: valueKey
+		// On option name change, if the selected option value is not yet set,
+		// initialize it with the first value
+		if (!selectedOptions[optionId] && product.options) {
+			const option = product.options.find(o => o.id === optionId);
+			if (option && option.values.length > 0) {
+				const newOptions = { ...selectedOptions };
+				newOptions[optionId] = `${optionId}-0`;
+				setSelectedOptions(newOptions);
+				
+				// Update price display with the newly selected option
+				if (option.values[0].localizedPrice) {
+					const currentPrice = language === 'en' 
+						? option.values[0].localizedPrice.en 
+						: option.values[0].localizedPrice.vi;
+					
+					setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
+				}
 			}
-			
-			setSelectedOptions(newSelectedOptions)
-			
-			// Update price display based on the first value
-			const optionValue = option.values[0]
-			if (optionValue && optionValue.localizedPrice) {
-				const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
-				setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
-			} else {
-				setPriceDisplay(formatPrice(product.price || 0, language === 'vi' ? 'vi-VN' : 'en-US'))
-			}
-			
-			// Save the updated options
-			saveOptionsToLocalStorage(product.id, newSelectedOptions, optionId)
-		} else {
-			// If no option found or it has no values, just update the active option ID
-			saveOptionsToLocalStorage(product.id, selectedOptions, optionId)
-			setPriceDisplay(formatPrice(product.price || 0, language === 'vi' ? 'vi-VN' : 'en-US'))
 		}
 	}
 	
-	// Handle option selection
 	const handleOptionChange = (optionId: string, valueIndex: number) => {
-		// Find the actual option value object
-		const selectedOption = product.options?.find(opt => opt.id === optionId);
-		if (!selectedOption || valueIndex >= selectedOption.values.length) return;
+		// Create a unique ID for the selected option value
+		const valueId = `${optionId}-${valueIndex}`;
 		
-		const optionValue = selectedOption.values[valueIndex];
+		// Update selected options state
+		const newOptions = { ...selectedOptions };
+		newOptions[optionId] = valueId;
+		setSelectedOptions(newOptions);
 		
-		// Create a unique identifier for this option value
-		const valueKey = `${optionId}-${valueIndex}`;
-		
-		const newSelectedOptions = {
-			...selectedOptions,
-			[optionId]: valueKey
-		};
-		
-		setSelectedOptions(newSelectedOptions);
-		
-		// Update price display immediately
-		if (optionValue.localizedPrice) {
-			const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi;
-			setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
-		} else {
-			setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'));
+		// Find the updated price based on the selected option
+		if (product.options) {
+			const option = product.options.find(o => o.id === optionId);
+			if (option && option.values[valueIndex]) {
+				const optionValue = option.values[valueIndex];
+				
+				// Require strict localized price - no fallback
+				if (optionValue.localizedPrice) {
+					const currentPrice = language === 'en' 
+						? optionValue.localizedPrice.en 
+						: optionValue.localizedPrice.vi;
+					
+					setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
+				} else {
+					console.warn(`Missing localized price for option ${option.name}, value index ${valueIndex}`);
+				}
+			}
 		}
-		
-		// Save the updated options
-		saveOptionsToLocalStorage(product.id, newSelectedOptions, activeOptionId);
 	}
 	
-	// Extract the lowest price from product options
 	const getLowestPrice = () => {
 		if (!product.options || product.options.length === 0) {
-			return 0; // Return 0 instead of product.price as base price is no longer used
+			return product.price || 0;
 		}
 		
-		const optionValues = product.options.flatMap(option => 
-			option.values.map(value => {
-				// Require strict localized price - no fallback
-				if (!value.localizedPrice) {
-					console.warn(`Missing localized price for an option value`);
-					return null;
+		// Get the first option's values
+		const option = product.options[0];
+		if (!option || !option.values || option.values.length === 0) {
+			return product.price || 0;
+		}
+		
+		// Find the lowest price among all option values
+		let lowestPrice = Number.MAX_VALUE;
+		for (const value of option.values) {
+			if (value.localizedPrice) {
+				const price = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi;
+				if (price < lowestPrice) {
+					lowestPrice = price;
 				}
-				
-				const currentPrice = language === 'en' ? value.localizedPrice.en : value.localizedPrice.vi;
-				return currentPrice;
-			})
-		).filter(price => price !== null) as number[];
-		
-		if (optionValues.length === 0) {
-			return 0; // Return 0 instead of product.price as base price is no longer used
+			}
 		}
 		
-		return Math.min(...optionValues);
+		return lowestPrice === Number.MAX_VALUE ? (product.price || 0) : lowestPrice;
 	}
 	
-	// Get the product name based on language and localization settings
 	const getProductName = () => {
-		if (product.isLocalized && product.localizedName) {
-			return product.localizedName[language as 'en' | 'vi'] || product.name
-		}
-		return product.name
+		return language === 'en' && product.localizedName?.en 
+			? product.localizedName.en 
+			: language === 'vi' && product.localizedName?.vi 
+				? product.localizedName.vi 
+				: product.name;
 	}
 	
-	// Get the product description based on language and localization settings
 	const getProductDescription = () => {
-		if (product.isLocalized && product.localizedDescription) {
-			return product.localizedDescription[language as 'en' | 'vi'] || product.description
-		}
-		return product.description
+		return language === 'en' && product.localizedDescription?.en 
+			? product.localizedDescription.en 
+			: language === 'vi' && product.localizedDescription?.vi 
+				? product.localizedDescription.vi 
+				: product.description;
 	}
 	
-	// Get the localized option name
 	const getOptionName = (option: NonNullable<Product['options']>[0]) => {
-		if (product.isLocalized && option.localizedName) {
-			return option.localizedName[language as 'en' | 'vi'] || option.name
-		}
-		return option.name
+		return language === 'en' && option.localizedName?.en 
+			? option.localizedName.en 
+			: language === 'vi' && option.localizedName?.vi 
+				? option.localizedName.vi 
+				: option.name;
 	}
 	
-	// Get the localized option value
 	const getOptionValue = (value: NonNullable<Product['options']>[0]['values'][0]) => {
-		if (product.isLocalized && value.localizedValue) {
-			return value.localizedValue[language as 'en' | 'vi'] || ''
-		}
-		return value.value || ''
+		return language === 'en' && value.localizedName?.en 
+			? value.localizedName.en 
+			: language === 'vi' && value.localizedName?.vi 
+				? value.localizedName.vi 
+				: value.name;
 	}
 	
-	// Get note label based on language
 	const getNoteLabel = () => {
-		return language === 'vi' ? 'Ghi chú' : 'Note'
+		return language === 'en' ? 'Note' : 'Ghi chú';
 	}
 	
-	// 3D card hover effect for product image
 	const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (!productImageRef.current) return
+		if (!productImageRef.current) return;
 		
-		const rect = productImageRef.current.getBoundingClientRect()
-		const x = e.clientX - rect.left
-		const y = e.clientY - rect.top
-		const centerX = rect.width / 2
-		const centerY = rect.height / 2
+		const { clientX, clientY } = e;
+		const { left, top, width, height } = productImageRef.current.getBoundingClientRect();
 		
-		const rotateX = ((y - centerY) / centerY) * -10
-		const rotateY = ((x - centerX) / centerX) * 10
+		const x = (clientX - left) / width - 0.5;
+		const y = (clientY - top) / height - 0.5;
 		
-		setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`)
+		setTransform(`perspective(1000px) rotateY(${x * 5}deg) rotateX(${y * -5}deg) scale3d(1.05, 1.05, 1.05)`);
 	}
 	
 	const handleMouseLeave = () => {
-		setTransform('')
+		setTransform('perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)');
 	}
 	
+	// Return the original JSX
 	return (
 		<div className="max-w-7xl mx-auto py-6 page-transition">
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -685,5 +668,14 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				</div>
 			</div>
 		</div>
+	)
+}
+
+// Main component that wraps the inner implementation with Suspense
+export default function ProductClient({ slug, initialProduct }: ProductClientProps) {
+	return (
+		<Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]">Loading...</div>}>
+			<ProductClientInner slug={slug} initialProduct={initialProduct} />
+		</Suspense>
 	)
 }

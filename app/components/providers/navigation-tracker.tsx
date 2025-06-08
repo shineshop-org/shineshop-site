@@ -1,12 +1,10 @@
 'use client'
 
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 
-/**
- * Tracks navigation events to prevent reload loops during page transitions
- */
-export function NavigationTracker() {
+// Wrapper component that uses the hooks safely inside Suspense
+function NavigationTrackerInner() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   
@@ -23,4 +21,15 @@ export function NavigationTracker() {
   
   // No visible UI
   return null
+}
+
+/**
+ * Tracks navigation events to prevent reload loops during page transitions
+ */
+export function NavigationTracker() {
+  return (
+    <Suspense fallback={null}>
+      <NavigationTrackerInner />
+    </Suspense>
+  )
 } 
