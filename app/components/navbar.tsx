@@ -71,35 +71,49 @@ export function Navbar() {
 				<div className="flex h-16 items-center justify-between">
 					{/* Logo */}
 					<Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-						{/* Wide logo for large screens */}
-						<div className="hidden lg:block">
-							<Image
-								src={isDarkTheme ? "/logo-wide-dark-mode.png" : "/logo-wide-light-mode.png"}
+						{/* Wide logo for large screens - Using <img> for better caching */}
+						<div className="hidden lg:block relative h-10 w-32">
+							{/* Preload both logos - this ensures they're both in the browser cache */}
+							<link rel="preload" as="image" href="/logo-wide-dark-mode.png" />
+							<link rel="preload" as="image" href="/logo-wide-light-mode.png" />
+							
+							{/* Light mode logo - always present but hidden in dark mode */}
+							<img
+								src="/logo-wide-light-mode.png"
 								alt="Shine Shop"
-								width={120}
-								height={40}
-								className="h-10 w-auto"
-								priority
-								onError={(e) => {
-									const target = e.target as HTMLImageElement;
-									target.src = "/logo-wide-light-mode.png";
-								}}
+								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-0' : 'opacity-100'}`}
+								style={{ objectFit: 'contain' }}
+							/>
+							
+							{/* Dark mode logo - always present but hidden in light mode */}
+							<img
+								src="/logo-wide-dark-mode.png"
+								alt="Shine Shop"
+								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-100' : 'opacity-0'}`}
+								style={{ objectFit: 'contain' }}
 							/>
 						</div>
 						
-						{/* Square logo for small screens */}
-						<div className="lg:hidden">
-							<Image
-								src={isDarkTheme ? "/logo-dark-mode.png" : "/logo-light-mode.png"}
+						{/* Square logo for small screens - Using <img> for better caching */}
+						<div className="lg:hidden relative h-10 w-10">
+							{/* Preload both logos */}
+							<link rel="preload" as="image" href="/logo-dark-mode.png" />
+							<link rel="preload" as="image" href="/logo-light-mode.png" />
+							
+							{/* Light mode logo */}
+							<img
+								src="/logo-light-mode.png"
 								alt="Shine Shop"
-								width={40}
-								height={40}
-								className="h-auto w-auto max-h-10"
-								priority
-								onError={(e) => {
-									const target = e.target as HTMLImageElement;
-									target.src = "/logo-light-mode.png";
-								}}
+								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-0' : 'opacity-100'}`}
+								style={{ objectFit: 'contain' }}
+							/>
+							
+							{/* Dark mode logo */}
+							<img
+								src="/logo-dark-mode.png"
+								alt="Shine Shop"
+								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-100' : 'opacity-0'}`}
+								style={{ objectFit: 'contain' }}
 							/>
 						</div>
 						

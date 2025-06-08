@@ -193,6 +193,10 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		// Try to find the product in the store
 		const storeProduct = products.find(p => p.slug === slug)
 		
+		// Log for debugging
+		console.log(`Looking for product with slug: ${slug}`)
+		console.log('Available products:', products.map(p => ({name: p.name, slug: p.slug})))
+		
 		// Check for localStorage backup (in case store hasn't loaded yet)
 		let localStorageProduct = null;
 		try {
@@ -202,6 +206,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				const parsedData = JSON.parse(storageData);
 				if (parsedData.products && Array.isArray(parsedData.products)) {
 					localStorageProduct = parsedData.products.find((p: any) => p.slug === slug);
+					console.log('LocalStorage product match:', localStorageProduct ? localStorageProduct.slug : 'Not found');
 				}
 			}
 			
@@ -221,6 +226,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		
 		// Update with store data if available
 		if (storeProduct) {
+			console.log('Found product in store:', storeProduct.name, storeProduct.slug);
 			setProduct(storeProduct)
 			initializeOptions(storeProduct)
 			
@@ -234,6 +240,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		}
 		// Check localStorage data if store data isn't available
 		else if (localStorageProduct) {
+			console.log('Found product in localStorage:', localStorageProduct.name, localStorageProduct.slug);
 			setProduct(localStorageProduct)
 			initializeOptions(localStorageProduct)
 			
@@ -246,7 +253,9 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			}
 		}
 		else if (initialProduct.id) {
+			console.log('Using initial product:', initialProduct.name, initialProduct.slug);
 			// Only use initial product data if it has a valid ID
+			setProduct(initialProduct)
 			initializeOptions(initialProduct)
 			
 			// Find related articles from initial data
@@ -257,6 +266,7 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 				setRelatedArticles(related)
 			}
 		} else {
+			console.error('Product not found:', slug);
 			// If no product found in either store or initial data, redirect to 404
 			window.location.href = '/404'
 			return

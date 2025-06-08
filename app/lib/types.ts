@@ -87,6 +87,7 @@ export interface PaymentInfo {
 }
 
 export interface SiteConfig {
+	siteTitle: string  // Website title displayed in browser tab
 	heroTitle: string
 	heroQuote: string
 	contactLinks: {

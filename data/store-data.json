@@ -150,7 +150,7 @@
         }
       ],
       "relatedArticles": [],
-      "sortOrder": 2,
+      "sortOrder": 3,
       "isLocalized": true,
       "tags": []
     },
@@ -178,7 +178,7 @@
           "id": "1749308925118",
           "name": "",
           "localizedName": {
-            "en": "",
+            "en": "Time",
             "vi": "Thời gian"
           },
           "type": "select",
@@ -220,7 +220,7 @@
         }
       ],
       "relatedArticles": [],
-      "sortOrder": 3,
+      "sortOrder": 2,
       "isLocalized": true,
       "tags": []
     }
@@ -264,7 +264,7 @@
       "icon": "youtube"
     }
   ],
-  "language": "en",
+  "language": "vi",
   "theme": "dark",
   "paymentInfo": {
     "bankName": "Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam",

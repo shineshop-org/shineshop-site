@@ -151,7 +151,7 @@ export const initialProducts: Product[] = [
       }
     ],
     "relatedArticles": [],
-    "sortOrder": 2,
+    "sortOrder": 3,
     "isLocalized": true,
     "tags": []
   },
@@ -179,7 +179,7 @@ export const initialProducts: Product[] = [
         "id": "1749308925118",
         "name": "",
         "localizedName": {
-          "en": "",
+          "en": "Time",
           "vi": "Thời gian"
         },
         "type": "select",
@@ -221,7 +221,7 @@ export const initialProducts: Product[] = [
       }
     ],
     "relatedArticles": [],
-    "sortOrder": 3,
+    "sortOrder": 2,
     "isLocalized": true,
     "tags": []
   }
@@ -393,7 +393,7 @@ export const initialPaymentInfo: PaymentInfo = {
   "paypalEmail": "paypal@shineshop.org"
 }
 
-export const initialLanguage = "en"
+export const initialLanguage = "vi"
 
 export const initialTheme = "dark"
 

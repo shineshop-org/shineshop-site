@@ -10,6 +10,7 @@ import { formatPrice } from '@/app/lib/utils'
 import { Card, CardContent } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Product } from '@/app/lib/types'
 
 export default function StorePage() {
 	const { products, siteConfig } = useStore()
@@ -138,27 +139,50 @@ export default function StorePage() {
 				{/* Product Grid - With animated transitions */}
 				<div ref={productsRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-5">
 					<AnimatePresence mode="popLayout">
-						{sortedProducts.map((product) => (
-							<motion.div
-								key={product.id}
-								layout
-								initial={{ opacity: 0, scale: 0.8 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.8 }}
-								transition={{
-									opacity: { duration: 0.3 },
-									layout: {
-										type: "spring",
-										stiffness: 400,
-										damping: 40
-									}
-								}}
-							>
-								<Link href={`/store/product/${product.slug}`}>
-									<ProductCard product={product} language={language} />
-								</Link>
-							</motion.div>
-						))}
+						{sortedProducts.map((product) => {
+							// Ensure product has a slug
+							if (!product.slug) {
+								console.error('Product missing slug:', product);
+								return null;
+							}
+							
+							return (
+								<motion.div
+									key={product.id}
+									layout
+									initial={{ opacity: 0, scale: 0.8 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.8 }}
+									transition={{
+										opacity: { duration: 0.3 },
+										layout: {
+											type: "spring",
+											stiffness: 400,
+											damping: 40
+										}
+									}}
+								>
+									<Link 
+										href={`/store/product/${product.slug}`}
+										prefetch={true}
+										data-product-slug={product.slug}
+										onClick={(e) => {
+											e.stopPropagation(); // Stop the event from propagating further
+											console.log(`Navigating to product: ${product.slug}`);
+											
+											// Force navigation directly to the product page
+											// This ensures we go to the correct URL even if Next.js navigation is being intercepted
+											window.location.href = `/store/product/${product.slug}`;
+											
+											// Prevent default to handle navigation manually
+											e.preventDefault();
+										}}
+									>
+										<ProductCard product={product} language={language} />
+									</Link>
+								</motion.div>
+							);
+						})}
 					</AnimatePresence>
 				</div>
 			</section>
@@ -167,37 +191,7 @@ export default function StorePage() {
 }
 
 interface ProductCardProps {
-	product: {
-		id: string
-		name: string
-		price: number
-		image: string
-		options?: {
-			id: string
-			name: string
-			type: 'select' | 'radio'
-			values: {
-				value: string;
-				price: number;
-				localizedPrice?: {
-					en: number
-					vi: number
-				};
-				description: string;
-			}[];
-		}[]
-		isLocalized?: boolean
-		localizedName?: {
-			en: string
-			vi: string
-		}
-		category?: string
-		localizedCategory?: {
-			en: string
-			vi: string
-		}
-		tags?: string[]
-	}
+	product: Product
 	language: string
 }
 
@@ -271,12 +265,14 @@ function ProductCard({ product, language }: ProductCardProps) {
 			onMouseMove={handleMouseMove}
 			onMouseLeave={handleMouseLeave}
 			onMouseEnter={handleMouseEnter}
+			onClick={(e) => e.stopPropagation()}
 			style={{
 				transform: transform,
-				transition: 'transform 0.1s ease-out'
+				transition: 'transform 0.1s ease-out',
+				pointerEvents: 'none'
 			}}
 		>
-			<Card className="overflow-hidden h-full border border-border/50 dark:border-primary/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:border-primary/50 dark:hover:border-primary/40 dark:bg-card/80">
+			<Card className="overflow-hidden h-full border border-border/50 dark:border-primary/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:border-primary/50 dark:hover:border-primary/40 dark:bg-card/80" style={{ pointerEvents: 'auto' }}>
 				{/* 16:9 Aspect Ratio Container */}
 				<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
 					{product.image && product.image.trim() !== '' ? (

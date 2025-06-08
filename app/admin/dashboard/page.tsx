@@ -59,6 +59,11 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 		transition,
 	}
 	
+	// Get localized product name
+	const productName = language === 'en' 
+        ? (product.localizedName?.en || product.name)
+        : (product.localizedName?.vi || product.name);
+	
 	// Function to get localized option name
 	const getOptionName = (option: ProductOption) => {
 		return option.localizedName && language === 'en' 
@@ -102,11 +107,30 @@ function SortableProductItem({ product, getLowestPrice, formatPrice, language }:
 					</div>
 				)}
 				<div className="flex-1">
-					<p className="font-medium">{product.name}</p>
-					<div className="flex flex-wrap gap-1 mt-1">
-						{product.localizedCategory 
-							? (language === 'en' ? product.localizedCategory.en : product.localizedCategory.vi) 
-							: ''}
+					<p className="font-medium">{productName}</p>
+					<div className="flex flex-col gap-1 mt-1">
+						<div className="text-xs text-muted-foreground">
+							<span className="font-medium">URL Slug: </span>{product.slug}
+						</div>
+						<div>
+							{product.localizedCategory 
+								? (language === 'en' ? product.localizedCategory.en : product.localizedCategory.vi) 
+								: ''}
+						</div>
+						{product.tags && product.tags.length > 0 && (
+							<div className="flex flex-wrap gap-1 mt-1">
+								{product.tags.slice(0, 2).map(tag => (
+									<Badge key={tag} variant="secondary" className="text-xs">
+										{tag}
+									</Badge>
+								))}
+								{product.tags.length > 2 && (
+									<Badge variant="secondary" className="text-xs">
+										+{product.tags.length - 2}
+									</Badge>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
@@ -339,19 +363,33 @@ export default function AdminDashboard() {
 		}
 	}, [products])
 	
+	// Force sync with server after product changes to ensure latest data
+	useEffect(() => {
+		// Sync to server whenever products change
+		const syncData = async () => {
+			try {
+				await useStore.getState().syncDataToServer()
+			} catch (error) {
+				console.error('Error syncing data:', error)
+			}
+		}
+		
+		syncData()
+	}, [products])
+	
 	// Product form state
 	const [productForm, setProductForm] = useState({
 		name: '',
 		localizedName: { en: '', vi: '' },
-		description: '',
-		localizedDescription: { en: '', vi: '' },
-		image: '',
-		localizedCategory: { en: '', vi: '' },
-		slug: '',
-		options: [] as ProductOption[],
-		relatedArticles: [] as string[],
-		isLocalized: true,
-		tags: [] as string[]
+			description: '',
+			localizedDescription: { en: '', vi: '' },
+			image: '',
+			localizedCategory: { en: '', vi: '' },
+			slug: '',
+			options: [] as ProductOption[],
+			relatedArticles: [] as string[],
+			isLocalized: true,
+			tags: [] as string[]
 	})
 	
 	useEffect(() => {
@@ -640,6 +678,18 @@ export default function AdminDashboard() {
 			return
 		}
 		
+		// Check for duplicate slug
+		const slugExists = products.some(p => 
+			p.slug === productForm.slug && 
+			(!editingProduct || p.id !== editingProduct.id)
+		)
+		
+		if (slugExists) {
+			setIsSaving(false)
+			alert(t('slugAlreadyExists') || `URL Slug "${productForm.slug}" already exists. Please use a different slug.`)
+			return
+		}
+		
 		// Safely handle product options
 		const safeProductOptions = (form: any) => {
 			return form.options || []
@@ -676,13 +726,7 @@ export default function AdminDashboard() {
 			updateProduct(editingProduct.id, productToSave)
 		}
 		
-		setProductDialog(false)
-		setEditingProduct(null)
-		setIsSaving(false)
-	}
-	
-	// Add new product logic
-	const handleAddProduct = () => {
+		// Force reset form state to ensure clean state
 		setProductForm({
 			name: '',
 			localizedName: { en: '', vi: '' },
@@ -696,7 +740,39 @@ export default function AdminDashboard() {
 			isLocalized: true,
 			tags: []
 		})
+		setPriceInputValues({})
 		setSelectedArticles([])
+		
+		setProductDialog(false)
+		setEditingProduct(null)
+		setIsSaving(false)
+	}
+	
+	// Add new product logic
+	const handleAddProduct = () => {
+		// Clear ALL form data to guarantee a fresh form
+		setEditingProduct(null) // Ensure we're not in edit mode
+		
+		// Reset form state completely
+		setProductForm({
+			name: '',
+			localizedName: { en: '', vi: '' },
+			description: '',
+			localizedDescription: { en: '', vi: '' },
+			image: '',
+			localizedCategory: { en: '', vi: '' },
+			slug: '',
+			options: [],
+			relatedArticles: [],
+			isLocalized: true,
+			tags: []
+		})
+		
+		// Reset all other state
+		setPriceInputValues({})
+		setSelectedArticles([])
+		
+		// Show the dialog
 		setProductDialog(true)
 	}
 	
@@ -878,8 +954,10 @@ export default function AdminDashboard() {
 	
 	// Filtered articles for search
 	const filteredArticles = useMemo(() => {
+		// Nếu không có từ khóa tìm kiếm thì hiển thị tất cả bài viết
 		if (!articleSearchQuery.trim()) return faqArticles
-		
+
+		// Nếu có từ khóa tìm kiếm thì lọc theo từ khóa
 		const query = articleSearchQuery.toLowerCase()
 		return faqArticles.filter(article => 
 			article.title.toLowerCase().includes(query) ||
@@ -887,12 +965,26 @@ export default function AdminDashboard() {
 			article.tags.some(tag => tag.toLowerCase().includes(query))
 		)
 	}, [faqArticles, articleSearchQuery])
+
+	// Hiển thị các bài viết đã chọn lên đầu danh sách
+	const sortedFilteredArticles = useMemo(() => {
+		// Sắp xếp để đưa các bài viết đã chọn lên đầu
+		return [...filteredArticles].sort((a, b) => {
+			const aSelected = selectedArticles.includes(a.id)
+			const bSelected = selectedArticles.includes(b.id)
+			
+			if (aSelected && !bSelected) return -1
+			if (!aSelected && bSelected) return 1
+			return 0
+		})
+	}, [filteredArticles, selectedArticles])
 	
 	// Auto-save for product form
 	const debouncedProductForm = useDebounce(productForm, 2000)
 	const debouncedSelectedArticles = useDebounce(selectedArticles, 2000)
 	
 	useEffect(() => {
+		// Only auto-save when editing an existing product, not when creating a new one
 		if (editingProduct && debouncedProductForm.slug) {
 			// Create updated product data
 			const productData: Product = {
@@ -1144,61 +1236,76 @@ export default function AdminDashboard() {
 								<TabsContent value="details" className="mt-6">
 									{/* Product Details Tab */}
 									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-										{products.map((product) => (
-											<Card key={product.id} className="overflow-hidden">
-												<div className="relative aspect-video">
-													{product.image ? (
-														<div 
-															className="w-full h-full bg-cover bg-center" 
-															style={{ backgroundImage: `url(${product.image})` }}
-														/>
-													) : (
-														<div className="w-full h-full bg-muted/30 flex items-center justify-center">
-															<div className="text-muted-foreground text-3xl">📦</div>
-														</div>
-													)}
-												</div>
-												<CardHeader className="p-4">
-													<CardTitle className="text-lg">{product.name}</CardTitle>
-													{product.tags && product.tags.length > 0 && (
-														<div className="flex flex-wrap gap-1 mt-1">
-															{product.tags.slice(0, 2).map(tag => (
-																<Badge key={tag} variant="secondary" className="text-xs">
-																	{tag}
-																</Badge>
-															))}
-															{product.tags.length > 2 && (
-																<Badge variant="secondary" className="text-xs">
-																	+{product.tags.length - 2}
-																</Badge>
-															)}
-														</div>
-													)}
-												</CardHeader>
-												<CardContent className="p-4 pt-0">
-													<div className="flex space-x-2">
-														<Button 
-															variant="outline" 
-															size="sm" 
-															className="flex-1"
-															onClick={() => openProductEdit(product)}
-														>
-															<Edit className="mr-2 h-3 w-3" />
-															{t('edit')}
-														</Button>
-														<Button 
-															variant="outline" 
-															size="sm" 
-															className="flex-1 text-destructive hover:text-destructive"
-															onClick={() => handleDeleteProduct(product)}
-														>
-															<Trash2 className="mr-2 h-3 w-3" />
-															{t('delete')}
-														</Button>
+										{products.map((product) => {
+											// Get localized product name
+											const productName = language === 'en' 
+												? (product.localizedName?.en || product.name)
+												: (product.localizedName?.vi || product.name);
+											
+											return (
+												<Card key={product.id} className="overflow-hidden">
+													<div className="relative aspect-video">
+														{product.image ? (
+															<div 
+																className="w-full h-full bg-cover bg-center" 
+																style={{ backgroundImage: `url(${product.image})` }}
+															/>
+														) : (
+															<div className="w-full h-full bg-muted/30 flex items-center justify-center">
+																<div className="text-muted-foreground text-3xl">📦</div>
+															</div>
+														)}
 													</div>
-												</CardContent>
-											</Card>
-										))}
+													<CardHeader className="p-4">
+														<CardTitle className="text-lg">{productName}</CardTitle>
+														<div className="text-xs text-muted-foreground mt-1">
+															<span className="font-medium">URL Slug: </span>{product.slug}
+														</div>
+														<div>
+															{product.localizedCategory 
+																? (language === 'en' ? product.localizedCategory.en : product.localizedCategory.vi) 
+																: ''}
+														</div>
+														{product.tags && product.tags.length > 0 && (
+															<div className="flex flex-wrap gap-1 mt-1">
+																{product.tags.slice(0, 2).map(tag => (
+																	<Badge key={tag} variant="secondary" className="text-xs">
+																		{tag}
+																	</Badge>
+																))}
+																{product.tags.length > 2 && (
+																	<Badge variant="secondary" className="text-xs">
+																		+{product.tags.length - 2}
+																	</Badge>
+																)}
+															</div>
+														)}
+													</CardHeader>
+													<CardContent className="p-4 pt-0">
+														<div className="flex space-x-2">
+															<Button 
+																variant="outline" 
+																size="sm" 
+																className="flex-1"
+																onClick={() => openProductEdit(product)}
+															>
+																<Edit className="mr-2 h-3 w-3" />
+																{t('edit')}
+															</Button>
+															<Button 
+																variant="outline" 
+																size="sm" 
+																className="flex-1 text-destructive hover:text-destructive"
+																onClick={() => handleDeleteProduct(product)}
+															>
+																<Trash2 className="mr-2 h-3 w-3" />
+																{t('delete')}
+															</Button>
+														</div>
+													</CardContent>
+												</Card>
+											);
+										})}
 									</div>
 								</TabsContent>
 								
@@ -1247,10 +1354,47 @@ export default function AdminDashboard() {
 							
 							{/* Product Dialog */}
 							<Dialog open={productDialog} onOpenChange={(open) => {
-								if (!open) {
+								if (open) {
+									// Nếu đang mở dialog và không phải đang edit thì reset form
+									if (!editingProduct) {
+										// Đảm bảo làm trống form khi mở dialog để thêm mới
+										setProductForm({
+											name: '',
+											localizedName: { en: '', vi: '' },
+											description: '',
+											localizedDescription: { en: '', vi: '' },
+											image: '',
+											localizedCategory: { en: '', vi: '' },
+											slug: '',
+											options: [],
+											relatedArticles: [],
+											isLocalized: true,
+											tags: []
+										})
+										setPriceInputValues({})
+										setSelectedArticles([])
+									}
+								} else {
+									// Khi đóng dialog
 									setProductDialog(false)
 									setEditingProduct(null)
 									setArticleSearchQuery('')
+									// Reset all form data to prevent carrying over values to a new product
+									setProductForm({
+										name: '',
+										localizedName: { en: '', vi: '' },
+										description: '',
+										localizedDescription: { en: '', vi: '' },
+										image: '',
+										localizedCategory: { en: '', vi: '' },
+										slug: '',
+										options: [],
+										relatedArticles: [],
+										isLocalized: true,
+										tags: []
+									})
+									setPriceInputValues({})
+									setSelectedArticles([])
 								}
 							}}>
 								<DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" aria-describedby="product-dialog-description">
@@ -1669,8 +1813,8 @@ export default function AdminDashboard() {
 											</div>
 											
 											<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-2 border rounded-md">
-												{filteredArticles.length > 0 ? (
-													filteredArticles.map(article => (
+												{sortedFilteredArticles.length > 0 ? (
+													sortedFilteredArticles.map(article => (
 														<div 
 															key={article.id} 
 															className={`p-3 border rounded-md cursor-pointer transition-colors ${
@@ -1727,13 +1871,13 @@ export default function AdminDashboard() {
 							<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
 								{faqArticles.map((article) => (
 									<Card key={article.id} className="overflow-hidden">
-										<CardHeader className="p-4">
+													<CardHeader className="p-4">
 											<CardTitle className="text-lg">{article.title}</CardTitle>
 											<div className="flex flex-wrap gap-1 mt-1">
 												<Badge variant="secondary">
 													{article.category}
 												</Badge>
-											</div>
+														</div>
 										</CardHeader>
 										<CardContent className="p-4 pt-0">
 											<div className="flex space-x-2">
@@ -2126,6 +2270,58 @@ export default function AdminDashboard() {
 									</div>
 								</CardContent>
 							</Card>
+							
+							<div className="grid gap-4 md:grid-cols-2">
+								<Card>
+									<CardHeader>
+										<CardTitle>{language === 'en' ? 'Gradient Title' : 'Tiêu đề gradient'}</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="space-y-2">
+											<label className="text-sm font-medium">{language === 'en' ? 'Main title on homepage' : 'Tiêu đề chính trên trang chủ'}</label>
+											<Input 
+												value={editingSiteConfig.heroTitle}
+												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroTitle: e.target.value})}
+												placeholder={language === 'en' ? 'Enter title...' : 'Nhập tiêu đề...'}
+											/>
+										</div>
+									</CardContent>
+								</Card>
+								
+								<Card>
+									<CardHeader>
+										<CardTitle>{language === 'en' ? 'Subtitle' : 'Tiêu đề nhỏ'}</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="space-y-2">
+											<label className="text-sm font-medium">{language === 'en' ? 'Subtitle displayed below' : 'Tiêu đề nhỏ hiển thị bên dưới'}</label>
+											<Input 
+												value={editingSiteConfig.heroQuote}
+												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroQuote: e.target.value})}
+												placeholder={language === 'en' ? 'Enter subtitle...' : 'Nhập tiêu đề nhỏ...'}
+											/>
+										</div>
+									</CardContent>
+								</Card>
+							</div>
+
+							<div className="grid gap-4 md:grid-cols-1">
+								<Card>
+									<CardHeader>
+										<CardTitle>{language === 'en' ? 'Website Title' : 'Tiêu đề Website'}</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="space-y-2">
+											<label className="text-sm font-medium">{language === 'en' ? 'Title displayed in browser tab' : 'Tiêu đề hiển thị trên thanh trình duyệt'}</label>
+											<Input 
+												value={editingSiteConfig.siteTitle || ''}
+												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, siteTitle: e.target.value})}
+												placeholder={language === 'en' ? 'Shine Shop - Your Trusted Online Shopping Destination' : 'Shine Shop - Điểm đến mua sắm trực tuyến tin cậy'}
+											/>
+										</div>
+									</CardContent>
+								</Card>
+							</div>
 							
 							<div className="grid gap-4 md:grid-cols-2">
 								<Card>

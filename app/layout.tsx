@@ -5,11 +5,12 @@ import { Providers } from './components/providers'
 import { Navbar } from './components/navbar'
 import { LanguageInitializer } from './components/language-initializer'
 import { HtmlHead } from './components/html-head'
+import { initialSiteConfig } from './lib/initial-data'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-	title: 'Shine Shop - Your Trusted Online Shopping Destination',
+	title: initialSiteConfig.siteTitle,
 	description: 'Shop for premium electronics, accessories, and more at Shine Shop. Quality products with excellent customer service.',
 }
 

@@ -1,33 +1,23 @@
 'use client'
 
 import Script from 'next/script'
+import { useStore } from '@/app/lib/store'
 import { useEffect } from 'react'
 
 export function HtmlHead() {
-  // Force reload if coming from browser history
+  const { siteConfig } = useStore()
+  
+  // Update document title when siteConfig changes
   useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        // Page is loaded from cache (back/forward navigation)
-        window.location.reload()
-      }
+    if (siteConfig?.siteTitle) {
+      document.title = siteConfig.siteTitle
     }
-    
-    window.addEventListener('pageshow', handlePageShow)
-    return () => {
-      window.removeEventListener('pageshow', handlePageShow)
-    }
-  }, [])
+  }, [siteConfig])
   
   return (
     <>
-      {/* Meta tags to prevent caching */}
-      <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-      <meta httpEquiv="Pragma" content="no-cache" />
-      <meta httpEquiv="Expires" content="0" />
-      
-      {/* Load force-reload script */}
-      <Script src="/force-reload.js" strategy="beforeInteractive" />
+      {/* Meta tags for SEO */}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     </>
   )
 } 
