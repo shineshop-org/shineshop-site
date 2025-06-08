@@ -7,7 +7,7 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 const isProduction = process.env.NODE_ENV === 'production'
 
 // Cache version - increment this when deploying major content changes
-const CACHE_VERSION = '1.0.3'
+const CACHE_VERSION = '1.0.4'
 
 // Middleware
 export function middleware(req: NextRequest) {
@@ -50,13 +50,16 @@ export function middleware(req: NextRequest) {
 		response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store')
 		response.headers.set('X-Cache-Bust', cacheKey)
 		response.headers.set('Cache-Tag', 'shineshop-site,content-update')
-		response.headers.set('Clear-Site-Data', '"cache"')
+		response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage"')
 		response.headers.set('Pragma', 'no-cache')
 		response.headers.set('Expires', '0')
 		
 		// Force revalidation of browser cache
 		response.headers.set('ETag', `W/"${timestamp}"`)
 		response.headers.set('Last-Modified', new Date().toUTCString())
+		
+		// Clear cookies to prevent stale data
+		response.headers.set('Set-Cookie', 'shineshop-storage-v3=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict')
 	} else if (pathname.includes('/_next/')) {
 		// For Next.js assets - allow caching but with versioning
 		response.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
@@ -69,6 +72,9 @@ export function middleware(req: NextRequest) {
 		response.headers.set('CDN-Cache-Control', 'no-store, max-age=0')
 		response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store, max-age=0')
 		response.headers.set('X-Content-Fresh', timestamp)
+		
+		// Clear old cookies to prevent stale data
+		response.headers.set('Set-Cookie', 'shineshop-storage-v3=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict')
 	}
 	
 	// Add custom header to identify cache version

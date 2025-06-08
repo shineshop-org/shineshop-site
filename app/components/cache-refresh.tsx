@@ -10,15 +10,34 @@ export default function CacheRefresh() {
         // Add a timestamp to the fetch URL to bypass cache
         const timestamp = Date.now();
         
-        // Kiểm tra xem đã làm mới cache chưa
-        const cacheStatus = sessionStorage.getItem('cache-refreshed');
-        const lastRefresh = localStorage.getItem('last-cache-refresh');
+        // Clear all localStorage to prevent stale data
+        if (typeof window !== 'undefined') {
+          try {
+            // Clear all localStorage data
+            localStorage.clear();
+            
+            // Clear all sessionStorage data
+            sessionStorage.clear();
+            
+            // Try to clear cookies via document.cookie
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i];
+              const eqPos = cookie.indexOf('=');
+              const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+              document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+            }
+          } catch (e) {
+            console.error('Error clearing storage:', e);
+          }
+        }
+        
+        // Check if need to refresh cache
         const currentPathname = window.location.pathname;
         
-        // Chỉ làm mới cache khi người dùng truy cập trang chủ hoặc trang sản phẩm
-        // và chưa làm mới trong phiên hiện tại
-        if (!cacheStatus && (currentPathname === '/store' || currentPathname === '/' || currentPathname.includes('/store/product/'))) {
-          // Gọi API xóa cache
+        // Only refresh cache for homepage or product pages
+        if (currentPathname === '/store' || currentPathname === '/' || currentPathname.includes('/store/product/')) {
+          // Call API to purge cache
           await fetch(`/api/cache-purge?t=${timestamp}`, {
             cache: 'no-store',
             headers: {
@@ -27,37 +46,26 @@ export default function CacheRefresh() {
             },
           });
           
-          // Lưu thời gian làm mới cuối cùng
-          localStorage.setItem('last-cache-refresh', timestamp.toString());
-          sessionStorage.setItem('cache-refreshed', 'true');
-          
-          // Thêm meta tags để ngăn cache
+          // Add meta tags to prevent cache
           updateMetaTags();
           
-          // Cố gắng xóa cache trình duyệt
+          // Try to clear browser cache
           clearBrowserCache();
           
-          // Cập nhật tất cả các liên kết nội bộ với tham số timestamp
+          // Update all internal links with timestamp
           updateInternalLinks(timestamp);
-          
-          // Trong trường hợp trang chủ, thử tải lại trang sau 2 giây nếu là lần đầu truy cập
-          if ((currentPathname === '/store' || currentPathname === '/') && !lastRefresh) {
-            setTimeout(() => {
-              window.location.reload();
-            }, 2000);
-          }
         }
       } catch (error) {
         console.error('Failed to refresh cache:', error);
       }
     };
     
-    // Thêm meta tags để ngăn cache
+    // Add meta tags to prevent cache
     const updateMetaTags = () => {
-      // Xóa meta tags hiện có nếu có
+      // Remove existing meta tags if any
       document.querySelectorAll('meta[data-cache-control]').forEach(el => el.remove());
       
-      // Thêm meta tags mới
+      // Add new meta tags
       const metaCache = document.createElement('meta');
       metaCache.setAttribute('http-equiv', 'Cache-Control');
       metaCache.setAttribute('content', 'no-cache, no-store, must-revalidate');
@@ -76,17 +84,24 @@ export default function CacheRefresh() {
       metaExpires.setAttribute('data-cache-control', 'true');
       document.head.appendChild(metaExpires);
       
-      // Thêm meta tag mới với timestamp
+      // Add meta tag with timestamp
       const metaTimestamp = document.createElement('meta');
       metaTimestamp.setAttribute('name', 'cache-timestamp');
       metaTimestamp.setAttribute('content', Date.now().toString());
       metaTimestamp.setAttribute('data-cache-control', 'true');
       document.head.appendChild(metaTimestamp);
+      
+      // Add meta tag to clear site data
+      const metaClearSiteData = document.createElement('meta');
+      metaClearSiteData.setAttribute('http-equiv', 'Clear-Site-Data');
+      metaClearSiteData.setAttribute('content', '"cache", "cookies", "storage"');
+      metaClearSiteData.setAttribute('data-cache-control', 'true');
+      document.head.appendChild(metaClearSiteData);
     };
     
-    // Cố gắng xóa cache trình duyệt
+    // Try to clear browser cache
     const clearBrowserCache = async () => {
-      // Thử xóa cache Service Worker nếu có
+      // Try to unregister Service Worker if any
       if ('serviceWorker' in navigator) {
         try {
           const registrations = await navigator.serviceWorker.getRegistrations();
@@ -98,7 +113,7 @@ export default function CacheRefresh() {
         }
       }
       
-      // Thử xóa cache API
+      // Try to clear cache API
       if ('caches' in window) {
         try {
           const cacheNames = await window.caches.keys();
@@ -109,12 +124,12 @@ export default function CacheRefresh() {
       }
     };
     
-    // Cập nhật các liên kết nội bộ
+    // Update internal links
     const updateInternalLinks = (timestamp: number) => {
       document.querySelectorAll('a').forEach(link => {
         const href = link.getAttribute('href');
         if (href && href.startsWith('/')) {
-          // Thêm hoặc cập nhật tham số timestamp
+          // Add or update timestamp parameter
           const url = new URL(href, window.location.origin);
           url.searchParams.set('t', timestamp.toString());
           link.setAttribute('href', url.pathname + url.search);
@@ -122,7 +137,7 @@ export default function CacheRefresh() {
       });
     };
 
-    // Chạy refreshCache khi trang tải xong
+    // Run refreshCache when page loads
     if (document.readyState === 'complete') {
       refreshCache();
     } else {
@@ -131,5 +146,5 @@ export default function CacheRefresh() {
     }
   }, []);
 
-  return null; // Component này không hiển thị gì
+  return null; // This component doesn't display anything
 } 

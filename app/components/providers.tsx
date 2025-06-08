@@ -98,9 +98,9 @@ function InnerProviders({ children }: { children: React.ReactNode }) {
 	return (
 		<ThemeProvider
 			attribute="class"
-			defaultTheme={theme}
-			enableSystem={false}
-			storageKey="shineshop-theme"
+			defaultTheme="system"
+			enableSystem={true}
+			storageKey={undefined}
 		>
 			{children}
 		</ThemeProvider>

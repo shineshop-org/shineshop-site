@@ -7,6 +7,7 @@ import { LanguageInitializer } from './components/language-initializer'
 import { HtmlHead } from './components/html-head'
 import { initialSiteConfig } from './lib/initial-data'
 import CacheRefresh from './components/cache-refresh'
+import { SystemPreferencesProvider } from './components/system-preferences'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -35,9 +36,11 @@ export default function RootLayout({
 				<meta httpEquiv="Pragma" content="no-cache" />
 				<meta httpEquiv="Expires" content="0" />
 				<meta name="build-id" content={`build-${Date.now()}`} />
+				<meta httpEquiv="Clear-Site-Data" content='"cache", "cookies", "storage"' />
 			</head>
 			<body className={inter.className}>
 				<Providers>
+					<SystemPreferencesProvider />
 					<LanguageInitializer />
 					<Navbar />
 					<CacheRefresh />
