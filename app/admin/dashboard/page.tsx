@@ -305,6 +305,7 @@ export default function AdminDashboard() {
 	const [isLoading, setIsLoading] = useState(true)
 	const [isPushing, setIsPushing] = useState(false)
 	const [isPublishing, setIsPublishing] = useState(false)
+	const [publishSuccess, setPublishSuccess] = useState(false)
 	const [activeTab, setActiveTab] = useState<TabType>('products')
 	const [productTab, setProductTab] = useState<ProductTabType>('details')
 	
@@ -1063,6 +1064,7 @@ export default function AdminDashboard() {
 		}
 		
 		setIsPublishing(true)
+		setPublishSuccess(false)
 		
 		try {
 			// First ensure all local changes are saved to the server
@@ -1100,15 +1102,22 @@ export default function AdminDashboard() {
 				}),
 			})
 			
-			const pushData = await pushResponse.json()
-			
-			if (pushResponse.ok) {
-				alert(language === 'en' 
-					? 'Successfully published to GitHub! All content including titles, FAQ, and TOS have been updated. Cloudflare will auto-deploy in a few minutes.' 
-					: 'Đã xuất bản thành công lên GitHub! Tất cả nội dung bao gồm tiêu đề, FAQ, và TOS đã được cập nhật. Cloudflare sẽ tự động deploy trong vài phút.')
-			} else {
+			// Only check if the response is not OK - no success message needed
+			if (!pushResponse.ok) {
+				const pushData = await pushResponse.json()
 				throw new Error(pushData.error || 'Failed to push changes to GitHub')
 			}
+			
+			// If we reach here, both operations were successful
+			// Show success notification via state instead of alert
+			console.log('Successfully published all content to GitHub')
+			setPublishSuccess(true)
+			
+			// Auto-hide success message after 5 seconds
+			setTimeout(() => {
+				setPublishSuccess(false)
+			}, 5000)
+			
 		} catch (error) {
 			console.error('Error publishing to production:', error)
 			alert(language === 'en' 
@@ -2228,6 +2237,26 @@ export default function AdminDashboard() {
 											? (language === 'en' ? 'Publishing...' : 'Đang xuất bản...') 
 											: (language === 'en' ? 'Publish' : 'Xuất bản')}
 									</Button>
+									
+									{publishSuccess && (
+										<div className="mt-4 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 flex items-center text-green-700 dark:text-green-300">
+											<svg 
+												xmlns="http://www.w3.org/2000/svg" 
+												className="h-5 w-5 mr-2" 
+												viewBox="0 0 20 20" 
+												fill="currentColor"
+											>
+												<path 
+													fillRule="evenodd" 
+													d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+													clipRule="evenodd" 
+												/>
+											</svg>
+											{language === 'en' 
+												? 'Successfully published! Cloudflare will auto-deploy in a few minutes.' 
+												: 'Đã xuất bản thành công! Cloudflare sẽ tự động deploy trong vài phút.'}
+										</div>
+									)}
 								</CardContent>
 							</Card>
 						</div>

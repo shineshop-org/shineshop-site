@@ -12,4 +12,9 @@ limits = { cpu_ms = 50 }
 
 # Environment variables
 [env.production]
-vars = { CF_PAGES = "1" } 
+vars = { CF_PAGES = "1" }
+
+# Cache configuration
+[site]
+[site.cache]
+caching = "disabled" 

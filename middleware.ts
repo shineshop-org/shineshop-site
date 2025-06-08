@@ -18,10 +18,18 @@ export function middleware(req: NextRequest) {
 	// Add cache control headers to prevent browser caching
 	const response = NextResponse.next()
 	
-	// Set cache control headers
-	response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0')
+	// Generate a unique timestamp to force fresh content
+	const timestamp = Date.now().toString()
+	
+	// Set cache control headers (more aggressive)
+	response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0')
 	response.headers.set('Pragma', 'no-cache')
 	response.headers.set('Expires', '0')
+	response.headers.set('Surrogate-Control', 'no-store')
+	response.headers.set('CDN-Cache-Control', 'no-store, max-age=0')
+	response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store, max-age=0')
+	response.headers.set('X-Content-Fresh', timestamp) // Add a unique header that changes with each request
+	response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage"')
 	
 	return response
 }

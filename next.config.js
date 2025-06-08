@@ -97,11 +97,47 @@ const nextConfig = {
 		return `build-${Date.now()}`
 	},
 	
+	// Force page revalidation with every request
+	headers: async () => {
+		return [
+			{
+				source: '/(.*)',
+				headers: [
+					{
+						key: 'Cache-Control',
+						value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0',
+					},
+					{
+						key: 'Pragma',
+						value: 'no-cache',
+					},
+					{
+						key: 'Expires',
+						value: '0',
+					},
+					{
+						key: 'Surrogate-Control',
+						value: 'no-store',
+					},
+					{
+						key: 'X-Content-Build-Id',
+						value: `build-${Date.now()}`,
+					},
+				],
+			},
+		];
+	},
+	
 	webpack: (config, { dev, isServer }) => {
 		// Disable webpack caching in production
 		if (!dev) {
 			config.cache = false;
 		}
+		
+		// Add timestamp to bundle filename to prevent caching
+		config.output.filename = `[name].${Date.now()}.[contenthash].js`;
+		config.output.chunkFilename = `[name].${Date.now()}.[contenthash].js`;
+		
 		return config;
 	},
 }
