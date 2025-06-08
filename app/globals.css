@@ -181,4 +181,19 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
 	@apply bg-muted-foreground/50;
+}
+
+/* Prevent text selection on interactive elements */
+button, 
+.button,
+[role="button"],
+label,
+a,
+.select-none,
+input[type="radio"] + span,
+input[type="checkbox"] + span {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 } 

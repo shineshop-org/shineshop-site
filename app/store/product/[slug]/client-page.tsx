@@ -495,7 +495,7 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 								{product.options && product.options.map((option) => (
 									<label 
 										key={option.id}
-										className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all ${
+										className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all select-none ${
 											option.id === activeOptionId ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-input hover:bg-accent/50'
 										}`}
 									>
@@ -507,7 +507,7 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 											onChange={() => handleOptionNameChange(option.id)}
 											className="sr-only"
 										/>
-										<span>{getOptionName(option)}</span>
+										<span className="select-none">{getOptionName(option)}</span>
 									</label>
 								))}
 							</div>
@@ -537,7 +537,7 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 										return (
 											<label
 												key={uniqueId}
-												className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary ${
+												className={`cursor-pointer flex items-center justify-center px-4 py-2 rounded-full border transition-all hover:border-primary select-none ${
 													selectedOptions[option.id] === uniqueId 
 														? 'bg-primary text-primary-foreground border-primary' 
 														: 'bg-background border-input hover:bg-accent/50'
@@ -552,7 +552,7 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 													className="sr-only"
 													readOnly={false}
 												/>
-												<span>{displayText}</span>
+												<span className="select-none">{displayText}</span>
 											</label>
 										)
 									})}

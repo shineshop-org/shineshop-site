@@ -18,28 +18,39 @@ export function useSystemPreferences() {
       return;
     }
 
-    // Detect system theme preference
+    // Detect system theme preference but respect user's selection if saved
     const detectTheme = () => {
       try {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        setTheme(prefersDark ? 'dark' : 'light')
+        // Check if user has a saved theme preference
+        const savedTheme = localStorage.getItem('theme-preference');
         
-        // Set up listener for theme preference changes
-        const themeMedia = window.matchMedia('(prefers-color-scheme: dark)')
-        const themeChangeHandler = (e: MediaQueryListEvent) => {
-          setTheme(e.matches ? 'dark' : 'light')
+        // Only use system preference if no user preference exists
+        if (!savedTheme) {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          setTheme(prefersDark ? 'dark' : 'light')
+          
+          // Set up listener for theme preference changes only if no saved preference
+          const themeMedia = window.matchMedia('(prefers-color-scheme: dark)')
+          const themeChangeHandler = (e: MediaQueryListEvent) => {
+            // Only update if no saved preference exists
+            if (!localStorage.getItem('theme-preference')) {
+              setTheme(e.matches ? 'dark' : 'light')
+            }
+          }
+          
+          themeMedia.addEventListener('change', themeChangeHandler)
+          return () => themeMedia.removeEventListener('change', themeChangeHandler)
         }
         
-        themeMedia.addEventListener('change', themeChangeHandler)
-        return () => themeMedia.removeEventListener('change', themeChangeHandler)
+        return () => {};
       } catch (error) {
         console.error('Error detecting theme preference:', error);
         return () => {};
       }
     }
 
-    // Detect language based on location
-    const detectLanguage = async (): Promise<Language> => {
+    // Detect language based on browser settings, don't use IP detection
+    const detectLanguage = (): Language => {
       try {
         // Try to detect language based on navigator.language first
         if (typeof navigator !== 'undefined') {
@@ -48,13 +59,9 @@ export function useSystemPreferences() {
             return 'vi'
           }
         }
-
-        // Try to detect country from IP
-        const response = await fetch('https://ipapi.co/json/')
-        const data = await response.json()
         
-        // Use Vietnamese for Vietnam, English for others
-        return data.country_code === 'VN' ? 'vi' : 'en'
+        // Default to Vietnamese if detection fails
+        return 'vi'
       } catch (error) {
         console.error('Error detecting user language:', error)
         return 'vi' // Default to Vietnamese
@@ -66,8 +73,8 @@ export function useSystemPreferences() {
         // Set up theme detection
         const cleanupTheme = detectTheme()
         
-        // Set language based on location
-        const detectedLanguage = await detectLanguage()
+        // Set language based on browser settings
+        const detectedLanguage = detectLanguage()
         setLanguage(detectedLanguage)
         
         // Mark as initialized
@@ -88,5 +95,6 @@ export function useSystemPreferences() {
     initialize()
   }, [initialized, setTheme, setLanguage])
 
-  return { initialized }
+  // This component doesn't render anything
+  return null
 } 
