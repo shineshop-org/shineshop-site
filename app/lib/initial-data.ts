@@ -376,9 +376,9 @@ Address: 123 Commerce Street, Ho Chi Minh City, Vietnam
 By using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.`
 
 export const initialSiteConfig: SiteConfig = {
+  "siteTitle": "SHINE SHOP",
   "heroTitle": "Welcome to SHINE SHOP!",
   "heroQuote": "heheehh!",
-  "siteTitle": "SHINE SHOP - Your Trusted Online Shopping Destination",
   "contactLinks": {
     "facebook": "https://facebook.com/shineshop",
     "whatsapp": "https://wa.me/84123456789"
