@@ -7,7 +7,7 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 const isProduction = process.env.NODE_ENV === 'production'
 
 // Cache version - increment this when deploying major content changes
-const CACHE_VERSION = '1.0.1'
+const CACHE_VERSION = '1.0.2'
 
 // Middleware
 export function middleware(req: NextRequest) {
@@ -27,21 +27,29 @@ export function middleware(req: NextRequest) {
 	// Generate a unique timestamp to force fresh content
 	const timestamp = Date.now().toString()
 	
-	// Generate cache key based on current time window (changes every hour)
-	const timeWindow = Math.floor(Date.now() / (60 * 60 * 1000))
+	// Generate cache key based on current time (changes every minute)
+	const timeWindow = Math.floor(Date.now() / (60 * 1000))
 	const cacheKey = `v${CACHE_VERSION}-${timeWindow}`
 	
 	// Check if this is the homepage
 	const isHomepage = pathname === '/' || pathname === '/index.html' || pathname === '/store'
+	const isProductPage = pathname.includes('/store/product/')
 	
 	// Set different cache policies based on the route
-	if (isHomepage || pathname.includes('/store/product/')) {
-		// For homepage and product pages - more aggressive cache busting
+	if (isHomepage || isProductPage) {
+		// For homepage and product pages - aggressive cache busting
 		response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
 		response.headers.set('CDN-Cache-Control', 'no-store')
 		response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store')
 		response.headers.set('X-Cache-Bust', cacheKey)
 		response.headers.set('Cache-Tag', 'shineshop-site,content-update')
+		response.headers.set('Clear-Site-Data', '"cache"')
+		response.headers.set('Pragma', 'no-cache')
+		response.headers.set('Expires', '0')
+		
+		// Force revalidation of browser cache
+		response.headers.set('ETag', `W/"${timestamp}"`)
+		response.headers.set('Last-Modified', new Date().toUTCString())
 	} else if (pathname.includes('/_next/')) {
 		// For Next.js assets - allow caching but with versioning
 		response.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
