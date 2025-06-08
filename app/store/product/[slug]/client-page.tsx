@@ -395,11 +395,14 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 	}
 	
 	const getOptionValue = (value: NonNullable<Product['options']>[0]['values'][0]) => {
-		return language === 'en' && value.localizedName?.en 
-			? value.localizedName.en 
-			: language === 'vi' && value.localizedName?.vi 
-				? value.localizedName.vi 
-				: value.name;
+		// Debug value structure
+		console.log('Option value structure:', JSON.stringify(value, null, 2));
+		
+		return language === 'en' && value.localizedValue?.en 
+			? value.localizedValue.en 
+			: language === 'vi' && value.localizedValue?.vi 
+				? value.localizedValue.vi 
+				: value.value || '';
 	}
 	
 	const getNoteLabel = () => {
