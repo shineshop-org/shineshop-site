@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Product } from '@/app/lib/types'
+import { CacheBuster } from '@/app/components/ui/CacheBuster'
 
 export default function StorePage() {
 	const { products, siteConfig } = useStore()
@@ -117,6 +118,11 @@ export default function StorePage() {
 				<p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
 					{siteConfig.heroQuote}
 				</p>
+				
+				{/* Cache Buster Tool */}
+				<div className="flex justify-center mt-4">
+					<CacheBuster />
+				</div>
 			</section>
 			
 			{/* Products Section */}

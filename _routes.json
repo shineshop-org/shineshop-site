@@ -26,8 +26,36 @@
       "Pragma": "no-cache",
       "Expires": "0",
       "Surrogate-Control": "no-store",
+      "CDN-Cache-Control": "no-store",
+      "Cloudflare-CDN-Cache-Control": "no-store",
+      "Cache-Tag": "shineshop-site,content-update,v1.0.1",
+      "X-Cache-Bust": "true",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY"
+    },
+    "/store": {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      "CDN-Cache-Control": "no-store",
+      "Cloudflare-CDN-Cache-Control": "no-store",
+      "Clear-Site-Data": "\"cache\"",
+      "CF-Cache-Status": "BYPASS"
+    },
+    "/store/product/*": {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      "CDN-Cache-Control": "no-store",
+      "Cloudflare-CDN-Cache-Control": "no-store",
+      "Clear-Site-Data": "\"cache\"",
+      "CF-Cache-Status": "BYPASS"
+    },
+    "/_next/static/*": {
+      "Cache-Control": "public, max-age=31536000, immutable"
+    },
+    "/api/cache-purge": {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      "CDN-Cache-Control": "no-store",
+      "Cloudflare-CDN-Cache-Control": "no-store",
+      "Clear-Site-Data": "\"cache\", \"cookies\", \"storage\"",
+      "CF-Cache-Status": "BYPASS"
     }
   },
   "routes": [
@@ -40,6 +68,27 @@
       "src": "/sheet",
       "dest": "https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit?gid=1592107766#gid=1592107766",
       "status": 301
+    },
+    {
+      "src": "/api/cache-purge",
+      "headers": {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "CDN-Cache-Control": "no-store",
+        "Cloudflare-CDN-Cache-Control": "no-store",
+        "Clear-Site-Data": "\"cache\", \"cookies\", \"storage\"",
+        "CF-Cache-Status": "BYPASS"
+      },
+      "continue": true
+    },
+    {
+      "src": "/api/.*",
+      "headers": {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "CDN-Cache-Control": "no-store",
+        "Cloudflare-CDN-Cache-Control": "no-store",
+        "CF-Cache-Status": "BYPASS"
+      },
+      "continue": true
     }
   ]
 } 

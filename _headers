@@ -3,13 +3,47 @@
   Pragma: no-cache
   Expires: 0
   Surrogate-Control: no-store
+  CDN-Cache-Control: no-store
+  Cloudflare-CDN-Cache-Control: no-store
+  Cache-Tag: shineshop-site,content-update,v1.0.1
+  X-Cache-Bust: true
+  CF-Cache-Status: BYPASS
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: no-referrer
-  Clear-Site-Data: "cache", "cookies", "storage"
   Access-Control-Allow-Origin: *
   Access-Control-Allow-Methods: GET, OPTIONS
   Access-Control-Allow-Headers: Content-Type
   Content-Security-Policy: default-src 'self'; img-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io data:; connect-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io; script-src 'self' 'unsafe-inline';
 */ 
+
+/store
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate
+  CDN-Cache-Control: no-store
+  Cloudflare-CDN-Cache-Control: no-store
+  Cache-Tag: shineshop-site,content-update,v1.0.1
+  X-Cache-Bust: true
+  CF-Cache-Status: BYPASS
+  Clear-Site-Data: "cache"
+
+/store/product/*
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate
+  CDN-Cache-Control: no-store
+  Cloudflare-CDN-Cache-Control: no-store
+  Cache-Tag: shineshop-site,content-update,v1.0.1
+  X-Cache-Bust: true
+  CF-Cache-Status: BYPASS
+  Clear-Site-Data: "cache"
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/api/cache-purge
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate
+  CDN-Cache-Control: no-store
+  Cloudflare-CDN-Cache-Control: no-store
+  Cache-Tag: shineshop-site,content-update,v1.0.1
+  X-Cache-Bust: true
+  CF-Cache-Status: BYPASS
+  Clear-Site-Data: "cache", "cookies", "storage" 
