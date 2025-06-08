@@ -193,9 +193,12 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 		// Try to find the product in the store
 		const storeProduct = products.find(p => p.slug === slug)
 		
-		// Log for debugging
-		console.log(`Looking for product with slug: ${slug}`)
-		console.log('Available products:', products.map(p => ({name: p.name, slug: p.slug})))
+		// Debug logs for navigation tracking
+		console.log(`[Navigation Debug] Current path: ${window.location.pathname}`)
+		console.log(`[Navigation Debug] Looking for product with slug: ${slug}`)
+		console.log(`[Navigation Debug] Found in store:`, !!storeProduct)
+		console.log(`[Navigation Debug] Products loaded in store:`, products.length)
+		console.log(`[Navigation Debug] Is store initialized:`, useStore.getState().isInitialized)
 		
 		// Check for localStorage backup (in case store hasn't loaded yet)
 		let localStorageProduct = null;
@@ -277,31 +280,36 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 	const handleOptionNameChange = (optionId: string) => {
 		setActiveOptionId(optionId)
 		
-		// When switching option tabs, update price based on the currently selected value for that option
-		const selectedValue = selectedOptions[optionId]
-		if (selectedValue) {
-			const option = product.options?.find(opt => opt.id === optionId)
-			if (option) {
-				const optionValue = option.values.find(val => val.value === selectedValue)
-				if (optionValue) {
-					// Require strict localized price - no fallback
-					if (optionValue.localizedPrice) {
-						const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
-						setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
-						
-						// Save the updated active option
-						saveOptionsToLocalStorage(product.id, selectedOptions, optionId);
-						return;
-					} else {
-						console.warn(`Missing localized price for option ${option.name}, value ${optionValue.value}`)
-					}
-				}
+		// Find the corresponding option
+		const option = product.options?.find(opt => opt.id === optionId)
+		if (option && option.values.length > 0) {
+			// Always select the first value (index 0) when switching to a new option
+			const valueKey = `${optionId}-0`
+			
+			// Update selectedOptions to select the first value of the newly selected option
+			const newSelectedOptions = {
+				...selectedOptions,
+				[optionId]: valueKey
 			}
+			
+			setSelectedOptions(newSelectedOptions)
+			
+			// Update price display based on the first value
+			const optionValue = option.values[0]
+			if (optionValue && optionValue.localizedPrice) {
+				const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi
+				setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'))
+			} else {
+				setPriceDisplay(formatPrice(product.price || 0, language === 'vi' ? 'vi-VN' : 'en-US'))
+			}
+			
+			// Save the updated options
+			saveOptionsToLocalStorage(product.id, newSelectedOptions, optionId)
+		} else {
+			// If no option found or it has no values, just update the active option ID
+			saveOptionsToLocalStorage(product.id, selectedOptions, optionId)
+			setPriceDisplay(formatPrice(product.price || 0, language === 'vi' ? 'vi-VN' : 'en-US'))
 		}
-		
-		setPriceDisplay(formatPrice(product.price, language === 'vi' ? 'vi-VN' : 'en-US'))
-		// Save the updated active option even if no price update
-		saveOptionsToLocalStorage(product.id, selectedOptions, optionId);
 	}
 	
 	// Handle option selection

@@ -7,7 +7,7 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 const isProduction = process.env.NODE_ENV === 'production'
 
 // Cache version - increment this when deploying major content changes
-const CACHE_VERSION = '1.0.2'
+const CACHE_VERSION = '1.0.3'
 
 // Middleware
 export function middleware(req: NextRequest) {
@@ -19,6 +19,13 @@ export function middleware(req: NextRequest) {
 	// Skip middleware for admin pages in development
 	if (process.env.NODE_ENV === 'development' && pathname.startsWith('/admin')) {
 		return NextResponse.next()
+	}
+
+	// For homepage redirects - to prevent loops, only redirect if not coming from /store
+	if (pathname === '/' && !referer.includes('/store')) {
+		// Redirect homepage to /store
+		url.pathname = '/store'
+		return NextResponse.redirect(url)
 	}
 
 	// Add cache control headers to prevent browser caching
