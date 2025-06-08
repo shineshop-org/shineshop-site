@@ -1145,36 +1145,18 @@ export default function AdminDashboard() {
 					color: #0ea5e9; /* JShine color (sky blue) instead of gradient */
 				}
 			`}</style>
-			<div className="container flex h-16 items-center px-4 sm:px-6 justify-between">
-				<div className="flex items-center gap-2 font-semibold">
-					<Shield className="h-5 w-5" />
-					<span>{t('adminDashboard')}</span>
-				</div>
-				<nav className="flex items-center space-x-4">
-					<Button variant="ghost" size="icon" asChild>
-						<a href="/" target="_blank">
-							<Home className="h-5 w-5" />
-							<span className="sr-only">{t('home')}</span>
-						</a>
-					</Button>
-					<Button variant="ghost" size="icon" onClick={handleLogout}>
-						<LogOut className="h-5 w-5" />
-						<span className="sr-only">{t('logout')}</span>
-					</Button>
-				</nav>
-			</div>
 			
 			<div className="container grid flex-1 gap-6 md:grid-cols-[200px_1fr] py-6">
 				{/* Sidebar */}
 				<div className="flex flex-col gap-2">
 					<Button 
-						variant={activeTab === 'products' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('products')}
-					>
-						<Home className="mr-2 h-4 w-4" />
-						{t('products')}
-					</Button>
+							variant={activeTab === 'products' ? 'default' : 'ghost'} 
+							className="justify-start"
+							onClick={() => setActiveTab('products')}
+						>
+							<Home className="mr-2 h-4 w-4" />
+							{t('products')}
+						</Button>
 					<Button 
 						variant={activeTab === 'faq' ? 'default' : 'ghost'} 
 						className="justify-start"
@@ -1245,7 +1227,10 @@ export default function AdminDashboard() {
 								<TabsContent value="details" className="mt-6">
 									{/* Product Details Tab */}
 									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-										{products.map((product) => {
+										{products
+											.slice()
+											.sort((a, b) => parseInt(b.id) - parseInt(a.id)) // Sort by id (newest first)
+											.map((product) => {
 											// Get localized product name
 											const productName = language === 'en' 
 												? (product.localizedName?.en || product.name)
