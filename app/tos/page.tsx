@@ -1,14 +1,20 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent } from '@/app/components/ui/card'
 import ReactMarkdown from 'react-markdown'
+import { setPageTitle } from '@/app/lib/utils'
 
 export default function TOSPage() {
 	const { tosContent } = useStore()
 	const { t } = useTranslation()
+	
+	// Set page title on component mount
+	useEffect(() => {
+		setPageTitle('Terms of Service')
+	}, [])
 	
 	return (
 		<div className="max-w-4xl mx-auto py-8">

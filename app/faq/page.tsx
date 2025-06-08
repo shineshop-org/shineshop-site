@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Search, Calendar, Tag } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
@@ -8,6 +8,7 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
+import { setPageTitle } from '@/app/lib/utils'
 
 export default function FAQPage() {
 	const { faqArticles } = useStore()
@@ -15,8 +16,13 @@ export default function FAQPage() {
 	const [searchQuery, setSearchQuery] = useState('')
 	const [selectedCategory, setSelectedCategory] = useState('all')
 	
+	// Set page title on component mount
+	useEffect(() => {
+		setPageTitle('FAQ')
+	}, [])
+	
 	// Get unique categories
-	const categories = ['all', ...new Set(faqArticles.map(article => article.category))]
+	const categories = ['all', ...Array.from(new Set(faqArticles.map(article => article.category)))]
 	
 	// Filter articles
 	const filteredArticles = faqArticles.filter(article => {

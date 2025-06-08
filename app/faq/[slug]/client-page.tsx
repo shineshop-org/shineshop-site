@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown'
 import { initialFAQArticles } from '@/app/lib/initial-data'
 import { useStore } from '@/app/lib/store'
 import { FAQArticle } from '@/app/lib/types'
+import { setPageTitle } from '@/app/lib/utils'
 
 interface FaqArticleClientProps {
 	slug: string
@@ -30,6 +31,13 @@ export default function FaqArticleClient({ slug, initialArticle }: FaqArticleCli
 			setArticle(storeArticle)
 		}
 	}, [slug, faqArticles])
+	
+	// Set page title when article changes
+	useEffect(() => {
+		if (article && article.title) {
+			setPageTitle(article.title)
+		}
+	}, [article])
 	
 	return (
 		<div className="max-w-4xl mx-auto py-8">

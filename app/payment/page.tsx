@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Copy, Check, CreditCard, Globe, DollarSign } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/ca
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
 import { VietQRPayment } from '@/app/components/ui/viet-qr-payment'
+import { setPageTitle } from '@/app/lib/utils'
 
 type PaymentMethod = 'vietqr' | 'wise' | 'paypal'
 
@@ -36,6 +37,11 @@ export default function PaymentPage() {
 	const { t } = useTranslation()
 	const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('vietqr')
 	const [copied, setCopied] = useState(false)
+
+	// Set page title on component mount
+	useEffect(() => {
+		setPageTitle('Payment')
+	}, [])
 
 	const handleCopy = async (text: string) => {
 		try {

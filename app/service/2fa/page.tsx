@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/app
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
 import * as OTPAuth from 'otpauth'
+import { setPageTitle } from '@/app/lib/utils'
 
 export default function TwoFactorAuthPage() {
 	const { t } = useTranslation()
@@ -16,6 +17,11 @@ export default function TwoFactorAuthPage() {
 	const [copied, setCopied] = useState(false)
 	const [error, setError] = useState('')
 	const initialLoadRef = useRef(true)
+	
+	// Set page title on component mount
+	useEffect(() => {
+		setPageTitle('2FA Generator')
+	}, [])
 	
 	// Format input to uppercase and remove spaces
 	const formatInput = useCallback((input: string) => {

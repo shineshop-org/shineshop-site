@@ -13,6 +13,7 @@ import { Product, FAQArticle } from '@/app/lib/types'
 import { useTranslation } from '@/app/hooks/use-translations'
 import ReactMarkdown from 'react-markdown'
 import { RenderWithJShineLinks, JShineLink } from '@/app/components/ui/jshine-link'
+import { setPageTitle } from '@/app/lib/utils'
 
 interface ProductClientProps {
 	slug: string
@@ -188,6 +189,20 @@ export default function ProductClient({ slug, initialProduct }: ProductClientPro
 			saveOptionsToLocalStorage(product.id, selectedOptions, activeOptionId);
 		}
 	}, [selectedOptions, activeOptionId, product?.id]);
+	
+	// Set page title when product changes
+	useEffect(() => {
+		if (product && product.name) {
+			// Get the localized name if available
+			const displayName = language === 'en' && product.localizedName?.en 
+				? product.localizedName.en 
+				: language === 'vi' && product.localizedName?.vi 
+					? product.localizedName.vi 
+					: product.name;
+			
+			setPageTitle(displayName);
+		}
+	}, [product, language]);
 	
 	useEffect(() => {
 		// Try to find the product in the store

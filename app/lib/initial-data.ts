@@ -293,7 +293,7 @@ export const initialProducts: Product[] = [
   },
   {
     "id": "1749373306219",
-    "name": "",
+    "name": "netflix-premium",
     "localizedName": {
       "en": "",
       "vi": "Netflix Premium 4K"
@@ -380,6 +380,153 @@ export const initialProducts: Product[] = [
     ],
     "relatedArticles": [],
     "sortOrder": 4,
+    "isLocalized": true,
+    "tags": []
+  },
+  {
+    "id": "1749375264380",
+    "name": "",
+    "localizedName": {
+      "en": "",
+      "vi": "Spotify Premium"
+    },
+    "price": 0,
+    "description": "",
+    "localizedDescription": {
+      "en": "",
+      "vi": "Nâng cấp Spotify Premium chính chủ."
+    },
+    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/spotify-premium.png?updatedAt=1749225841726",
+    "localizedCategory": {
+      "en": "",
+      "vi": "Giải trí"
+    },
+    "slug": "spotify-premium",
+    "options": [
+      {
+        "id": "1749375040963",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Thêm vào Gia Đình"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 30000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "3 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 85000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "6 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 165000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 năm"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 295000
+            },
+            "description": ""
+          }
+        ]
+      },
+      {
+        "id": "1749375103979",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Tài khoản sẵn"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "6 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 85000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 năm"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 165000
+            },
+            "description": ""
+          }
+        ]
+      },
+      {
+        "id": "1749375104452",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Cá nhân"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "6 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 195000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "12 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 345000
+            },
+            "description": ""
+          }
+        ]
+      }
+    ],
+    "relatedArticles": [],
+    "sortOrder": 5,
     "isLocalized": true,
     "tags": []
   }

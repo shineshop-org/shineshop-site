@@ -58,4 +58,13 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 			return false
 		}
 	}
+}
+
+// Function to set the page title with proper format
+export function setPageTitle(title?: string, suffix = 'SHINE SHOP') {
+	if (!title) {
+		document.title = suffix
+	} else {
+		document.title = `${title} - ${suffix}`
+	}
 } 

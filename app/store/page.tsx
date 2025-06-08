@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Product } from '@/app/lib/types'
+import { setPageTitle } from '@/app/lib/utils'
 
 export default function StorePage() {
 	const { products, siteConfig } = useStore()
@@ -18,9 +19,19 @@ export default function StorePage() {
 	const [selectedCategory, setSelectedCategory] = useState('all')
 	const productsRef = useRef<HTMLDivElement>(null)
 	const categoryRef = useRef<HTMLDivElement>(null)
+	const [isMounted, setIsMounted] = useState(false)
+	
+	// Set isMounted to true once the component is mounted
+	useEffect(() => {
+		setIsMounted(true)
+		// Set default title for store page
+		setPageTitle()
+	}, [])
 	
 	// Auto-scroll on page load with smooth animation only if user hasn't visited recently
 	useEffect(() => {
+		if (!isMounted) return
+		
 		const INACTIVITY_THRESHOLD = 30 * 60 * 1000; // 30 minutes in milliseconds
 		
 		// Check when the user last visited the store page
@@ -69,7 +80,7 @@ export default function StorePage() {
 			
 			return () => clearTimeout(timer)
 		}
-	}, [])
+	}, [isMounted])
 	
 	// Get unique categories with localized values
 	const categories = useMemo(() => {
@@ -150,9 +161,9 @@ export default function StorePage() {
 								<motion.div
 									key={product.id}
 									layout
-									initial={{ opacity: 0, scale: 0.8 }}
-									animate={{ opacity: 1, scale: 1 }}
-									exit={{ opacity: 0, scale: 0.8 }}
+									initial={isMounted ? { opacity: 0, scale: 0.8 } : undefined}
+									animate={isMounted ? { opacity: 1, scale: 1 } : undefined}
+									exit={isMounted ? { opacity: 0, scale: 0.8 } : undefined}
 									transition={{
 										opacity: { duration: 0.3 },
 										layout: {
@@ -199,6 +210,12 @@ function ProductCard({ product, language }: ProductCardProps) {
 	const cardRef = useRef<HTMLDivElement>(null)
 	const [transform, setTransform] = useState('')
 	const [isHovered, setIsHovered] = useState(false)
+	const [isMounted, setIsMounted] = useState(false)
+	
+	// Set isMounted to true once the component is mounted
+	useEffect(() => {
+		setIsMounted(true)
+	}, [])
 	
 	// Get the product name based on language and localization settings
 	const getProductName = () => {
@@ -267,7 +284,7 @@ function ProductCard({ product, language }: ProductCardProps) {
 			onMouseEnter={handleMouseEnter}
 			onClick={(e) => e.stopPropagation()}
 			style={{
-				transform: transform,
+				transform: isMounted ? transform : '',
 				transition: 'transform 0.1s ease-out',
 				pointerEvents: 'none'
 			}}
