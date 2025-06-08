@@ -1,6 +1,5 @@
 name = "shineshop-site"
 compatibility_date = "2025-06-05"
-main = "workers-site/index.js"
 
 # Specify the build output directory
 pages_build_output_dir = ".next"
@@ -13,8 +12,4 @@ limits = { cpu_ms = 50 }
 
 # Environment variables
 [env.production]
-vars = { CF_PAGES = "1" }
-
-# Site configuration
-[site]
-bucket = ".next" 
+vars = { CF_PAGES = "1" } 

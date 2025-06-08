@@ -23,12 +23,11 @@ jobs:
       - name: Build
         run: npm run build
         
-      - name: Install Wrangler
-        run: npm install -g wrangler
-        
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: pages deploy .next --project-name=shineshop-site 
+          projectName: shineshop-site
+          directory: .next
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }} 
