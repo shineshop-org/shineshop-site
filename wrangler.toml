@@ -1,8 +1,9 @@
 name = "shineshop-site"
 compatibility_date = "2025-06-05"
+main = "workers-site/index.js"
 
 # Specify the build output directory
-pages_build_output_dir = ".vercel/output/static"
+pages_build_output_dir = ".next"
 
 # Configure for Next.js App Router compatibility
 compatibility_flags = ["nodejs_compat"]
@@ -14,7 +15,6 @@ limits = { cpu_ms = 50 }
 [env.production]
 vars = { CF_PAGES = "1" }
 
-# Cache configuration
+# Site configuration
 [site]
-[site.cache]
-caching = "disabled" 
+bucket = ".next" 
