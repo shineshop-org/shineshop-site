@@ -683,7 +683,7 @@ By using our services, you acknowledge that you have read, understood, and agree
 export const initialSiteConfig: SiteConfig = {
   "siteTitle": "SHINE SHOP",
   "heroTitle": "Welcome to SHINE SHOP!",
-  "heroQuote": "heheehh!",
+  "heroQuote": "Anh em mình cứ thế thôi hẹ hẹ hẹ",
   "contactLinks": {
     "facebook": "https://facebook.com/shineshop",
     "whatsapp": "https://wa.me/84123456789"
