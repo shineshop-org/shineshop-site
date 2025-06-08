@@ -10,6 +10,11 @@ compatibility_flags = ["nodejs_compat"]
 # Set limits for proper RSC handling
 limits = { cpu_ms = 50 }
 
+# Build configuration
+[build]
+command = "npm run build"
+output_directory = ".next"
+
 # Environment variables
 [env.production]
 vars = { CF_PAGES = "1" } 
