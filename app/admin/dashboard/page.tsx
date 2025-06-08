@@ -2352,39 +2352,21 @@ export default function AdminDashboard() {
 								</Card>
 							</div>
 							
-							<div className="grid gap-4 md:grid-cols-2">
-								<Card>
-									<CardHeader>
-										<CardTitle>{language === 'en' ? 'Gradient Title' : 'Tiêu đề gradient'}</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{language === 'en' ? 'Main title on homepage' : 'Tiêu đề chính trên trang chủ'}</label>
-											<Input 
-												value={editingSiteConfig.heroTitle}
-												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroTitle: e.target.value})}
-												placeholder={language === 'en' ? 'Enter title...' : 'Nhập tiêu đề...'}
-											/>
-										</div>
-									</CardContent>
-								</Card>
-								
-								<Card>
-									<CardHeader>
-										<CardTitle>{language === 'en' ? 'Subtitle' : 'Tiêu đề nhỏ'}</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{language === 'en' ? 'Subtitle displayed below' : 'Tiêu đề nhỏ hiển thị bên dưới'}</label>
-											<Input 
-												value={editingSiteConfig.heroQuote}
-												onChange={(e) => setEditingSiteConfig({...editingSiteConfig, heroQuote: e.target.value})}
-												placeholder={language === 'en' ? 'Enter subtitle...' : 'Nhập tiêu đề nhỏ...'}
-											/>
-										</div>
-									</CardContent>
-								</Card>
-							</div>
+							<Button 
+								onClick={() => {
+									// Save settings
+									setSiteConfig({...editingSiteConfig})
+									setShowSavedNotification(true)
+									
+									// Hide notification after 3 seconds
+									setTimeout(() => {
+										setShowSavedNotification(false)
+									}, 3000)
+								}}
+								className="mt-4"
+							>
+								{language === 'en' ? 'Save Settings' : 'Lưu cài đặt'}
+							</Button>
 						</div>
 					)}
 				</div>
