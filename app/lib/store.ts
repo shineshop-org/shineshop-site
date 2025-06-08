@@ -345,6 +345,24 @@ export const useStore = create<StoreState>()(
 					// Save to server
 					await saveToServer(data)
 					
+					// Also update the initial-data.ts file automatically
+					try {
+						await fetch('/api/dev/update-file', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								forceUpdate: true,
+								dataVersion: CURRENT_DATA_VERSION
+							})
+						})
+						console.log('Auto-updated initial-data.ts successfully')
+					} catch (updateError) {
+						console.error('Failed to auto-update initial-data.ts:', updateError)
+						// Continue even if this fails, as the data is already saved to store-data.json
+					}
+					
 					// Update data version after successful save
 					set({ dataVersion: CURRENT_DATA_VERSION })
 				} catch (error) {
