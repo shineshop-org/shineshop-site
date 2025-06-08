@@ -3,6 +3,7 @@
 
 # Cloudflare Pages redirects
 # Add any custom redirects here 
-/sheet https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit?gid=1592107766#gid=1592107766 301
+/sheet https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit 301
 
+# Single-page application routing
 /*    /index.html   200 
