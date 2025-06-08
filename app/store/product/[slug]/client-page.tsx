@@ -527,6 +527,13 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 										const uniqueId = `${option.id}-${valueIndex}`;
 										const inputName = `package-type-${option.id}`;
 										
+										// Determine display text based on available data
+										const displayText = language === 'en' && value.localizedValue?.en 
+											? value.localizedValue.en 
+											: language === 'vi' && value.localizedValue?.vi 
+												? value.localizedValue.vi 
+												: value.value || `Option ${valueIndex + 1}`;
+										
 										return (
 											<label
 												key={uniqueId}
@@ -545,7 +552,7 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 													className="sr-only"
 													readOnly={false}
 												/>
-												<span>{getOptionValue(value)}</span>
+												<span>{displayText}</span>
 											</label>
 										)
 									})}
