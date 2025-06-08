@@ -1,40 +1,13 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { ThemeProvider } from 'next-themes'
-import { useStore } from '@/app/lib/store'
 import { StoreProvider } from './providers/store-provider'
-import { useVersionCheck } from '@/app/hooks/use-version-check'
 import RSCErrorHandler from './providers/rsc-error-handler'
+import { Providers as ProvidersComponent } from './providers/index'
 
 export function Providers({ children }: { children: React.ReactNode }) {
-	// Register service worker to handle cache clearing
+	// Handle errors and warning suppression
 	useEffect(() => {
-		if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-			// Force unregister any existing service workers first
-			navigator.serviceWorker.getRegistrations().then(registrations => {
-				for (let registration of registrations) {
-					registration.unregister();
-				}
-				
-				// Register the new service worker with cache-busting query param
-				navigator.serviceWorker.register(`/sw.js?v=${Date.now()}`)
-					.then(registration => {
-						console.log('Service worker registered successfully');
-						
-						// Force reload once after registration
-						const reloadKey = 'sw-reload-once';
-						if (!sessionStorage.getItem(reloadKey)) {
-							sessionStorage.setItem(reloadKey, 'true');
-							window.location.reload();
-						}
-					})
-					.catch(err => {
-						console.error('Service worker registration failed:', err);
-					});
-			});
-		}
-		
 		// Suppress console errors for RSC 404s and font preload warnings
 		const originalError = console.error;
 		console.error = function(...args) {
@@ -82,27 +55,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 	}, []);
 	
 	return (
-		<StoreProvider>
-			<InnerProviders>{children}</InnerProviders>
-			<RSCErrorHandler />
-		</StoreProvider>
-	)
-}
-
-function InnerProviders({ children }: { children: React.ReactNode }) {
-	const { theme } = useStore()
-	
-	// Sử dụng hook kiểm tra phiên bản
-	useVersionCheck()
-	
-	return (
-		<ThemeProvider
-			attribute="class"
-			defaultTheme="system"
-			enableSystem={true}
-			storageKey={undefined}
-		>
+		<ProvidersComponent>
 			{children}
-		</ThemeProvider>
+		</ProvidersComponent>
 	)
 } 

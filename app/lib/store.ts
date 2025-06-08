@@ -147,23 +147,19 @@ function getSystemThemePreference(): 'light' | 'dark' {
 	return initialTheme || 'light'
 }
 
-// Helper function to detect user's location for language preference
-async function detectUserLanguage(): Promise<Language> {
+// Helper function to detect user's language based on browser settings
+function detectUserLanguage(): Language {
 	try {
 		// Try to detect language based on navigator.language first
-		if (typeof navigator !== 'undefined') {
+		if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
 			const browserLang = navigator.language.toLowerCase()
 			if (browserLang.includes('vi')) {
 				return 'vi'
 			}
 		}
 
-		// Try to detect country from IP
-		const response = await fetch('https://ipapi.co/json/')
-		const data = await response.json()
-		
-		// Use Vietnamese for Vietnam, English for others
-		return data.country_code === 'VN' ? 'vi' : 'en'
+		// Default to Vietnamese (can be changed by user)
+		return initialLanguage || 'vi'
 	} catch (error) {
 		console.error('Error detecting user language:', error)
 		return initialLanguage || 'vi'
@@ -298,8 +294,8 @@ export const useStore = create<StoreState>()((set, get) => ({
 			// Set theme based on system preference
 			const systemTheme = getSystemThemePreference()
 			
-			// Detect language based on user's location
-			const detectedLanguage = await detectUserLanguage()
+			// Detect language based on browser settings
+			const detectedLanguage = detectUserLanguage()
 			
 			if (!isDevelopment) {
 				// In production, just mark as initialized and use static data with detected preferences
@@ -328,37 +324,70 @@ export const useStore = create<StoreState>()((set, get) => ({
 				}
 			}
 			
-			const data = await loadFromServer()
-			// Strict data requirement - no fallbacks
-			set({
-				products: data.products,
-				faqArticles: data.faqArticles,
-				socialLinks: data.socialLinks,
-				language: detectedLanguage,
-				theme: systemTheme,
-				paymentInfo: data.paymentInfo,
-				siteConfig: data.siteConfig,
-				tosContent: data.tosContent,
-				isInitialized: true,
-				dataVersion: CURRENT_DATA_VERSION
-			})
-			return data
+			try {
+				const data = await loadFromServer()
+				// Strict data requirement - no fallbacks
+				set({
+					products: data.products,
+					faqArticles: data.faqArticles,
+					socialLinks: data.socialLinks,
+					language: detectedLanguage,
+					theme: systemTheme,
+					paymentInfo: data.paymentInfo,
+					siteConfig: data.siteConfig,
+					tosContent: data.tosContent,
+					isInitialized: true,
+					dataVersion: CURRENT_DATA_VERSION
+				})
+				return data
+			} catch (serverError) {
+				console.error('Failed to load data from server, using static data', serverError)
+				
+				// In case of error, ensure we're still initialized with static data and detected preferences
+				set({ 
+					isInitialized: true,
+					products: initialProducts,
+					faqArticles: initialFAQArticles,
+					socialLinks: initialSocialLinks,
+					language: detectedLanguage,
+					theme: systemTheme,
+					paymentInfo: initialPaymentInfo,
+					siteConfig: initialSiteConfig,
+					tosContent: initialTOSContent,
+					dataVersion: CURRENT_DATA_VERSION
+				})
+				
+				// Don't throw the error, just return static data
+				return {
+					products: initialProducts,
+					faqArticles: initialFAQArticles,
+					socialLinks: initialSocialLinks,
+					language: detectedLanguage,
+					theme: systemTheme,
+					paymentInfo: initialPaymentInfo,
+					siteConfig: initialSiteConfig,
+					tosContent: initialTOSContent,
+					dataVersion: CURRENT_DATA_VERSION
+				}
+			}
 		} catch (error) {
-			console.error('Failed to load data from server, using static data', error)
+			console.error('Failed to load data, using static data', error)
 			
-			// Set theme based on system preference
-			const systemTheme = getSystemThemePreference()
+			// Set theme based on system preference - fallback
+			let systemTheme: 'light' | 'dark' = 'light'
+			try {
+				systemTheme = getSystemThemePreference()
+			} catch (e) {
+				console.error('Error getting theme preference, using default', e)
+			}
 			
-			// Detect language based on user's location
-			const detectedLanguage = await detectUserLanguage()
-			
-			// In case of error, ensure we're still initialized with static data and detected preferences
+			// In case of error, ensure we're still initialized with static data
 			set({ 
 				isInitialized: true,
 				products: initialProducts,
 				faqArticles: initialFAQArticles,
 				socialLinks: initialSocialLinks,
-				language: detectedLanguage,
+				language: initialLanguage || 'vi',
 				theme: systemTheme,
 				paymentInfo: initialPaymentInfo,
 				siteConfig: initialSiteConfig,
@@ -366,7 +395,18 @@ export const useStore = create<StoreState>()((set, get) => ({
 				dataVersion: CURRENT_DATA_VERSION
 			})
 			
-			throw error
+			// Return static data instead of throwing
+			return {
+				products: initialProducts,
+				faqArticles: initialFAQArticles,
+				socialLinks: initialSocialLinks,
+				language: initialLanguage || 'vi',
+				theme: systemTheme,
+				paymentInfo: initialPaymentInfo,
+				siteConfig: initialSiteConfig,
+				tosContent: initialTOSContent,
+				dataVersion: CURRENT_DATA_VERSION
+			}
 		}
 	},
 	
@@ -402,7 +442,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 			set({ dataVersion: CURRENT_DATA_VERSION })
 		} catch (error) {
 			console.error('Error syncing data to server:', error)
-			throw error
+			// Don't throw error, just log
 		}
 	}
 })) 

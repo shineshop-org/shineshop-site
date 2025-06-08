@@ -11,36 +11,36 @@ export function LanguageInitializer() {
     // Update the HTML lang attribute when language changes
     document.documentElement.lang = language === 'vi' ? 'vi' : 'en'
 
-    // Detect user's location for language if not already initialized
-    if (!isInitialized) {
-      // Try to detect language based on browser settings first
-      const detectLanguage = async () => {
+    // Only run detection once, and only if not already detected by system preferences
+    if (!isInitialized && typeof window !== 'undefined' && !sessionStorage.getItem('system-prefs-initialized')) {
+      // Mark as initialized
+      setIsInitialized(true);
+      sessionStorage.setItem('language-initialized', 'true');
+      
+      // Try to detect language based on browser settings only
+      const detectLanguage = () => {
         try {
           // Try to detect language based on navigator.language first
           if (typeof navigator !== 'undefined') {
             const browserLang = navigator.language.toLowerCase()
             if (browserLang.includes('vi')) {
               setLanguage('vi')
-              setIsInitialized(true)
               return
+            } else {
+              setLanguage('en')
             }
           }
-
-          // Try to detect country from IP
-          const response = await fetch('https://ipapi.co/json/')
-          const data = await response.json()
-          
-          // Use Vietnamese for Vietnam, English for others
-          const detectedLanguage = data.country_code === 'VN' ? 'vi' : 'en'
-          setLanguage(detectedLanguage)
-          setIsInitialized(true)
         } catch (error) {
           console.error('Error detecting user language:', error)
-          setIsInitialized(true)
+          // Default to Vietnamese on error
+          setLanguage('vi')
         }
       }
 
-      detectLanguage()
+      // Only run detection if not already done
+      if (!sessionStorage.getItem('language-initialized')) {
+        detectLanguage()
+      }
     }
   }, [language, setLanguage, isInitialized])
   

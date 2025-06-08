@@ -1,32 +1,36 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function CacheRefresh() {
+  const [hasRefreshed, setHasRefreshed] = useState(false);
+
   useEffect(() => {
+    // Skip if already refreshed in this session
+    if (hasRefreshed) return;
+
     // Function to force cache refresh
     const refreshCache = async () => {
       try {
         // Add a timestamp to the fetch URL to bypass cache
         const timestamp = Date.now();
         
-        // Clear all localStorage to prevent stale data
-        if (typeof window !== 'undefined') {
+        // Only clear storage once per session
+        if (typeof window !== 'undefined' && !sessionStorage.getItem('cache-cleared')) {
           try {
-            // Clear all localStorage data
-            localStorage.clear();
+            // Mark as cleared in this session
+            sessionStorage.setItem('cache-cleared', 'true');
             
-            // Clear all sessionStorage data
-            sessionStorage.clear();
+            // Clear localStorage data - but don't clear everything
+            // Only clear the shineshop storage
+            localStorage.removeItem('shineshop-storage-v3');
+            localStorage.removeItem('shineshop-theme');
             
-            // Try to clear cookies via document.cookie
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i];
-              const eqPos = cookie.indexOf('=');
-              const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+            // Try to clear specific cookies only
+            const cookiesToClear = ['shineshop-storage-v3', 'shineshop-theme'];
+            cookiesToClear.forEach(name => {
               document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
-            }
+            });
           } catch (e) {
             console.error('Error clearing storage:', e);
           }
@@ -35,8 +39,14 @@ export default function CacheRefresh() {
         // Check if need to refresh cache
         const currentPathname = window.location.pathname;
         
-        // Only refresh cache for homepage or product pages
-        if (currentPathname === '/store' || currentPathname === '/' || currentPathname.includes('/store/product/')) {
+        // Only refresh cache for homepage or product pages, and only once per session
+        if (!sessionStorage.getItem('cache-refreshed') && 
+            (currentPathname === '/store' || currentPathname === '/' || currentPathname.includes('/store/product/'))) {
+          
+          // Mark as refreshed in this session
+          sessionStorage.setItem('cache-refreshed', 'true');
+          setHasRefreshed(true);
+          
           // Call API to purge cache
           await fetch(`/api/cache-purge?t=${timestamp}`, {
             cache: 'no-store',
@@ -90,13 +100,6 @@ export default function CacheRefresh() {
       metaTimestamp.setAttribute('content', Date.now().toString());
       metaTimestamp.setAttribute('data-cache-control', 'true');
       document.head.appendChild(metaTimestamp);
-      
-      // Add meta tag to clear site data
-      const metaClearSiteData = document.createElement('meta');
-      metaClearSiteData.setAttribute('http-equiv', 'Clear-Site-Data');
-      metaClearSiteData.setAttribute('content', '"cache", "cookies", "storage"');
-      metaClearSiteData.setAttribute('data-cache-control', 'true');
-      document.head.appendChild(metaClearSiteData);
     };
     
     // Try to clear browser cache
@@ -137,14 +140,19 @@ export default function CacheRefresh() {
       });
     };
 
-    // Run refreshCache when page loads
+    // Run refreshCache when page loads, but only once
     if (document.readyState === 'complete') {
       refreshCache();
     } else {
-      window.addEventListener('load', refreshCache);
-      return () => window.removeEventListener('load', refreshCache);
+      const handleLoad = () => {
+        refreshCache();
+        // Remove the event listener after execution
+        window.removeEventListener('load', handleLoad);
+      };
+      window.addEventListener('load', handleLoad);
+      return () => window.removeEventListener('load', handleLoad);
     }
-  }, []);
+  }, [hasRefreshed]);
 
   return null; // This component doesn't display anything
 } 

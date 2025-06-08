@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useStore } from '@/app/lib/store'
 import { Language } from '@/app/lib/types'
 
-export function useSystemPreferences() {
+export function SystemPreferencesProvider() {
   const { setTheme, setLanguage } = useStore()
   const [initialized, setInitialized] = useState(false)
 
@@ -38,8 +38,8 @@ export function useSystemPreferences() {
       }
     }
 
-    // Detect language based on location
-    const detectLanguage = async (): Promise<Language> => {
+    // Detect language based on browser settings, don't use IP detection
+    const detectLanguage = (): Language => {
       try {
         // Try to detect language based on navigator.language first
         if (typeof navigator !== 'undefined') {
@@ -48,13 +48,9 @@ export function useSystemPreferences() {
             return 'vi'
           }
         }
-
-        // Try to detect country from IP
-        const response = await fetch('https://ipapi.co/json/')
-        const data = await response.json()
         
-        // Use Vietnamese for Vietnam, English for others
-        return data.country_code === 'VN' ? 'vi' : 'en'
+        // Default to Vietnamese if detection fails
+        return 'vi'
       } catch (error) {
         console.error('Error detecting user language:', error)
         return 'vi' // Default to Vietnamese
@@ -66,8 +62,8 @@ export function useSystemPreferences() {
         // Set up theme detection
         const cleanupTheme = detectTheme()
         
-        // Set language based on location
-        const detectedLanguage = await detectLanguage()
+        // Set language based on browser settings
+        const detectedLanguage = detectLanguage()
         setLanguage(detectedLanguage)
         
         // Mark as initialized
@@ -88,5 +84,6 @@ export function useSystemPreferences() {
     initialize()
   }, [initialized, setTheme, setLanguage])
 
-  return { initialized }
+  // This component doesn't render anything
+  return null
 } 
