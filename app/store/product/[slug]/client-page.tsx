@@ -111,26 +111,27 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 			
 			if (savedOptions && Object.keys(savedOptions.selectedOptions).length > 0) {
 				// Use saved options
+				const activeId = savedOptions.activeOptionId || productData.options[0].id;
 				setSelectedOptions(savedOptions.selectedOptions);
-				setActiveOptionId(savedOptions.activeOptionId || productData.options[0].id);
+				setActiveOptionId(activeId);
 				
-				// Calculate price based on saved options
-				const activeOption = productData.options.find(opt => opt.id === savedOptions.activeOptionId);
+				// Tìm active option
+				const activeOption = productData.options.find(opt => opt.id === activeId);
 				if (activeOption) {
-					const activeValue = savedOptions.selectedOptions[activeOption.id];
-					if (activeValue) {
-						// Extract valueIndex from the format "optionId-valueIndex"
-						const valueParts = activeValue.split('-');
-						if (valueParts.length === 2) {
-							const valueIndex = parseInt(valueParts[1], 10);
-							if (!isNaN(valueIndex) && valueIndex >= 0 && valueIndex < activeOption.values.length) {
-								const optionValue = activeOption.values[valueIndex];
-								if (optionValue && optionValue.localizedPrice) {
-									const currentPrice = language === 'en' ? optionValue.localizedPrice.en : optionValue.localizedPrice.vi;
-									setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
-									return;
-								}
-							}
+					// Luôn hiển thị giá của option value đầu tiên của option đang active
+					if (activeOption.values && activeOption.values.length > 0) {
+						const firstValue = activeOption.values[0];
+						
+						// Đảm bảo luôn chọn value đầu tiên
+						const newOptions = { ...savedOptions.selectedOptions };
+						newOptions[activeId] = `${activeId}-0`;
+						setSelectedOptions(newOptions);
+						
+						// Cập nhật giá dựa trên value đầu tiên này
+						if (firstValue.localizedPrice) {
+							const currentPrice = language === 'en' ? firstValue.localizedPrice.en : firstValue.localizedPrice.vi;
+							setPriceDisplay(formatPrice(currentPrice, language === 'vi' ? 'vi-VN' : 'en-US'));
+							return;
 						}
 					}
 				}
@@ -154,7 +155,7 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 				saveOptionsToLocalStorage(productData.id, initialOptions, productData.options[0].id);
 			}
 			
-			// Calculate initial price
+			// Calculate initial price based on first option's first value
 			let initialPrice = productData.price || 0;
 			if (productData.options[0] && productData.options[0].values.length > 0) {
 				const firstOptionFirstValue = productData.options[0].values[0];
@@ -295,16 +296,16 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 	const handleOptionNameChange = (optionId: string) => {
 		setActiveOptionId(optionId);
 		
-		// On option name change, if the selected option value is not yet set,
-		// initialize it with the first value
-		if (!selectedOptions[optionId] && product.options) {
+		// Khi thay đổi option, LUÔN chọn value đầu tiên của option đó
+		if (product.options) {
 			const option = product.options.find(o => o.id === optionId);
 			if (option && option.values.length > 0) {
+				// Luôn gán giá trị là value đầu tiên, bất kể đã chọn trước đó hay chưa
 				const newOptions = { ...selectedOptions };
 				newOptions[optionId] = `${optionId}-0`;
 				setSelectedOptions(newOptions);
 				
-				// Update price display with the newly selected option
+				// Luôn cập nhật giá tiền theo value đầu tiên
 				if (option.values[0].localizedPrice) {
 					const currentPrice = language === 'en' 
 						? option.values[0].localizedPrice.en 

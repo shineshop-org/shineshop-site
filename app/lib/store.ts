@@ -12,6 +12,7 @@ import {
 	initialTheme,
 	dataVersion 
 } from './initial-data'
+import { setLanguagePreference, setThemePreference, getLanguagePreference, getThemePreference } from './cookies'
 
 // Lưu trữ phiên bản hiện tại của dữ liệu
 const CURRENT_DATA_VERSION = dataVersion
@@ -147,37 +148,51 @@ function getSystemThemePreference(): 'light' | 'dark' {
 	return initialTheme || 'light'
 }
 
-// Helper function to detect user's language based on browser settings
-function detectUserLanguage(): Language {
-	try {
-		// Try to detect language based on navigator.language first
-		if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
-			const browserLang = navigator.language.toLowerCase()
-			if (browserLang.includes('vi')) {
-				return 'vi'
-			}
-		}
-
-		// Default to Vietnamese (can be changed by user)
-		return initialLanguage || 'vi'
-	} catch (error) {
-		console.error('Error detecting user language:', error)
-		return initialLanguage || 'vi'
-	}
+// Always default to Vietnamese
+function getDefaultLanguage(): Language {
+	return initialLanguage || 'vi'
 }
 
 export const useStore = create<StoreState>()((set, get) => ({
-	// Language
+	// Language - always default to Vietnamese
 	language: initialLanguage || 'vi',
 	setLanguage: (language) => {
+		// Update state
 		set({ language })
+		
+		// Save language preference to cookie with higher priority
+		if (typeof window !== 'undefined') {
+			try {
+				setLanguagePreference(language)
+				console.log(`Language preference set to: ${language}`)
+			} catch (e) {
+				console.error('Error setting language cookie:', e)
+			}
+		}
+		
 		get().syncDataToServer()
 	},
 	
 	// Theme
 	theme: initialTheme || 'light',
 	setTheme: (theme) => {
+		// Update state
 		set({ theme })
+		
+		// Save theme preference to cookie
+		if (typeof window !== 'undefined') {
+			try {
+				setThemePreference(theme)
+				
+				// Dispatch event for theme change listeners
+				document.dispatchEvent(new CustomEvent('themeChange', { 
+					detail: { theme } 
+				}))
+			} catch (e) {
+				console.error('Error setting theme cookie:', e)
+			}
+		}
+		
 		get().syncDataToServer()
 	},
 	
@@ -294,8 +309,8 @@ export const useStore = create<StoreState>()((set, get) => ({
 			// Set theme based on system preference
 			const systemTheme = getSystemThemePreference()
 			
-			// Detect language based on browser settings
-			const detectedLanguage = detectUserLanguage()
+			// Always default to Vietnamese
+			const defaultLanguage = getDefaultLanguage()
 			
 			if (!isDevelopment) {
 				// In production, just mark as initialized and use static data with detected preferences
@@ -304,7 +319,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 					products: initialProducts,
 					faqArticles: initialFAQArticles,
 					socialLinks: initialSocialLinks,
-					language: detectedLanguage,
+					language: defaultLanguage,
 					theme: systemTheme,
 					paymentInfo: initialPaymentInfo,
 					siteConfig: initialSiteConfig,
@@ -315,7 +330,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 					products: initialProducts,
 					faqArticles: initialFAQArticles,
 					socialLinks: initialSocialLinks,
-					language: detectedLanguage,
+					language: defaultLanguage,
 					theme: systemTheme,
 					paymentInfo: initialPaymentInfo,
 					siteConfig: initialSiteConfig,
@@ -331,7 +346,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 					products: data.products,
 					faqArticles: data.faqArticles,
 					socialLinks: data.socialLinks,
-					language: detectedLanguage,
+					language: defaultLanguage,
 					theme: systemTheme,
 					paymentInfo: data.paymentInfo,
 					siteConfig: data.siteConfig,
@@ -349,7 +364,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 					products: initialProducts,
 					faqArticles: initialFAQArticles,
 					socialLinks: initialSocialLinks,
-					language: detectedLanguage,
+					language: defaultLanguage,
 					theme: systemTheme,
 					paymentInfo: initialPaymentInfo,
 					siteConfig: initialSiteConfig,
@@ -362,7 +377,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 					products: initialProducts,
 					faqArticles: initialFAQArticles,
 					socialLinks: initialSocialLinks,
-					language: detectedLanguage,
+					language: defaultLanguage,
 					theme: systemTheme,
 					paymentInfo: initialPaymentInfo,
 					siteConfig: initialSiteConfig,

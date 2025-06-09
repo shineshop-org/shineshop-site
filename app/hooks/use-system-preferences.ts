@@ -4,64 +4,78 @@ import { useState, useEffect } from 'react'
 import { useStore } from '@/app/lib/store'
 import { Language } from '@/app/lib/types'
 import { useTheme } from 'next-themes'
+import { getLanguagePreference, getThemePreference, setLanguagePreference, setThemePreference } from '../lib/cookies'
 
 export function useSystemPreferences() {
-  const { setLanguage } = useStore()
-  const { setTheme: setNextTheme } = useTheme()
+  const { language, setLanguage } = useStore()
+  const { theme, setTheme } = useTheme()
   const [initialized, setInitialized] = useState(false)
 
+  // First useEffect only for mounting detection - runs on client only
   useEffect(() => {
-    // If already initialized, don't run again
-    if (initialized) return;
+    setInitialized(true)
+  }, [])
 
-    // To prevent multiple initializations, set a session flag
-    if (typeof window !== 'undefined' && sessionStorage.getItem('system-prefs-initialized')) {
-      setInitialized(true);
-      return;
-    }
+  // Second useEffect for actual preferences setting - only runs after hydration
+  useEffect(() => {
+    if (!initialized) return
 
-    // Detect language based on browser settings, don't use IP detection
-    const detectLanguage = (): Language => {
+    const setupPreferences = async () => {
       try {
-        // Try to detect language based on navigator.language first
-        if (typeof navigator !== 'undefined') {
-          const browserLang = navigator.language.toLowerCase()
-          if (browserLang.includes('vi')) {
-            return 'vi'
-          }
+        // Check cookie preferences first
+        const savedLanguage = getLanguagePreference()
+        const savedTheme = getThemePreference()
+        
+        // Handle theme preferences
+        if (savedTheme) {
+          setTheme(savedTheme)
         }
         
-        // Default to Vietnamese if detection fails
-        return 'vi'
-      } catch (error) {
-        console.error('Error detecting user language:', error)
-        return 'vi' // Default to Vietnamese
-      }
-    }
-
-    const initialize = async () => {
-      try {
-        // Let next-themes handle the theme (it already supports system theme)
-        // No need to manually detect theme here
-        
-        // Set language based on browser settings
-        const detectedLanguage = detectLanguage()
-        setLanguage(detectedLanguage)
-        
-        // Mark as initialized
-        setInitialized(true)
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('system-prefs-initialized', 'true');
+        // Handle language preferences - ALWAYS respect saved preference
+        if (savedLanguage) {
+          // Only set language if there's a saved preference
+          setLanguage(savedLanguage)
+        } else {
+          // Default to Vietnamese if no preference exists
+          setLanguage('vi')
+          // Store this default preference in cookies
+          setLanguagePreference('vi')
         }
       } catch (error) {
-        console.error('Error initializing system preferences:', error);
-        setInitialized(true);
+        console.error('Error setting user preferences:', error)
       }
     }
+    
+    // Initial setup - always run this on first client render
+    setupPreferences()
+    
+    // Set up handler for page visibility changes
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // When page becomes visible again, ensure we're using saved preferences
+        const savedLang = getLanguagePreference()
+        if (savedLang) {
+          setLanguage(savedLang)
+        }
+      }
+    }
+    
+    // Add visibility change listener
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    // Set up cookie-saving when theme changes
+    const handleThemeChange = (e: any) => {
+      if (e?.detail?.theme && (e.detail.theme === 'dark' || e.detail.theme === 'light' || e.detail.theme === 'system')) {
+        setThemePreference(e.detail.theme)
+      }
+    }
+    
+    document.addEventListener('themeChange', handleThemeChange)
+    return () => {
+      document.removeEventListener('themeChange', handleThemeChange)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [initialized, setTheme, setLanguage])
 
-    initialize()
-  }, [initialized, setNextTheme, setLanguage])
-
-  // This component doesn't render anything
   return null
 } 

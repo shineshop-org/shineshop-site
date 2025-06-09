@@ -47,7 +47,7 @@ export const initialProducts: Product[] = [
               "en": 8.99,
               "vi": 100000
             },
-            "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng.",
+            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
             "localizedValue": {
               "en": "3 months",
               "vi": "3 tháng"
@@ -60,7 +60,7 @@ export const initialProducts: Product[] = [
               "en": 16.99,
               "vi": 195000
             },
-            "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng.",
+            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng.",
             "localizedValue": {
               "en": "6 months",
               "vi": "6 tháng"
@@ -77,7 +77,7 @@ export const initialProducts: Product[] = [
               "en": 29.99,
               "vi": 345000
             },
-            "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng."
+            "description": "Hỗ trợ sửa lỗi \"Không thể tham gia gia đình\" do rời gia đình nhiều lần trong 12 tháng."
           }
         ],
         "localizedName": {

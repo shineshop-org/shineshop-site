@@ -9,6 +9,7 @@ import { Button } from '@/app/components/ui/button'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { ThemeSwitch } from '@/app/components/theme-switch'
 import { useTheme } from 'next-themes'
+import { setLanguagePreference } from '@/app/lib/cookies'
 
 // Flag SVG Components
 const VietnamFlag = () => (
@@ -36,7 +37,7 @@ export function Navbar() {
 	const { t } = useTranslation()
 	const { theme, resolvedTheme } = useTheme()
 	
-	// Use state to track the theme after initial client render
+	// Use state to track after initial client render
 	const [mounted, setMounted] = useState(false)
 	
 	// Effect runs only on the client after hydration is complete
@@ -48,8 +49,63 @@ export function Navbar() {
 	const isDarkTheme = mounted ? resolvedTheme === 'dark' : false
 	
 	const toggleLanguage = () => {
-		setLanguage(language === 'en' ? 'vi' : 'en')
+		if (!mounted) return
+
+		const newLanguage = language === 'en' ? 'vi' : 'en'
+		
+		// Save to cookie first
+		try {
+			setLanguagePreference(newLanguage)
+			// Log for debugging
+			console.log(`Language toggle: changed to ${newLanguage}, cookie set`)
+		} catch (e) {
+			console.error('Error setting language cookie:', e)
+		}
+		
+		// Then update the store
+		setLanguage(newLanguage)
 	}
+	
+	// Render a language toggle placeholder during server rendering
+	const renderLanguageToggle = () => {
+		if (!mounted) {
+			return (
+				<Button
+					variant="outline"
+					size="sm"
+					className="flex items-center gap-2 px-3 py-1.5 h-9 w-20 rounded-full border-2 hover:border-primary transition-all duration-200 hover:scale-105"
+				>
+					<div className="flex items-center gap-2 justify-center w-full">
+						<div className="w-6 h-4" />
+						<span className="font-medium">--</span>
+					</div>
+				</Button>
+			);
+		}
+		
+		return (
+			<Button
+				variant="outline"
+				size="sm"
+				onClick={toggleLanguage}
+				className="flex items-center gap-2 px-3 py-1.5 h-9 w-20 rounded-full border-2 hover:border-primary transition-all duration-200 hover:scale-105"
+			>
+				<div className="flex items-center gap-2 justify-center w-full">
+					{language === 'en' ? (
+						<>
+							<USFlag />
+							<span className="font-medium">EN</span>
+						</>
+					) : (
+						<>
+							<VietnamFlag />
+							<span className="font-medium">VN</span>
+						</>
+					)}
+				</div>
+			</Button>
+		);
+	};
 	
 	return (
 		<nav className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-200">
@@ -119,26 +175,7 @@ export function Navbar() {
 					<div className="flex items-center space-x-4">
 						{/* Language toggle - Enhanced with fixed width */}
 						<div className="hidden sm:flex items-center">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={toggleLanguage}
-								className="flex items-center gap-2 px-3 py-1.5 h-9 w-20 rounded-full border-2 hover:border-primary transition-all duration-200 hover:scale-105"
-							>
-								<div className="flex items-center gap-2 justify-center w-full">
-									{language === 'en' ? (
-										<>
-											<USFlag />
-											<span className="font-medium">EN</span>
-										</>
-									) : (
-										<>
-											<VietnamFlag />
-											<span className="font-medium">VN</span>
-										</>
-									)}
-								</div>
-							</Button>
+							{renderLanguageToggle()}
 						</div>
 						
 						{/* Payment */}
