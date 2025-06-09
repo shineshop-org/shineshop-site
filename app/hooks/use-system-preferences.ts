@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useStore } from '@/app/lib/store'
 import { Language } from '@/app/lib/types'
+import { useTheme } from 'next-themes'
 
 export function useSystemPreferences() {
-  const { setTheme, setLanguage } = useStore()
+  const { setLanguage } = useStore()
+  const { setTheme: setNextTheme } = useTheme()
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
@@ -16,37 +18,6 @@ export function useSystemPreferences() {
     if (typeof window !== 'undefined' && sessionStorage.getItem('system-prefs-initialized')) {
       setInitialized(true);
       return;
-    }
-
-    // Detect system theme preference but respect user's selection if saved
-    const detectTheme = () => {
-      try {
-        // Check if user has a saved theme preference
-        const savedTheme = localStorage.getItem('theme-preference');
-        
-        // Only use system preference if no user preference exists
-        if (!savedTheme) {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-          setTheme(prefersDark ? 'dark' : 'light')
-          
-          // Set up listener for theme preference changes only if no saved preference
-          const themeMedia = window.matchMedia('(prefers-color-scheme: dark)')
-          const themeChangeHandler = (e: MediaQueryListEvent) => {
-            // Only update if no saved preference exists
-            if (!localStorage.getItem('theme-preference')) {
-              setTheme(e.matches ? 'dark' : 'light')
-            }
-          }
-          
-          themeMedia.addEventListener('change', themeChangeHandler)
-          return () => themeMedia.removeEventListener('change', themeChangeHandler)
-        }
-        
-        return () => {};
-      } catch (error) {
-        console.error('Error detecting theme preference:', error);
-        return () => {};
-      }
     }
 
     // Detect language based on browser settings, don't use IP detection
@@ -70,8 +41,8 @@ export function useSystemPreferences() {
 
     const initialize = async () => {
       try {
-        // Set up theme detection
-        const cleanupTheme = detectTheme()
+        // Let next-themes handle the theme (it already supports system theme)
+        // No need to manually detect theme here
         
         // Set language based on browser settings
         const detectedLanguage = detectLanguage()
@@ -82,10 +53,6 @@ export function useSystemPreferences() {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('system-prefs-initialized', 'true');
         }
-        
-        return () => {
-          cleanupTheme()
-        }
       } catch (error) {
         console.error('Error initializing system preferences:', error);
         setInitialized(true);
@@ -93,7 +60,7 @@ export function useSystemPreferences() {
     }
 
     initialize()
-  }, [initialized, setTheme, setLanguage])
+  }, [initialized, setNextTheme, setLanguage])
 
   // This component doesn't render anything
   return null
