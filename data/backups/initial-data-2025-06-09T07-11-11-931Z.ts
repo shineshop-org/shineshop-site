@@ -535,7 +535,7 @@ export const initialProducts: Product[] = [
     "name": "",
     "localizedName": {
       "en": "",
-      "vi": "Discord Nitro"
+      "vi": ""
     },
     "price": 0,
     "description": "",
@@ -543,80 +543,13 @@ export const initialProducts: Product[] = [
       "en": "",
       "vi": ""
     },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/discord-nitro.png?updatedAt=1749226999701",
+    "image": "",
     "localizedCategory": {
       "en": "",
-      "vi": "Giải trí"
+      "vi": ""
     },
     "slug": "discord-nitro",
-    "options": [
-      {
-        "id": "1749458022741",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Basic"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 30000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 300000
-            },
-            "description": ""
-          }
-        ]
-      },
-      {
-        "id": "1749458047194",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Nitro"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 80000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "12 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 800000
-            },
-            "description": ""
-          }
-        ]
-      }
-    ],
+    "options": [],
     "relatedArticles": [],
     "sortOrder": 6,
     "isLocalized": true,
@@ -793,7 +726,7 @@ export const initialPaymentInfo: PaymentInfo = {
 
 export const initialLanguage = "vi"
 
-export const initialTheme = "dark"
+export const initialTheme = "light"
 
 // Track data version for sync and migration
 export const dataVersion = 2
