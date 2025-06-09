@@ -1412,8 +1412,8 @@ export default function AdminDashboard() {
 									<DialogHeader>
 										<div className="flex items-center justify-between">
 											<div>
-												<DialogTitle>{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
-												<DialogDescription id="product-dialog-description">
+												<DialogTitle className="text-2xl">{editingProduct ? t('editProduct') : t('addProduct')}</DialogTitle>
+												<DialogDescription id="product-dialog-description" className="text-base">
 													{editingProduct 
 														? t('editProductDescription')
 														: "Only the URL slug is required. All other fields are optional. When URL slug is provided, the product page will be created automatically."}
@@ -1421,10 +1421,11 @@ export default function AdminDashboard() {
 											</div>
 										</div>
 									</DialogHeader>
-									<div className="space-y-4 py-4">
-										<div className="flex items-center justify-end space-x-2 mb-4 pb-4 border-b">
+									
+									{/* Language selector - Sticky at top for easy access */}
+									<div className="sticky top-0 z-10 bg-background mb-4 pb-2 border-b">
+										<div className="flex items-center justify-end space-x-2">
 											<div className="flex items-center">
-												<span className="mr-2 text-sm text-muted-foreground">{t('currentlyEditing')}:</span>
 												<div 
 													className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
 													onClick={toggleLanguage}
@@ -1445,300 +1446,443 @@ export default function AdminDashboard() {
 												</div>
 											</div>
 										</div>
-										<div className="space-y-2">
-											<label>{t('name')} <span className="text-xs text-muted-foreground">(optional)</span></label>
-											<Input 
-												value={language === 'en' ? productForm.localizedName.en : productForm.localizedName.vi} 
-												onChange={(e) => {
-													if (language === 'en') {
-														setProductForm({
-															...productForm, 
-															localizedName: {
-																...productForm.localizedName,
-																en: e.target.value
-															}
-														})
-													} else {
-														setProductForm({
-															...productForm, 
-															localizedName: {
-																...productForm.localizedName,
-																vi: e.target.value
-															}
-														})
-													}
-												}}
-												placeholder={language === 'en' ? "Product name in English" : "Tên sản phẩm bằng tiếng Việt"}
-											/>
+									</div>
+									
+									{/* Main form content with progress indicator */}
+									<div className="space-y-8 py-2">
+										{/* Progress bar */}
+										<div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+											<div className="bg-primary h-full" style={{ width: 
+												editingProduct 
+												? '100%' 
+												: productForm.slug ? '30%' : '10%'
+											}}></div>
 										</div>
 										
-										{/* Custom URL Slug */}
-										<div className="space-y-2">
-											<label>URL Slug <span className="text-red-500">*</span> <span className="text-xs text-muted-foreground">(/product/...)</span></label>
-											<Input 
-												value={productForm.slug} 
-												onChange={(e) => setProductForm({...productForm, slug: e.target.value})}
-												placeholder="custom-product-url"
-												required
-											/>
-											<p className="text-xs text-muted-foreground">
-												{t('fullURL')}: {typeof window !== 'undefined' ? window.location.origin : ''}/store/product/{productForm.slug}
-											</p>
-											<p className="text-xs text-blue-500 font-medium">
-												This is the only required field. All other fields are optional.
-											</p>
-										</div>
-										
-										<div className="space-y-2">
-											<label>{t('imageURL')} <span className="text-xs text-muted-foreground">(optional)</span></label>
-											<Input 
-												value={productForm.image} 
-												onChange={(e) => setProductForm({...productForm, image: e.target.value})}
-											/>
-											{productForm.image ? (
-												<div className="mt-2 relative w-full h-40 bg-center bg-cover rounded-md" 
-													style={{ backgroundImage: `url(${productForm.image})` }}
-												/>
-											) : (
-												<div className="mt-2 relative w-full h-40 bg-muted/30 rounded-md flex items-center justify-center">
-													<div className="text-muted-foreground text-4xl">📦</div>
+										{/* Basic Information Section */}
+										<div className="bg-muted/20 rounded-lg p-6 border">
+											<h3 className="text-lg font-semibold mb-4 flex items-center">
+												<span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm">1</span>
+												{t('basicInfo')}
+											</h3>
+											
+											{/* Essential Fields */}
+											<div className="space-y-6">
+												{/* URL Slug - Required field highlighted */}
+												<div className="space-y-2">
+													<label className="font-medium flex items-center">
+														URL Slug 
+														<span className="text-red-500 ml-1">*</span>
+														<span className="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs rounded-full">Required</span>
+													</label>
+													<div className="flex items-center">
+														<span className="text-muted-foreground mr-2">/store/product/</span>
+														<Input 
+															value={productForm.slug} 
+															onChange={(e) => setProductForm({...productForm, slug: e.target.value})}
+															placeholder="custom-product-url"
+															required
+															className="flex-1"
+														/>
+													</div>
+													<p className="text-xs text-muted-foreground">
+														{t('fullURL')}: {typeof window !== 'undefined' ? window.location.origin : ''}/store/product/{productForm.slug}
+													</p>
 												</div>
-											)}
-										</div>
-										<div className="space-y-2">
-											<label>{t('category')} <span className="text-xs text-muted-foreground">(optional)</span></label>
-											<Input 
-												value={language === 'en' ? productForm.localizedCategory.en : productForm.localizedCategory.vi} 
-												onChange={(e) => {
-													if (language === 'en') {
-														setProductForm({
-															...productForm, 
-															localizedCategory: {
-																...productForm.localizedCategory,
-																en: e.target.value
+												
+												{/* Product Name */}
+												<div className="space-y-2">
+													<label className="font-medium">{t('name')}</label>
+													<Input 
+														value={language === 'en' ? productForm.localizedName.en : productForm.localizedName.vi} 
+														onChange={(e) => {
+															if (language === 'en') {
+																setProductForm({
+																	...productForm, 
+																	localizedName: {
+																		...productForm.localizedName,
+																		en: e.target.value
+																	}
+																})
+															} else {
+																setProductForm({
+																	...productForm, 
+																	localizedName: {
+																		...productForm.localizedName,
+																		vi: e.target.value
+																	}
+																})
 															}
-														})
-													} else {
-														setProductForm({
-															...productForm, 
-															localizedCategory: {
-																...productForm.localizedCategory,
-																vi: e.target.value
+														}}
+														placeholder={language === 'en' ? "Product name in English" : "Tên sản phẩm bằng tiếng Việt"}
+													/>
+												</div>
+												
+												{/* Category */}
+												<div className="space-y-2">
+													<label className="font-medium">{t('category')}</label>
+													<Input 
+														value={language === 'en' ? productForm.localizedCategory.en : productForm.localizedCategory.vi} 
+														onChange={(e) => {
+															if (language === 'en') {
+																setProductForm({
+																	...productForm, 
+																	localizedCategory: {
+																		...productForm.localizedCategory,
+																		en: e.target.value
+																	}
+																})
+															} else {
+																setProductForm({
+																	...productForm, 
+																	localizedCategory: {
+																		...productForm.localizedCategory,
+																		vi: e.target.value
+																	}
+																})
 															}
-														})
-													}
-												}}
-												placeholder={language === 'en' ? "Category in English" : "Danh mục bằng tiếng Việt"}
-											/>
-										</div>
-										
-										<div className="space-y-2">
-											<label>{t('tags')} <span className="text-xs text-muted-foreground">(comma separated, optional)</span></label>
-											<Input 
-												value={productForm.tags.join(', ')}
-												onChange={(e) => setProductForm({
-													...productForm, 
-													tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
-												})}
-												placeholder="tag1, tag2, tag3"
-												className="w-full"
-											/>
-										</div>
-										
-										{/* Product Options - Nested Options */}
-										<div className="space-y-4 border-t pt-4">
-											<div className="flex justify-between items-center">
-												<h3 className="text-lg font-semibold">{t('productOptions')} <span className="text-xs text-muted-foreground">(optional)</span></h3>
-												<Button 
-													size="sm" 
-													variant="outline" 
-													onClick={addOptionField}
-												>
-													<Plus className="w-4 h-4 mr-1" /> {t('addOption')}
-												</Button>
+														}}
+														placeholder={language === 'en' ? "Category in English" : "Danh mục bằng tiếng Việt"}
+													/>
+												</div>
+												
+												{/* Tags */}
+												<div className="space-y-2">
+													<label className="font-medium">{t('tags')}</label>
+													<Input 
+														value={productForm.tags.join(', ')}
+														onChange={(e) => setProductForm({
+															...productForm, 
+															tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
+														})}
+														placeholder="tag1, tag2, tag3"
+														className="w-full"
+													/>
+												</div>
 											</div>
+										</div>
+										
+										{/* Product Image Section */}
+										<div className="bg-muted/20 rounded-lg p-6 border">
+											<h3 className="text-lg font-semibold mb-4 flex items-center">
+												<span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm">2</span>
+												{t('productImage')}
+											</h3>
 											
-											<p className="text-sm text-muted-foreground">
-												{t('optionPriceFormat')}
-											</p>
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+												<div className="space-y-2">
+													<label className="font-medium">{t('imageURL')}</label>
+													<Input 
+														value={productForm.image} 
+														onChange={(e) => setProductForm({...productForm, image: e.target.value})}
+														placeholder="https://example.com/image.jpg"
+													/>
+												</div>
+												
+												<div className="flex items-center justify-center">
+													{productForm.image ? (
+														<div className="relative w-full h-40 bg-center bg-cover rounded-md border" 
+															style={{ backgroundImage: `url(${productForm.image})` }}
+														/>
+													) : (
+														<div className="relative w-full h-40 bg-muted/30 rounded-md flex flex-col items-center justify-center border border-dashed">
+															<div className="text-muted-foreground text-4xl mb-2">📦</div>
+															<p className="text-sm text-muted-foreground">Product image preview</p>
+														</div>
+													)}
+												</div>
+											</div>
+										</div>
+										
+										{/* Product Options Section */}
+										<div className="bg-muted/20 rounded-lg p-6 border">
+											<h3 className="text-lg font-semibold mb-4 flex items-center">
+												<span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm">3</span>
+												{t('productOptions')}
+											</h3>
 											
-											{productForm.options.map((option, optionIndex) => (
-												<div key={option.id} className="border rounded-md p-4 space-y-3">
-													<div className="flex items-center justify-between">
-														<h4 className="font-medium">Option {optionIndex + 1}</h4>
+											<div className="space-y-4">
+												<div className="flex justify-end items-center">
+													<Button 
+														size="sm" 
+														variant="outline" 
+														onClick={addOptionField}
+														className="flex items-center"
+													>
+														<Plus className="w-4 h-4 mr-1" /> {t('addOption')}
+													</Button>
+												</div>
+												
+												{productForm.options.length === 0 && (
+													<div className="flex flex-col items-center justify-center py-8 border border-dashed rounded-md bg-muted/10">
+														<BoxIcon className="w-12 h-12 text-muted-foreground mb-2" />
+														<p className="text-base text-muted-foreground">No options added yet</p>
 														<Button 
-															variant="ghost" 
-															size="sm" 
-															className="h-8 w-8 p-0 text-destructive"
-															onClick={() => removeOption(optionIndex)}
+															variant="secondary"
+															size="sm"
+															className="mt-4"
+															onClick={addOptionField}
 														>
-															<Trash2 className="h-4 w-4" />
+															<Plus className="w-4 h-4 mr-1" /> Add Your First Option
 														</Button>
 													</div>
-													
-													<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-														<div className="space-y-2">
-															<label className="text-sm font-medium">{t('optionName')}</label>
-															<Input 
-																value={language === 'en' 
-																	? (option.localizedName?.en || '') 
-																	: (option.localizedName?.vi || '')} 
-																onChange={(e) => {
-																	const newLocalizedName = {
-																		...option.localizedName,
-																		[language]: e.target.value
-																	}
-																	updateOption(optionIndex, 'localizedName', newLocalizedName)
-																}}
-																placeholder={language === 'en' 
-																	? "Option name in English" 
-																	: "Tên tùy chọn bằng tiếng Việt"}
-															/>
-														</div>
-													</div>
-													
-													<div className="space-y-2">
-														<div className="flex justify-between items-center">
-															<label className="text-sm font-medium">{t('optionValues')}</label>
+												)}
+												
+												{productForm.options.map((option, optionIndex) => (
+													<div key={option.id} className={`border rounded-md p-4 space-y-3 shadow-sm ${
+														['bg-blue-50/50 dark:bg-blue-900/10', 
+														'bg-green-50/50 dark:bg-green-900/10',
+														'bg-amber-50/50 dark:bg-amber-900/10',
+														'bg-purple-50/50 dark:bg-purple-900/10',
+														'bg-pink-50/50 dark:bg-pink-900/10'][optionIndex % 5]
+													}`}>
+														<div className="flex items-center justify-between bg-muted/20 -m-4 mb-3 p-3 border-b">
+															<h4 className="font-medium flex items-center">
+																<span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary text-xs mr-2">
+																	{optionIndex + 1}
+																</span> 
+																Option {optionIndex + 1}
+															</h4>
 															<Button 
 																variant="ghost" 
-																size="sm"
-																onClick={() => addValueToOption(optionIndex)}
+																size="sm" 
+																className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+																onClick={() => removeOption(optionIndex)}
 															>
-																<Plus className="h-3 w-3 mr-1" /> {t('addValue')}
+																<Trash2 className="h-4 w-4" />
 															</Button>
 														</div>
 														
-														{option.values.map((value, valueIndex) => (
-															<div key={valueIndex} className="space-y-3 border p-3 rounded-md mb-3">
-																<div className="flex justify-between items-center">
-																	<h5 className="font-medium text-sm">Option Value {valueIndex + 1}</h5>
-																	{option.values.length > 1 && (
-																		<Button 
-																			variant="ghost" 
-																			size="sm" 
-																			className="p-0 h-8 w-8 text-destructive"
-																			onClick={() => removeOptionValue(optionIndex, valueIndex)}
-																		>
-																			<Trash2 className="h-4 w-4" />
-																		</Button>
-																	)}
+														<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+															<div className="space-y-2">
+																<label className="text-sm font-medium">{t('optionName')}</label>
+																<Input 
+																	value={language === 'en' 
+																		? (option.localizedName?.en || '') 
+																		: (option.localizedName?.vi || '')} 
+																	onChange={(e) => {
+																		const newLocalizedName = {
+																			...option.localizedName,
+																			[language]: e.target.value
+																		}
+																		updateOption(optionIndex, 'localizedName', newLocalizedName)
+																	}}
+																	placeholder={language === 'en' 
+																		? "Option name in English" 
+																		: "Tên tùy chọn bằng tiếng Việt"}
+																/>
+															</div>
+														</div>
+														
+														<div className="space-y-2">
+															<div className="flex justify-between items-center">
+																<label className="text-sm font-medium">{t('optionValues')}</label>
+																<Button 
+																	variant="outline" 
+																	size="sm"
+																	className="h-7"
+																	onClick={() => addValueToOption(optionIndex)}
+																>
+																	<Plus className="h-3 w-3 mr-1" /> {t('addValue')}
+																</Button>
+															</div>
+															
+															{option.values.length === 0 && (
+																<div className="flex items-center justify-center p-4 border border-dashed rounded-md bg-muted/10">
+																	<Button 
+																		variant="secondary"
+																		size="sm"
+																		onClick={() => addValueToOption(optionIndex)}
+																	>
+																		<Plus className="h-3 w-3 mr-1" /> {t('addValue')}
+																	</Button>
 																</div>
+															)}
+															
+															{option.values.map((value, valueIndex) => {
+																// Get option name for display
+																const optionName = language === 'en'
+																	? option.localizedName?.en || `Option ${optionIndex + 1}`
+																	: option.localizedName?.vi || `Tùy chọn ${optionIndex + 1}`;
 																
-																<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-																	<div className="space-y-2">
-																		<label className="text-xs text-muted-foreground">Value Name</label>
-																		<Input 
-																			value={language === 'en' 
-																				? (value.localizedValue?.en || '') 
-																				: (value.localizedValue?.vi || '')} 
-																			onChange={(e) => {
-																				const currentLocalized = value.localizedValue || { en: '', vi: '' }
-																				const newLocalizedValue = {
-																					en: language === 'en' ? e.target.value : currentLocalized.en,
-																					vi: language === 'vi' ? e.target.value : currentLocalized.vi
+																return (
+																<div key={valueIndex} className={`space-y-3 border p-3 rounded-md mb-3 shadow-sm ${
+																	['bg-blue-100/40 dark:bg-blue-900/20', 
+																	'bg-green-100/40 dark:bg-green-900/20',
+																	'bg-amber-100/40 dark:bg-amber-900/20',  
+																	'bg-purple-100/40 dark:bg-purple-900/20',
+																	'bg-pink-100/40 dark:bg-pink-900/20'][valueIndex % 5]
+																}`}>
+																	<div className="flex justify-between items-center border-b pb-2">
+																		<h5 className="font-medium text-sm flex items-center">
+																			<span className="mr-2 bg-muted w-5 h-5 rounded-full flex items-center justify-center text-xs">
+																				{valueIndex + 1}
+																			</span>
+																			{optionName}: {`Value ${valueIndex + 1}`}
+																		</h5>
+																		{option.values.length > 1 && (
+																			<Button 
+																				variant="ghost" 
+																				size="sm" 
+																				className="p-0 h-7 w-7 text-destructive hover:text-destructive"
+																				onClick={() => removeOptionValue(optionIndex, valueIndex)}
+																			>
+																				<Trash2 className="h-3 w-3" />
+																			</Button>
+																		)}
+																	</div>
+																	
+																	<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+																		<div className="space-y-2">
+																			<label className="text-xs font-medium">Value Name</label>
+																			<Input 
+																				value={language === 'en' 
+																					? (value.localizedValue?.en || '') 
+																					: (value.localizedValue?.vi || '')} 
+																				onChange={(e) => {
+																					const currentLocalized = value.localizedValue || { en: '', vi: '' }
+																					const newLocalizedValue = {
+																						en: language === 'en' ? e.target.value : currentLocalized.en,
+																						vi: language === 'vi' ? e.target.value : currentLocalized.vi
+																					}
+																					updateOptionValue(optionIndex, valueIndex, newLocalizedValue, 'localizedValue')
+																				}}
+																				placeholder={language === 'en' 
+																					? "Value name in English" 
+																					: "Tên giá trị bằng tiếng Việt"}
+																				className="flex-1"
+																			/>
+																		</div>
+																		
+																		<div className="space-y-2">
+																			<label className="text-xs font-medium flex items-center">
+																				Price ({language === 'en' ? 'USD' : 'VNĐ'})
+																				<span className="ml-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 text-xs rounded-full">
+																					{language === 'en' ? 'USD' : 'VND'}
+																				</span>
+																			</label>
+																			<Input 
+																				value={language === 'en'
+																					? priceInputValues[`${optionIndex}-${valueIndex}-en`] || 
+																						(value.localizedPrice?.en && value.localizedPrice.en !== 0 ? value.localizedPrice.en.toString() : '')
+																					: priceInputValues[`${optionIndex}-${valueIndex}-vi`] ||
+																						(value.localizedPrice?.vi && value.localizedPrice.vi !== 0 ? value.localizedPrice.vi.toString() : '')
 																				}
-																				updateOptionValue(optionIndex, valueIndex, newLocalizedValue, 'localizedValue')
-																			}}
-																			placeholder={language === 'en' 
-																				? "Value name in English" 
-																				: "Tên giá trị bằng tiếng Việt"}
-																			className="flex-1"
-																		/>
+																				onChange={(e) => {
+																					const validatedInput = language === 'en' 
+																						? validateUSDPriceInput(e.target.value)
+																						: validateVNDPriceInput(e.target.value)
+																					
+																					// Store the string input in state
+																					setPriceInputValues({
+																						...priceInputValues,
+																						[`${optionIndex}-${valueIndex}-${language}`]: validatedInput
+																					})
+																					
+																					const numberValue = convertPriceToNumber(validatedInput)
+																					const currentLocalized = value.localizedPrice || { en: 0, vi: 0 }
+																					const newLocalizedPrice = {
+																						en: language === 'en' ? numberValue : currentLocalized.en,
+																						vi: language === 'vi' ? numberValue : currentLocalized.vi
+																					}
+																					updateOptionValue(optionIndex, valueIndex, newLocalizedPrice, 'localizedPrice')
+																				}}
+																				placeholder={language === 'en' ? "e.g., 3.99" : "e.g., 100000"}
+																				className="flex-1"
+																			/>
+																		</div>
 																	</div>
 																	
 																	<div className="space-y-2">
-																		<label className="text-xs text-muted-foreground">
-																			Price ({language === 'en' ? 'USD' : 'VNĐ'})
-																		</label>
+																		<label className="text-xs font-medium">Description</label>
 																		<Input 
-																			value={language === 'en'
-																				? priceInputValues[`${optionIndex}-${valueIndex}-en`] || 
-																					(value.localizedPrice?.en && value.localizedPrice.en !== 0 ? value.localizedPrice.en.toString() : '')
-																				: priceInputValues[`${optionIndex}-${valueIndex}-vi`] ||
-																					(value.localizedPrice?.vi && value.localizedPrice.vi !== 0 ? value.localizedPrice.vi.toString() : '')
-																			}
-																			onChange={(e) => {
-																				const validatedInput = language === 'en' 
-																					? validateUSDPriceInput(e.target.value)
-																					: validateVNDPriceInput(e.target.value)
-																				
-																				// Store the string input in state
-																				setPriceInputValues({
-																					...priceInputValues,
-																					[`${optionIndex}-${valueIndex}-${language}`]: validatedInput
-																				})
-																				
-																				const numberValue = convertPriceToNumber(validatedInput)
-																				const currentLocalized = value.localizedPrice || { en: 0, vi: 0 }
-																				const newLocalizedPrice = {
-																					en: language === 'en' ? numberValue : currentLocalized.en,
-																					vi: language === 'vi' ? numberValue : currentLocalized.vi
-																				}
-																				updateOptionValue(optionIndex, valueIndex, newLocalizedPrice, 'localizedPrice')
-																			}}
-																			placeholder={language === 'en' ? "e.g., 3.99" : "e.g., 100000"}
+																			value={value.description}
+																			onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'description')}
+																			placeholder="Describe this option value"
 																			className="flex-1"
 																		/>
-																		<p className="text-xs text-muted-foreground">
-																			{language === 'en' 
-																				? formatPrice(value.localizedPrice?.en || 0, 'en')
-																				: formatPrice(value.localizedPrice?.vi || 0, 'vi')
-																			}
-																		</p>
 																	</div>
 																</div>
-																
-																<div className="space-y-2">
-																	<label className="text-xs text-muted-foreground">Description</label>
-																	<Input 
-																		value={value.description}
-																		onChange={(e) => updateOptionValue(optionIndex, valueIndex, e.target.value, 'description')}
-																		placeholder="Describe this option value"
-																		className="flex-1"
-																	/>
-																</div>
-															</div>
-														))}
+																);
+															})}
+														</div>
 													</div>
-												</div>
-											))}
+												))}
+											</div>
 										</div>
 										
-										{/* Description - Markdown */}
-										<div className="space-y-2 border-t pt-4">
-											<div className="flex items-center justify-between mb-2">
-												<label>{t('description')} <span className="text-xs text-muted-foreground">(Markdown, optional)</span></label>
-												<Button
-													type="button"
-													variant="ghost"
-													size="sm"
-													onClick={() => setShowProductDescriptionPreview(!showProductDescriptionPreview)}
-												>
-													{showProductDescriptionPreview ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
-													{showProductDescriptionPreview ? 'Hide Preview' : 'Show Preview'}
-												</Button>
-											</div>
+										{/* Description Section */}
+										<div className="bg-muted/20 rounded-lg p-6 border">
+											<h3 className="text-lg font-semibold mb-4 flex items-center">
+												<span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm">4</span>
+												{t('description')}
+											</h3>
 											
-											<div className={`grid ${showProductDescriptionPreview ? 'grid-cols-2 gap-4' : 'grid-cols-1'} min-h-[200px]`}>
-												<div className="border rounded-md overflow-hidden flex flex-col">
-													<MarkdownToolbar 
-														onInsert={(text) => {
-															const textarea = document.getElementById('product-description') as HTMLTextAreaElement
-															if (textarea) {
-																const start = textarea.selectionStart
-																const end = textarea.selectionEnd
-																const currentValue = language === 'en' 
-																	? productForm.localizedDescription.en 
-																	: productForm.localizedDescription.vi
-																const newValue = currentValue.substring(0, start) + text + currentValue.substring(end)
-																
+											<div className="space-y-2">
+												<div className="flex items-center justify-between mb-2">
+													<p className="text-sm text-muted-foreground">Use Markdown to format your description</p>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={() => setShowProductDescriptionPreview(!showProductDescriptionPreview)}
+														className="flex items-center"
+													>
+														{showProductDescriptionPreview ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+														{showProductDescriptionPreview ? 'Hide Preview' : 'Show Preview'}
+													</Button>
+												</div>
+												
+												<div className={`grid ${showProductDescriptionPreview ? 'grid-cols-2 gap-4' : 'grid-cols-1'} min-h-[200px]`}>
+													<div className="border rounded-md overflow-hidden flex flex-col bg-background shadow-sm">
+														<MarkdownToolbar 
+															onInsert={(text) => {
+																const textarea = document.getElementById('product-description') as HTMLTextAreaElement
+																if (textarea) {
+																	const start = textarea.selectionStart
+																	const end = textarea.selectionEnd
+																	const currentValue = language === 'en' 
+																		? productForm.localizedDescription.en 
+																		: productForm.localizedDescription.vi
+																	const newValue = currentValue.substring(0, start) + text + currentValue.substring(end)
+																	
+																	if (language === 'en') {
+																		setProductForm({
+																			...productForm, 
+																			localizedDescription: {
+																				...productForm.localizedDescription,
+																				en: newValue
+																			}
+																		})
+																	} else {
+																		setProductForm({
+																			...productForm, 
+																			localizedDescription: {
+																				...productForm.localizedDescription,
+																				vi: newValue
+																			}
+																		})
+																	}
+																	
+																	// Restore cursor position
+																	setTimeout(() => {
+																		textarea.focus()
+																		textarea.setSelectionRange(start + text.length, start + text.length)
+																	}, 0)
+																}
+															}}
+														/>
+														<textarea 
+															id="product-description"
+															className="w-full p-4 border-0 rounded-none min-h-[200px] flex-1 font-mono text-sm"
+															value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
+															onChange={(e) => {
 																if (language === 'en') {
 																	setProductForm({
 																		...productForm, 
 																		localizedDescription: {
 																			...productForm.localizedDescription,
-																			en: newValue
+																			en: e.target.value
 																		}
 																	})
 																} else {
@@ -1746,111 +1890,95 @@ export default function AdminDashboard() {
 																		...productForm, 
 																		localizedDescription: {
 																			...productForm.localizedDescription,
-																			vi: newValue
+																			vi: e.target.value
 																		}
 																	})
 																}
-																
-																// Restore cursor position
-																setTimeout(() => {
-																	textarea.focus()
-																	textarea.setSelectionRange(start + text.length, start + text.length)
-																}, 0)
-															}
-														}}
-													/>
-													<textarea 
-														id="product-description"
-														className="w-full p-2 border-0 rounded-none min-h-[200px] flex-1 font-mono text-sm"
-														value={language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi} 
-														onChange={(e) => {
-															if (language === 'en') {
-																setProductForm({
-																	...productForm, 
-																	localizedDescription: {
-																		...productForm.localizedDescription,
-																		en: e.target.value
-																	}
-																})
-															} else {
-																setProductForm({
-																	...productForm, 
-																	localizedDescription: {
-																		...productForm.localizedDescription,
-																		vi: e.target.value
-																	}
-																})
-															}
-														}}
-													/>
-												</div>
-												
-												{showProductDescriptionPreview && (
-													<div className="border rounded-md p-4 overflow-y-auto bg-muted/10">
-														<div 
-															className="prose prose-sm dark:prose-invert max-w-none"
-															dangerouslySetInnerHTML={{
-																__html: (language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi)
-																	.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
-																	.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-semibold mt-6 mb-3">$1</h2>')
-																	.replace(/^### (.*?)$/gm, '<h3 class="text-xl font-medium mt-5 mb-2">$1</h3>')
-																	.replace(/^#### (.*?)$/gm, '<h4 class="text-lg font-medium mt-4 mb-2">$1</h4>')
-																	.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-																	.replace(/\*(.*?)\*/g, '<em>$1</em>')
-																	.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="jshine-gradient">$1</a>')
-																	.replace(/^- (.*?)$/gm, '<li class="ml-4">$1</li>')
-																	.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-md my-4" />')
-																	.replace(/\n/g, '<br>')
 															}}
+															placeholder={`Enter product description in ${language === 'en' ? 'English' : 'Vietnamese'}...`}
 														/>
 													</div>
-												)}
+													
+													{showProductDescriptionPreview && (
+														<div className="border rounded-md p-4 overflow-y-auto bg-background shadow-sm">
+															<h5 className="text-sm font-medium mb-2 text-muted-foreground">Preview</h5>
+															<div 
+																className="prose prose-sm dark:prose-invert max-w-none"
+																dangerouslySetInnerHTML={{
+																	__html: (language === 'en' ? productForm.localizedDescription.en : productForm.localizedDescription.vi)
+																		.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
+																		.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-semibold mt-6 mb-3">$1</h2>')
+																		.replace(/^### (.*?)$/gm, '<h3 class="text-xl font-medium mt-5 mb-2">$1</h3>')
+																		.replace(/^#### (.*?)$/gm, '<h4 class="text-lg font-medium mt-4 mb-2">$1</h4>')
+																		.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+																		.replace(/\*(.*?)\*/g, '<em>$1</em>')
+																		.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="jshine-gradient">$1</a>')
+																		.replace(/^- (.*?)$/gm, '<li class="ml-4">$1</li>')
+																		.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-md my-4" />')
+																		.replace(/\n/g, '<br>')
+																}}
+															/>
+														</div>
+													)}
+												</div>
 											</div>
 										</div>
 										
-										{/* Related Articles */}
-										<div className="space-y-4 border-t pt-4">
-											<h3 className="text-lg font-semibold">{t('relatedArticles')} <span className="text-xs text-muted-foreground">(optional)</span></h3>
+										{/* Related Articles Section */}
+										<div className="bg-muted/20 rounded-lg p-6 border">
+											<h3 className="text-lg font-semibold mb-4 flex items-center">
+												<span className="bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center mr-2 text-sm">5</span>
+												{t('relatedArticles')}
+											</h3>
 											
-											<div className="relative">
-												<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-												<Input
-													type="text"
-													placeholder={language === 'en' ? "Search articles..." : "Tìm kiếm bài viết..."}
-													className="pl-9"
-													value={articleSearchQuery}
-													onChange={(e) => setArticleSearchQuery(e.target.value)}
-												/>
-											</div>
-											
-											<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-2 border rounded-md">
-												{sortedFilteredArticles.length > 0 ? (
-													sortedFilteredArticles.map(article => (
-														<div 
-															key={article.id} 
-															className={`p-3 border rounded-md cursor-pointer transition-colors ${
-																selectedArticles.includes(article.id) 
-																	? 'border-primary bg-primary/10' 
-																	: 'hover:border-gray-400'
-															}`}
-															onClick={() => toggleArticleSelection(article.id)}
-														>
-															<h4 className="font-medium text-sm line-clamp-1">{article.title}</h4>
-															<p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-																{article.content.substring(0, 100)}...
-															</p>
+											<div className="space-y-4">
+												<div className="relative">
+													<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+													<Input
+														type="text"
+														placeholder={language === 'en' ? "Search articles..." : "Tìm kiếm bài viết..."}
+														className="pl-9"
+														value={articleSearchQuery}
+														onChange={(e) => setArticleSearchQuery(e.target.value)}
+													/>
+												</div>
+												
+												<div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-2 border rounded-md bg-background">
+													{sortedFilteredArticles.length > 0 ? (
+														sortedFilteredArticles.map(article => (
+															<div 
+																key={article.id} 
+																className={`p-3 border rounded-md cursor-pointer transition-colors ${
+																	selectedArticles.includes(article.id) 
+																		? 'border-primary bg-primary/10' 
+																		: 'hover:border-gray-400'
+																}`}
+																onClick={() => toggleArticleSelection(article.id)}
+															>
+																<h4 className="font-medium text-sm line-clamp-1">{article.title}</h4>
+																<p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+																	{article.content.substring(0, 100)}...
+																</p>
+															</div>
+														))
+													) : (
+														<div className="col-span-2 text-center py-8 text-muted-foreground">
+															{language === 'en' ? "No articles found" : "Không tìm thấy bài viết"}
 														</div>
-													))
-												) : (
-													<div className="col-span-2 text-center py-8 text-muted-foreground">
-														{language === 'en' ? "No articles found" : "Không tìm thấy bài viết"}
-													</div>
-												)}
+													)}
+												</div>
 											</div>
 										</div>
 									</div>
-									<DialogFooter>
-										<Button onClick={handleSaveProduct}>{t('save')}</Button>
+									<DialogFooter className="sticky bottom-0 pt-4 pb-2 bg-background border-t">
+										<div className="flex items-center justify-between w-full">
+											<p className="text-sm text-muted-foreground">
+												{editingProduct ? "Editing existing product" : "Creating new product"}
+											</p>
+											<Button onClick={handleSaveProduct} className="px-8" disabled={!productForm.slug}>
+												{t('save')}
+											</Button>
+										</div>
 									</DialogFooter>
 								</DialogContent>
 							</Dialog>

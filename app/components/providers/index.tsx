@@ -9,7 +9,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <>
       <StoreProvider>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true} storageKey="theme-preference">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem={false} storageKey="theme-preference">
           {children}
         </ThemeProvider>
       </StoreProvider>

@@ -621,6 +621,131 @@ export const initialProducts: Product[] = [
     "sortOrder": 6,
     "isLocalized": true,
     "tags": []
+  },
+  {
+    "id": "1749463271625",
+    "name": "",
+    "localizedName": {
+      "en": "",
+      "vi": "Chess.com"
+    },
+    "price": 0,
+    "description": "",
+    "localizedDescription": {
+      "en": "",
+      "vi": ""
+    },
+    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/chess.png?updatedAt=1749227078784",
+    "localizedCategory": {
+      "en": "",
+      "vi": "Giải trí"
+    },
+    "slug": "chess-com",
+    "options": [
+      {
+        "id": "1749463182285",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Gold"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 30000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 năm"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 200000
+            },
+            "description": ""
+          }
+        ]
+      },
+      {
+        "id": "1749463193689",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Platinum"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 40000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 năm"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 300000
+            },
+            "description": ""
+          }
+        ]
+      },
+      {
+        "id": "1749463194005",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Diamond"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 tháng"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 60000
+            },
+            "description": ""
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "1 năm"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 500000
+            },
+            "description": ""
+          }
+        ]
+      }
+    ],
+    "relatedArticles": [],
+    "sortOrder": 7,
+    "isLocalized": true,
+    "tags": []
   }
 ]
 

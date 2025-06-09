@@ -36,8 +36,16 @@ export function Navbar() {
 	const { t } = useTranslation()
 	const { theme, resolvedTheme } = useTheme()
 	
-	// Use the theme directly from next-themes
-	const isDarkTheme = resolvedTheme === 'dark'
+	// Use state to track the theme after initial client render
+	const [mounted, setMounted] = useState(false)
+	
+	// Effect runs only on the client after hydration is complete
+	useEffect(() => {
+		setMounted(true)
+	}, [])
+	
+	// Use the theme directly from next-themes, but only on the client after mounting
+	const isDarkTheme = mounted ? resolvedTheme === 'dark' : false
 	
 	const toggleLanguage = () => {
 		setLanguage(language === 'en' ? 'vi' : 'en')
@@ -49,54 +57,62 @@ export function Navbar() {
 				<div className="flex h-16 items-center justify-between">
 					{/* Logo */}
 					<Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-						{/* Wide logo for large screens - Using <img> for better caching */}
+						{/* Wide logo for large screens */}
 						<div className="hidden lg:block relative h-10 w-32">
-							{/* Preload both logos - this ensures they're both in the browser cache */}
+							{/* Preload both logos */}
 							<link rel="preload" as="image" href="/logo-wide-dark-mode.png" />
 							<link rel="preload" as="image" href="/logo-wide-light-mode.png" />
 							
-							{/* Light mode logo - always present but hidden in dark mode */}
-							<img
-								src="/logo-wide-light-mode.png"
-								alt="Shine Shop"
-								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-0' : 'opacity-100'}`}
-								style={{ objectFit: 'contain' }}
-							/>
-							
-							{/* Dark mode logo - always present but hidden in light mode */}
-							<img
-								src="/logo-wide-dark-mode.png"
-								alt="Shine Shop"
-								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-100' : 'opacity-0'}`}
-								style={{ objectFit: 'contain' }}
-							/>
+							{/* Use a container div with set dimensions and actual logos rendered only client-side */}
+							<div suppressHydrationWarning className="w-32 h-10 relative">
+								{mounted && (
+									<>
+										<img
+											src="/logo-wide-light-mode.png"
+											alt="Shine Shop"
+											className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-300 ${isDarkTheme ? 'opacity-0' : 'opacity-100'}`}
+											style={{ objectFit: 'contain' }}
+										/>
+										<img
+											src="/logo-wide-dark-mode.png"
+											alt="Shine Shop"
+											className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-300 ${isDarkTheme ? 'opacity-100' : 'opacity-0'}`}
+											style={{ objectFit: 'contain' }}
+										/>
+									</>
+								)}
+							</div>
 						</div>
 						
-						{/* Square logo for small screens - Using <img> for better caching */}
+						{/* Square logo for small screens */}
 						<div className="lg:hidden relative h-10 w-10">
 							{/* Preload both logos */}
 							<link rel="preload" as="image" href="/logo-dark-mode.png" />
 							<link rel="preload" as="image" href="/logo-light-mode.png" />
 							
-							{/* Light mode logo */}
-							<img
-								src="/logo-light-mode.png"
-								alt="Shine Shop"
-								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-0' : 'opacity-100'}`}
-								style={{ objectFit: 'contain' }}
-							/>
-							
-							{/* Dark mode logo */}
-							<img
-								src="/logo-dark-mode.png"
-								alt="Shine Shop"
-								className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-0 ${isDarkTheme ? 'opacity-100' : 'opacity-0'}`}
-								style={{ objectFit: 'contain' }}
-							/>
+							{/* Use a container div with set dimensions and actual logos rendered only client-side */}
+							<div suppressHydrationWarning className="w-10 h-10 relative">
+								{mounted && (
+									<>
+										<img
+											src="/logo-light-mode.png"
+											alt="Shine Shop"
+											className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-300 ${isDarkTheme ? 'opacity-0' : 'opacity-100'}`}
+											style={{ objectFit: 'contain' }}
+										/>
+										<img
+											src="/logo-dark-mode.png"
+											alt="Shine Shop"
+											className={`absolute top-0 left-0 h-10 w-auto transition-opacity duration-300 ${isDarkTheme ? 'opacity-100' : 'opacity-0'}`}
+											style={{ objectFit: 'contain' }}
+										/>
+									</>
+								)}
+							</div>
 						</div>
 						
-						{/* Fallback text (hidden when logos are shown) */}
-						<span className="text-lg font-bold sr-only">Shine Shop</span>
+						{/* Fallback text - display it until mounted for SSR */}
+						{!mounted && <span className="text-lg font-bold">Shine Shop</span>}
 					</Link>
 					
 					{/* Navigation items */}
