@@ -885,6 +885,31 @@
       "sortOrder": 9,
       "isLocalized": true,
       "tags": []
+    },
+    {
+      "id": "1749475231263",
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "vi": "Perplexity"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/perplexity.jpg?updatedAt=1749227148688",
+      "localizedCategory": {
+        "en": "",
+        "vi": "AI"
+      },
+      "slug": "perplexity",
+      "options": [],
+      "relatedArticles": [],
+      "sortOrder": 10,
+      "isLocalized": true,
+      "tags": []
     }
   ],
   "faqArticles": [],

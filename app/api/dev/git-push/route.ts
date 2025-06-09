@@ -10,6 +10,11 @@ export const dynamic = 'force-static'
 
 const execPromise = promisify(exec)
 
+// Maximum number of retries for git commands
+const MAX_RETRIES = 3
+// Delay between retries in milliseconds
+const RETRY_DELAY = 1000
+
 // Function to check if git is installed and repository is configured
 async function checkGitSetup() {
   try {
@@ -103,6 +108,50 @@ function isSuccessfulPush(command: string, stderr: string): boolean {
   )
 }
 
+// Execute a single git command with retry mechanism
+async function executeGitCommand(command: string, retryCount = 0): Promise<{success: boolean; stdout: string; stderr: string}> {
+  try {
+    console.log(`Executing command (attempt ${retryCount + 1}): ${command}`)
+    
+    const { stdout, stderr } = await execPromise(command, {
+      cwd: process.cwd(),
+      timeout: 30000, // 30 seconds timeout for git operations
+    })
+    
+    // Check for success or harmless warnings
+    const isSuccess = !stderr || 
+                     stderr.includes('Warning') || 
+                     stderr.includes('hint:') || 
+                     isHarmlessWarning(stderr) || 
+                     (command.includes('git push') && isSuccessfulPush(command, stderr))
+    
+    return {
+      success: isSuccess,
+      stdout,
+      stderr: stderr || ''
+    }
+  } catch (error) {
+    const err = error as Error & { code?: string }
+    
+    // Check if it's a connection reset error (ECONNRESET)
+    const isConnectionReset = err.code === 'ECONNRESET' || err.message.includes('ECONNRESET')
+    
+    // If it's a connection reset error and we haven't exceeded max retries
+    if (isConnectionReset && retryCount < MAX_RETRIES) {
+      console.log(`Connection reset detected, retrying in ${RETRY_DELAY}ms (attempt ${retryCount + 1})`)
+      
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
+      
+      // Retry the command
+      return executeGitCommand(command, retryCount + 1)
+    }
+    
+    // If we've exceeded retries or it's another type of error, throw it
+    throw error
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     // First, check if git is properly set up
@@ -130,46 +179,38 @@ export async function POST(request: NextRequest) {
     // Execute each command sequentially
     for (const command of commands) {
       try {
-        console.log(`Executing command: ${command}`)
-        
-        const { stdout, stderr } = await execPromise(command, {
-          cwd: process.cwd(),
-        })
+        const result = await executeGitCommand(command)
         
         results.push({
           command,
-          success: true,
-          stdout,
-          stderr: stderr || ''
+          success: result.success,
+          stdout: result.stdout,
+          stderr: result.stderr
         })
         
-        // Only treat as error if stderr contains actual errors, not just warnings
-        // Or if it's a git push command, check specifically if it was successful
-        if (stderr && 
-            !stderr.includes('Warning') && 
-            !stderr.includes('hint:') && 
-            !isHarmlessWarning(stderr) && 
-            !(command.includes('git push') && isSuccessfulPush(command, stderr))) {
-          
-          console.error(`Command '${command}' error:`, stderr)
+        // If the command wasn't successful, return an error
+        if (!result.success) {
+          console.error(`Command '${command}' error:`, result.stderr)
           return NextResponse.json(
             { 
               error: `Command failed: ${command}`, 
-              details: stderr,
+              details: result.stderr,
               results
             },
             { status: 500 }
           )
         }
         
-        console.log(`Command '${command}' output:`, stdout)
+        console.log(`Command '${command}' output:`, result.stdout)
       } catch (error) {
-        const errorMessage = (error as Error).message
+        const err = error as Error & { code?: string }
+        const errorMessage = err.message
+        const errorCode = err.code || 'UNKNOWN'
         
-        console.error(`Command exception:`, errorMessage)
+        console.error(`Command exception (${errorCode}):`, errorMessage)
         return NextResponse.json(
           { 
-            error: 'Command failed with exception', 
+            error: `Command failed with exception (${errorCode})`, 
             details: errorMessage,
             results
           },
@@ -184,9 +225,16 @@ export async function POST(request: NextRequest) {
       results
     })
   } catch (error) {
-    console.error('Error executing git commands:', error)
+    const err = error as Error & { code?: string }
+    const errorCode = err.code || 'UNKNOWN'
+    console.error(`Error executing git commands (${errorCode}):`, err)
+    
     return NextResponse.json(
-      { error: 'Failed to execute git commands', details: (error as Error).message },
+      { 
+        error: 'Failed to execute git commands', 
+        details: err.message,
+        errorCode: errorCode
+      },
       { status: 500 }
     )
   }

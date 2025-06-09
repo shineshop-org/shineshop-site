@@ -855,49 +855,70 @@ export default function AdminDashboard() {
 		setIsPushing(true)
 		
 		try {
-			// Add all changes
-			const response = await fetch('/api/dev/git-push', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					commands: [
-						'git add -A',
-						'git commit -m "chore: update store data from admin dashboard"',
-						'git push origin main'
-					]
-				}),
-			})
+			// Add retry mechanism for git push
+			const maxRetries = 3
+			let retryCount = 0
+			let gitPushSuccess = false
+			let lastError: Error | null = null
 			
-			const responseData = await response.json()
+			while (retryCount < maxRetries && !gitPushSuccess) {
+				try {
+					if (retryCount > 0) {
+						console.log(`Retrying git push (attempt ${retryCount + 1} of ${maxRetries})...`)
+						// Small delay before retry
+						await new Promise(resolve => setTimeout(resolve, 1000))
+					}
+					
+					// Add all changes
+					const response = await fetch('/api/dev/git-push', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							commands: [
+								'git add -A',
+								'git commit -m "chore: update store data from admin dashboard"',
+								'git push origin main'
+							]
+						}),
+						// Increase timeout for the fetch request
+						signal: AbortSignal.timeout(60000) // 60 seconds timeout
+					})
+					
+					const responseData = await response.json()
+					
+					if (response.ok && responseData.success) {
+						gitPushSuccess = true
+						console.log('Git push successful:', responseData)
+					} else {
+						// Extract error information
+						const errorDetails = responseData.details || 'Unknown error'
+						throw new Error(`Git push failed: ${responseData.error}. Details: ${errorDetails}`);
+					}
+				} catch (error) {
+					lastError = error instanceof Error ? error : new Error(String(error))
+					retryCount++
+					console.warn(`Git push attempt ${retryCount} failed:`, error)
+					
+					// If we've exhausted all retries, don't continue
+					if (retryCount >= maxRetries) {
+						console.error('All git push retries failed')
+					}
+				}
+			}
 			
-			if (response.ok) {
+			if (gitPushSuccess) {
 				alert('Successfully pushed to GitHub! Cloudflare will auto-deploy in a few minutes.')
 			} else {
-				// Extract and display more detailed error information
-				const errorDetails = responseData.details || 'Unknown error'
-				const errorResults = responseData.results || []
-				
-				console.error('Git push failed:', responseData)
-				
 				// Prepare a more informative error message
-				let errorMessage = `Error: ${responseData.error}\n\nDetails: ${errorDetails}`
-				
-				if (errorResults.length > 0) {
-					errorMessage += '\n\nCommand results:'
-					errorResults.forEach((result: any) => {
-						errorMessage += `\n- ${result.command}: ${result.success ? 'Success' : 'Failed'}`
-						if (result.stderr) errorMessage += `\n  Error: ${result.stderr}`
-					})
-				}
-				
+				let errorMessage = `Error pushing to GitHub after ${maxRetries} attempts. ${lastError?.message || 'Unknown error'}`
 				alert(errorMessage)
-				throw new Error(responseData.error || 'Failed to push to GitHub')
+				throw lastError || new Error('Failed to push to GitHub')
 			}
 		} catch (error) {
 			console.error('Error pushing to GitHub:', error)
-			alert(`Error pushing to GitHub: ${(error as Error).message}`)
+			// Error is already alerted in the inner catch block
 		} finally {
 			setIsPushing(false)
 		}
@@ -1087,59 +1108,95 @@ export default function AdminDashboard() {
 				throw new Error(errorData.error || 'Failed to update static data file')
 			}
 			
-			// Step 2: Push changes to GitHub
-			try {
-				const pushResponse = await fetch('/api/dev/git-push', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						commands: [
-							'git add -A',
-							'git commit -m "feat: update static data file for production"',
-							'git push origin main'
-						]
-					}),
-				})
-				
-				// If fetch itself succeeded but the API reported an error
-				if (!pushResponse.ok) {
+			// Step 2: Push changes to GitHub with retry mechanism
+			const maxRetries = 3
+			let retryCount = 0
+			let gitPushSuccess = false
+			let lastError: Error | null = null
+			
+			while (retryCount < maxRetries && !gitPushSuccess) {
+				try {
+					if (retryCount > 0) {
+						console.log(`Retrying git push (attempt ${retryCount + 1} of ${maxRetries})...`)
+						// Small delay before retry
+						await new Promise(resolve => setTimeout(resolve, 1000))
+					}
+					
+					const pushResponse = await fetch('/api/dev/git-push', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							commands: [
+								'git add -A',
+								'git commit -m "feat: update static data file for production"',
+								'git push origin main'
+							]
+						}),
+						// Increase timeout for the fetch request
+						signal: AbortSignal.timeout(60000) // 60 seconds timeout
+					})
+					
+					// If fetch itself succeeded but the API reported an error
+					if (!pushResponse.ok) {
+						const pushData = await pushResponse.json()
+						throw new Error(pushData.error || 'Failed to push changes to GitHub')
+					}
+					
+					// Try to parse response even if status is ok
 					const pushData = await pushResponse.json()
-					throw new Error(pushData.error || 'Failed to push changes to GitHub')
+					
+					// Check if the actual Git operations succeeded
+					if (!pushData.success) {
+						throw new Error(pushData.error || 'Git operations failed')
+					}
+					
+					// Mark success and exit retry loop
+					gitPushSuccess = true
+					
+					// Log success details
+					console.log('Git push results:', pushData.results)
+				} catch (error) {
+					lastError = error instanceof Error ? error : new Error(String(error))
+					retryCount++
+					console.warn(`Git push attempt ${retryCount} failed:`, error)
+					
+					// If we've exhausted all retries, don't continue
+					if (retryCount >= maxRetries) {
+						console.error('All git push retries failed')
+					}
 				}
-				
-				// Try to parse response even if status is ok
-				const pushData = await pushResponse.json()
-				
-				// Check if the actual Git operations succeeded
-				if (!pushData.success) {
-					throw new Error(pushData.error || 'Git operations failed')
-				}
-				
-				// Log success details
-				console.log('Git push results:', pushData.results)
-			} catch (gitError) {
-				// Handle failed git operations but continue - treat this as a non-fatal error
-				console.warn('Git operations warning:', gitError)
-				// Don't rethrow, let the process continue as the file updates were successful
 			}
-			
-			// If we reach here, the file update was successful
-			// Show success notification via state instead of alert
-			console.log('Successfully published content updates')
-			setPublishSuccess(true)
-			
-			// Auto-hide success message after 5 seconds
-			setTimeout(() => {
-				setPublishSuccess(false)
-			}, 5000)
-			
+
+			// Check if git push was successful or if we should treat it as a warning
+			if (!gitPushSuccess) {
+				// This is a non-fatal error - show warning but still mark overall process as successful
+				console.warn('Git push warning:', lastError)
+				setPublishSuccess(true)
+				
+				// Show warning message
+				setTimeout(() => {
+					alert(language === 'en'
+						? `Content was updated successfully, but GitHub push had issues. Your changes are saved locally but may not be deployed yet. Error: ${lastError?.message || 'Unknown error'}`
+						: `Nội dung đã được cập nhật thành công, nhưng việc đẩy lên GitHub gặp sự cố. Các thay đổi của bạn đã được lưu cục bộ nhưng có thể chưa được triển khai. Lỗi: ${lastError?.message || 'Lỗi không xác định'}`)
+				}, 500)
+			} else {
+				// If we reach here, everything was successful
+				console.log('Successfully published content updates and pushed to GitHub')
+				setPublishSuccess(true)
+				
+				// Auto-hide success message after 5 seconds
+				setTimeout(() => {
+					setPublishSuccess(false)
+				}, 5000)
+			}
 		} catch (error) {
 			console.error('Error publishing to production:', error)
 			alert(language === 'en' 
 				? `Error publishing: ${(error as Error).message}` 
 				: `Lỗi khi xuất bản: ${(error as Error).message}`)
+			setPublishSuccess(false)
 		} finally {
 			setIsPublishing(false)
 		}
