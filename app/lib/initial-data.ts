@@ -214,6 +214,39 @@ export const initialProducts: Product[] = [
             "description": "Nâng cấp thẳng từ tài khoản của bạn"
           }
         ]
+      },
+      {
+        "id": "1749464283583",
+        "name": "",
+        "localizedName": {
+          "en": "",
+          "vi": "Team"
+        },
+        "type": "select",
+        "values": [
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "Dùng chung"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 50000
+            },
+            "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
+          },
+          {
+            "localizedValue": {
+              "en": "",
+              "vi": "Chính chủ"
+            },
+            "localizedPrice": {
+              "en": 0,
+              "vi": 150000
+            },
+            "description": "Nâng cấp thẳng từ tài khoản của bạn"
+          }
+        ]
       }
     ],
     "relatedArticles": [],
@@ -822,7 +855,7 @@ export const initialProducts: Product[] = [
     "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/apple-music.jpg?updatedAt=1749464167735",
     "localizedCategory": {
       "en": "",
-      "vi": ""
+      "vi": "Giải trí"
     },
     "slug": "apple-music",
     "options": [
