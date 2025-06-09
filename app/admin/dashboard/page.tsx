@@ -1485,9 +1485,6 @@ export default function AdminDashboard() {
 															className="flex-1"
 														/>
 													</div>
-													<p className="text-xs text-muted-foreground">
-														{t('fullURL')}: {typeof window !== 'undefined' ? window.location.origin : ''}/store/product/{productForm.slug}
-													</p>
 												</div>
 												
 												{/* Product Name */}
@@ -1630,11 +1627,11 @@ export default function AdminDashboard() {
 												
 												{productForm.options.map((option, optionIndex) => (
 													<div key={option.id} className={`border rounded-md p-4 space-y-3 shadow-sm ${
-														['bg-blue-50/50 dark:bg-blue-900/10', 
-														'bg-green-50/50 dark:bg-green-900/10',
-														'bg-amber-50/50 dark:bg-amber-900/10',
-														'bg-purple-50/50 dark:bg-purple-900/10',
-														'bg-pink-50/50 dark:bg-pink-900/10'][optionIndex % 5]
+														['bg-blue-100 dark:bg-blue-800/20', 
+														'bg-green-100 dark:bg-green-800/20',
+														'bg-amber-100 dark:bg-amber-800/20',
+														'bg-purple-100 dark:bg-purple-800/20',
+														'bg-pink-100 dark:bg-pink-800/20'][optionIndex % 5]
 													}`}>
 														<div className="flex items-center justify-between bg-muted/20 -m-4 mb-3 p-3 border-b">
 															<h4 className="font-medium flex items-center">
@@ -1707,11 +1704,11 @@ export default function AdminDashboard() {
 																
 																return (
 																<div key={valueIndex} className={`space-y-3 border p-3 rounded-md mb-3 shadow-sm ${
-																	['bg-blue-100/40 dark:bg-blue-900/20', 
-																	'bg-green-100/40 dark:bg-green-900/20',
-																	'bg-amber-100/40 dark:bg-amber-900/20',  
-																	'bg-purple-100/40 dark:bg-purple-900/20',
-																	'bg-pink-100/40 dark:bg-pink-900/20'][valueIndex % 5]
+																	['bg-blue-200/70 dark:bg-blue-900/30', 
+																	'bg-green-200/70 dark:bg-green-900/30',
+																	'bg-amber-200/70 dark:bg-amber-900/30',  
+																	'bg-purple-200/70 dark:bg-purple-900/30',
+																	'bg-pink-200/70 dark:bg-pink-900/30'][valueIndex % 5]
 																}`}>
 																	<div className="flex justify-between items-center border-b pb-2">
 																		<h5 className="font-medium text-sm flex items-center">
@@ -1819,8 +1816,7 @@ export default function AdminDashboard() {
 											</h3>
 											
 											<div className="space-y-2">
-												<div className="flex items-center justify-between mb-2">
-													<p className="text-sm text-muted-foreground">Use Markdown to format your description</p>
+												<div className="flex justify-end items-center mb-2">
 													<Button
 														type="button"
 														variant="outline"
@@ -1901,7 +1897,6 @@ export default function AdminDashboard() {
 													
 													{showProductDescriptionPreview && (
 														<div className="border rounded-md p-4 overflow-y-auto bg-background shadow-sm">
-															<h5 className="text-sm font-medium mb-2 text-muted-foreground">Preview</h5>
 															<div 
 																className="prose prose-sm dark:prose-invert max-w-none"
 																dangerouslySetInnerHTML={{
@@ -1971,10 +1966,7 @@ export default function AdminDashboard() {
 										</div>
 									</div>
 									<DialogFooter className="sticky bottom-0 pt-4 pb-2 bg-background border-t">
-										<div className="flex items-center justify-between w-full">
-											<p className="text-sm text-muted-foreground">
-												{editingProduct ? "Editing existing product" : "Creating new product"}
-											</p>
+										<div className="flex items-center justify-end w-full">
 											<Button onClick={handleSaveProduct} className="px-8" disabled={!productForm.slug}>
 												{t('save')}
 											</Button>
