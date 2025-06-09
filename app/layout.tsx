@@ -14,6 +14,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
 	title: initialSiteConfig.siteTitle,
 	description: 'Shop for premium electronics, accessories, and more at Shine Shop. Quality products with excellent customer service.',
+	icons: {
+		icon: '/icon.png',
+	},
 }
 
 export default function RootLayout({
