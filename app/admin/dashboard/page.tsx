@@ -307,6 +307,8 @@ export default function AdminDashboard() {
 	const [publishSuccess, setPublishSuccess] = useState(false)
 	const [activeTab, setActiveTab] = useState<TabType>('products')
 	const [productTab, setProductTab] = useState<ProductTabType>('details')
+	const [showTosNotification, setShowTosNotification] = useState(false)
+	const [showSocialNotification, setShowSocialNotification] = useState(false)
 	
 	// Kiểm tra môi trường
 	const isDevelopment = process.env.NODE_ENV === 'development'
@@ -2220,21 +2222,50 @@ export default function AdminDashboard() {
 						<div className="space-y-6">
 							<div className="flex justify-between items-center">
 								<h2 className="text-xl font-semibold">{language === 'en' ? 'Social Links Management' : 'Quản lý liên kết mạng xã hội'}</h2>
-								<Button 
-									onClick={() => {
-										const newLink: SocialLink = {
-											id: Date.now().toString(),
-											platform: 'new-platform',
-											url: 'https://example.com',
-											icon: 'icon-name'
-										}
-										setSocialLinks([...socialLinks, newLink])
-									}}
-								>
-									<Plus className="mr-2 h-4 w-4" />
-									{language === 'en' ? 'Add Social Link' : 'Thêm liên kết'}
-								</Button>
+								<div className="flex gap-2">
+									<Button 
+										onClick={() => {
+											const newLink: SocialLink = {
+												id: Date.now().toString(),
+												platform: 'new-platform',
+												url: 'https://example.com',
+												icon: 'icon-name'
+											}
+											setSocialLinks([...socialLinks, newLink])
+										}}
+									>
+										<Plus className="mr-2 h-4 w-4" />
+										{language === 'en' ? 'Add Social Link' : 'Thêm liên kết'}
+									</Button>
+									<Button 
+										onClick={handlePublishToProduction}
+										variant="outline" 
+										disabled={isPublishing}
+									>
+										{isPublishing 
+											? (language === 'en' ? 'Publishing...' : 'Đang xuất bản...') 
+											: (language === 'en' ? 'Publish to Live' : 'Xuất bản lên Live')}
+									</Button>
+								</div>
 							</div>
+							
+							{showSocialNotification && (
+								<div className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 mb-2 flex items-center text-green-700 dark:text-green-300">
+									<svg 
+										xmlns="http://www.w3.org/2000/svg" 
+										className="h-5 w-5 mr-2" 
+										viewBox="0 0 20 20" 
+										fill="currentColor"
+									>
+										<path 
+											fillRule="evenodd" 
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+											clipRule="evenodd" 
+										/>
+									</svg>
+									{language === 'en' ? 'Social link updated successfully!' : 'Liên kết mạng xã hội đã được cập nhật thành công!'}
+								</div>
+							)}
 							
 							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 								{socialLinks.map((link) => (
@@ -2255,6 +2286,10 @@ export default function AdminDashboard() {
 														const newUrl = prompt(language === 'en' ? 'New URL:' : 'URL mới:', link.url)
 														if (newUrl) {
 															updateSocialLink(link.id, { url: newUrl })
+															setShowSocialNotification(true)
+															setTimeout(() => {
+																setShowSocialNotification(false)
+															}, 3000)
 														}
 													}}
 												>
@@ -2286,13 +2321,49 @@ export default function AdminDashboard() {
 						<div className="flex flex-col h-[calc(100vh-120px)]">
 							<div className="flex justify-between items-center py-1">
 								<h2 className="text-xl font-semibold">{t('termsOfService')}</h2>
-								<Button 
-									onClick={() => setTosContent(tosForm)}
-									variant="default"
-								>
-									{language === 'en' ? 'Save' : 'Lưu'}
-								</Button>
+								<div className="flex gap-2">
+									<Button 
+										onClick={() => {
+											setTosContent(tosForm)
+											setShowTosNotification(true)
+											setTimeout(() => {
+												setShowTosNotification(false)
+											}, 3000)
+										}}
+										variant="default"
+									>
+										{language === 'en' ? 'Save' : 'Lưu'}
+									</Button>
+									<Button 
+										onClick={handlePublishToProduction}
+										variant="outline" 
+										disabled={isPublishing}
+									>
+										{isPublishing 
+											? (language === 'en' ? 'Publishing...' : 'Đang xuất bản...') 
+											: (language === 'en' ? 'Publish to Live' : 'Xuất bản lên Live')}
+									</Button>
+								</div>
 							</div>
+							
+							{showTosNotification && (
+								<div className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 mb-2 flex items-center text-green-700 dark:text-green-300">
+									<svg 
+										xmlns="http://www.w3.org/2000/svg" 
+										className="h-5 w-5 mr-2" 
+										viewBox="0 0 20 20" 
+										fill="currentColor"
+									>
+										<path 
+											fillRule="evenodd" 
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+											clipRule="evenodd" 
+										/>
+									</svg>
+									{language === 'en' ? 'Terms of Service saved successfully!' : 'Điều khoản dịch vụ đã được lưu thành công!'}
+								</div>
+							)}
+							
 							<textarea 
 								className="w-full p-4 border rounded-md shadow-sm h-[calc(100vh-170px)] font-mono text-base flex-1 focus:outline-none focus:ring-1 focus:ring-primary"
 								value={tosForm} 
