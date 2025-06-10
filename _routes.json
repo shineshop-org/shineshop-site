@@ -65,6 +65,26 @@
       "status": 200
     },
     {
+      "src": "/payment",
+      "dest": "/payment/index.html",
+      "status": 200
+    },
+    {
+      "src": "/social",
+      "dest": "/social/index.html",
+      "status": 200
+    },
+    {
+      "src": "/service",
+      "dest": "/service/index.html",
+      "status": 200
+    },
+    {
+      "src": "/faq",
+      "dest": "/faq/index.html",
+      "status": 200
+    },
+    {
       "src": "/sheet",
       "dest": "https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit?gid=1592107766#gid=1592107766",
       "status": 301

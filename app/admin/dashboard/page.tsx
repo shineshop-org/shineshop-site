@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, HelpCircle, Share2, Database, Upload, Search, Image as ImageIcon, Bold, Italic, Link, List, Eye, EyeOff, Settings } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, HelpCircle, Share2, Search, Image as ImageIcon, Bold, Italic, Link, List, Eye, EyeOff, Settings } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -35,7 +35,7 @@ import { CSS } from '@dnd-kit/utilities'
 // Add the jshine-gradient CSS class as in the product page
 const jshineGradientClassName = "text-[#0ea5e9]" // JShine color (sky blue)
 
-type TabType = 'products' | 'faq' | 'social' | 'tos' | 'data' | 'settings'
+type TabType = 'products' | 'faq' | 'social' | 'tos' | 'settings'
 type ProductTabType = 'details' | 'card-order'
 
 // Sortable item component for drag and drop
@@ -303,7 +303,6 @@ export default function AdminDashboard() {
 	const { t } = useTranslation()
 	
 	const [isLoading, setIsLoading] = useState(true)
-	const [isPushing, setIsPushing] = useState(false)
 	const [isPublishing, setIsPublishing] = useState(false)
 	const [publishSuccess, setPublishSuccess] = useState(false)
 	const [activeTab, setActiveTab] = useState<TabType>('products')
@@ -850,80 +849,6 @@ export default function AdminDashboard() {
 		setProductToDelete(null)
 	}
 	
-	// Hàm xử lý push to GitHub
-	const handlePushToGitHub = async () => {
-		setIsPushing(true)
-		
-		try {
-			// Add retry mechanism for git push
-			const maxRetries = 3
-			let retryCount = 0
-			let gitPushSuccess = false
-			let lastError: Error | null = null
-			
-			while (retryCount < maxRetries && !gitPushSuccess) {
-				try {
-					if (retryCount > 0) {
-						console.log(`Retrying git push (attempt ${retryCount + 1} of ${maxRetries})...`)
-						// Small delay before retry
-						await new Promise(resolve => setTimeout(resolve, 1000))
-					}
-					
-					// Add all changes
-					const response = await fetch('/api/dev/git-push', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify({
-							commands: [
-								'git add -A',
-								'git commit -m "chore: update store data from admin dashboard"',
-								'git push origin main'
-							]
-						}),
-						// Increase timeout for the fetch request
-						signal: AbortSignal.timeout(60000) // 60 seconds timeout
-					})
-					
-					const responseData = await response.json()
-					
-					if (response.ok && responseData.success) {
-						gitPushSuccess = true
-						console.log('Git push successful:', responseData)
-					} else {
-						// Extract error information
-						const errorDetails = responseData.details || 'Unknown error'
-						throw new Error(`Git push failed: ${responseData.error}. Details: ${errorDetails}`);
-					}
-				} catch (error) {
-					lastError = error instanceof Error ? error : new Error(String(error))
-					retryCount++
-					console.warn(`Git push attempt ${retryCount} failed:`, error)
-					
-					// If we've exhausted all retries, don't continue
-					if (retryCount >= maxRetries) {
-						console.error('All git push retries failed')
-					}
-				}
-			}
-			
-			if (gitPushSuccess) {
-				alert('Successfully pushed to GitHub! Cloudflare will auto-deploy in a few minutes.')
-			} else {
-				// Prepare a more informative error message
-				let errorMessage = `Error pushing to GitHub after ${maxRetries} attempts. ${lastError?.message || 'Unknown error'}`
-				alert(errorMessage)
-				throw lastError || new Error('Failed to push to GitHub')
-			}
-		} catch (error) {
-			console.error('Error pushing to GitHub:', error)
-			// Error is already alerted in the inner catch block
-		} finally {
-			setIsPushing(false)
-		}
-	}
-	
 	// Price formatting helper
 	const formatPrice = (price: number | string, lang: Language = language): string => {
 		const numPrice = typeof price === 'string' ? parseFloat(price) : price
@@ -1253,15 +1178,7 @@ export default function AdminDashboard() {
 						onClick={() => setActiveTab('tos')}
 					>
 						<FileText className="mr-2 h-4 w-4" />
-						{t('termsOfService')}
-					</Button>
-					<Button 
-						variant={activeTab === 'data' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('data')}
-					>
-						<Database className="mr-2 h-4 w-4" />
-						{language === 'en' ? 'Data Management' : 'Quản lý dữ liệu'}
+						{language === 'en' ? 'Terms of Service' : 'Điều khoản dịch vụ'}
 					</Button>
 					<Button 
 						variant={activeTab === 'settings' ? 'default' : 'ghost'} 
@@ -2366,78 +2283,25 @@ export default function AdminDashboard() {
 					)}
 					
 					{activeTab === 'tos' && (
-						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">{t('termsOfService')}</h2>
-							<div className="space-y-4">
-								<Card>
-									<CardHeader>
-										<CardTitle>{language === 'en' ? 'Edit Terms of Service' : 'Chỉnh sửa điều khoản dịch vụ'}</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-2">
-											<label className="text-sm font-medium">{language === 'en' ? 'Terms of Service Content' : 'Nội dung điều khoản dịch vụ'}</label>
-											<textarea 
-												className="w-full p-2 border rounded-md min-h-[400px]"
-												value={tosForm} 
-												onChange={(e) => setTosForm(e.target.value)}
-												placeholder={language === 'en' ? "Enter terms of service content..." : "Nhập nội dung điều khoản dịch vụ..."}
-											/>
-										</div>
-									</CardContent>
-								</Card>
+						<div className="flex flex-col h-[calc(100vh-120px)]">
+							<div className="flex justify-between items-center py-1">
+								<h2 className="text-xl font-semibold">{t('termsOfService')}</h2>
+								<Button 
+									onClick={() => setTosContent(tosForm)}
+									variant="default"
+								>
+									{language === 'en' ? 'Save' : 'Lưu'}
+								</Button>
 							</div>
-						</div>
-					)}
-					
-					{activeTab === 'data' && (
-						<div className="space-y-6">
-							<h2 className="text-xl font-semibold">{language === 'en' ? 'Data Management' : 'Quản lý dữ liệu'}</h2>
-							
-							<Card className="mb-6">
-								<CardHeader>
-									<CardTitle>{language === 'en' ? 'Publish to Cloudflare' : 'Xuất bản lên Cloudflare'}</CardTitle>
-								</CardHeader>
-								<CardContent className="space-y-4">
-									<p className="text-sm text-muted-foreground">
-										{language === 'en' 
-											? 'Update all code to GitHub and Cloudflare will auto-deploy the changes.' 
-											: 'Cập nhật toàn bộ code lên GitHub và Cloudflare sẽ tự động deploy các thay đổi.'}
-									</p>
-									
-									<Button 
-										onClick={handlePublishToProduction}
-										disabled={isPublishing}
-										className="w-full"
-										size="lg"
-										variant="default"
-									>
-										<Upload className="mr-2 h-5 w-5" />
-										{isPublishing 
-											? (language === 'en' ? 'Publishing...' : 'Đang xuất bản...') 
-											: (language === 'en' ? 'Publish' : 'Xuất bản')}
-									</Button>
-									
-									{publishSuccess && (
-										<div className="mt-4 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 flex items-center text-green-700 dark:text-green-300">
-											<svg 
-												xmlns="http://www.w3.org/2000/svg" 
-												className="h-5 w-5 mr-2" 
-												viewBox="0 0 20 20" 
-												fill="currentColor"
-											>
-												<path 
-													fillRule="evenodd" 
-													d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
-													clipRule="evenodd" 
-												/>
-											</svg>
-											{language === 'en' 
-												? 'Successfully published! Cloudflare will auto-deploy in a few minutes.' 
-												: 'Đã xuất bản thành công! Cloudflare sẽ tự động deploy trong vài phút.'}
-										</div>
-									)}
-								</CardContent>
-							</Card>
+							<textarea 
+								className="w-full p-4 border rounded-md shadow-sm h-[calc(100vh-170px)] font-mono text-base flex-1 focus:outline-none focus:ring-1 focus:ring-primary"
+								value={tosForm} 
+								onChange={(e) => setTosForm(e.target.value)}
+								placeholder={language === 'en' 
+									? "# Terms of Service\n\n**Effective Date: January 1, 2024**\n\n## 1. Acceptance of Terms\n\nBy accessing and using Shine Shop..."
+									: "# Điều khoản dịch vụ\n\n**Ngày hiệu lực: Ngày 1 tháng 1 năm 2024**\n\n## 1. Chấp nhận điều khoản\n\nBằng việc truy cập và sử dụng Shine Shop..."
+								}
+							/>
 						</div>
 					)}
 					

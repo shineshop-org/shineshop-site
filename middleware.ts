@@ -9,6 +9,9 @@ const isProduction = process.env.NODE_ENV === 'production'
 // Cache version - increment this when deploying major content changes
 const CACHE_VERSION = '1.0.5'
 
+// Define navbar paths that should be exempt from redirects
+const NAVBAR_PATHS = ['/payment', '/social', '/service', '/faq']
+
 // Middleware
 export function middleware(req: NextRequest) {
 	const url = req.nextUrl.clone()
@@ -18,6 +21,11 @@ export function middleware(req: NextRequest) {
 	
 	// Skip middleware for admin pages in development
 	if (process.env.NODE_ENV === 'development' && pathname.startsWith('/admin')) {
+		return NextResponse.next()
+	}
+
+	// Skip redirect for navbar paths
+	if (NAVBAR_PATHS.some(path => pathname === path || pathname.startsWith(`${path}/`))) {
 		return NextResponse.next()
 	}
 

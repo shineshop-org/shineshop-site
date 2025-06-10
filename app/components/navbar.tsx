@@ -66,6 +66,12 @@ export function Navbar() {
 		setLanguage(newLanguage)
 	}
 	
+	// Custom navigation function to handle direct navigation
+	const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+		e.preventDefault() // Prevent default link behavior
+		window.location.href = path // Use direct navigation
+	}
+	
 	// Render a language toggle placeholder during server rendering
 	const renderLanguageToggle = () => {
 		if (!mounted) {
@@ -112,7 +118,7 @@ export function Navbar() {
 			<div className="container mx-auto px-4">
 				<div className="flex h-16 items-center justify-between">
 					{/* Logo */}
-					<Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+					<Link href="/store/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
 						{/* Wide logo for large screens */}
 						<div className="hidden lg:block relative h-10 w-32">
 							{/* Preload both logos */}
@@ -179,36 +185,36 @@ export function Navbar() {
 						</div>
 						
 						{/* Payment */}
-						<Link href="/payment">
+						<a href="/payment/" onClick={(e) => handleNavigation(e, '/payment/')}>
 							<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
 								{t('payment')}
 							</Button>
-						</Link>
+						</a>
 						
 						{/* Contact */}
-						<Link href="/social">
+						<a href="/social/" onClick={(e) => handleNavigation(e, '/social/')}>
 							<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
 								{t('contact')}
 							</Button>
-						</Link>
+						</a>
 						
 						{/* Tools */}
-						<Link href="/service">
+						<a href="/service/" onClick={(e) => handleNavigation(e, '/service/')}>
 							<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
 								{t('tools')}
 							</Button>
-						</Link>
+						</a>
 						
 						{/* Theme toggle */}
 						<ThemeSwitch />
 						
 						{/* FAQ */}
-						<Link href="/faq">
+						<a href="/faq/" onClick={(e) => handleNavigation(e, '/faq/')}>
 							<Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 dark:hover:bg-primary/20 hover:scale-110 transition-all duration-200">
 								<HelpCircle className="h-5 w-5" />
 								<span className="sr-only">FAQ</span>
 							</Button>
-						</Link>
+						</a>
 					</div>
 				</div>
 			</div>

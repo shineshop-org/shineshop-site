@@ -5,5 +5,17 @@
 # Add any custom redirects here 
 /sheet https://docs.google.com/spreadsheets/d/1ZYv6Q5JaDyc_geHP67g9F3PUNjpSbc31b3u4GR_o93o/edit 301
 
-# Single-page application routing
+# Exact navbar paths
+/payment /payment/index.html 200
+/social /social/index.html 200
+/service /service/index.html 200
+/faq /faq/index.html 200
+
+# Exclude navbar paths from catch-all
+/payment/* /payment/index.html 200
+/social/* /social/index.html 200
+/service/* /service/index.html 200
+/faq/* /faq/index.html 200
+
+# Single-page application routing - catch remaining paths
 /*    /index.html   200 

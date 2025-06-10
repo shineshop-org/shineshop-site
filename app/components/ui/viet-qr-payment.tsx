@@ -82,13 +82,13 @@ export function VietQRPayment({
 							if (clonedContainer) {
 								const totalPaymentText = clonedContainer.querySelector('.payment-label')
 								if (totalPaymentText) {
-									totalPaymentText.setAttribute('style', 'color: #333; font-weight: normal; font-size: 0.875rem; margin-top: 0.125rem;')
+									totalPaymentText.setAttribute('style', 'color: #fff; font-weight: 600; font-size: 1rem; margin-bottom: 0;')
 									totalPaymentText.textContent = 'Tổng thanh toán:'
 								}
 								
 								const amountText = clonedContainer.querySelector('.payment-amount')
 								if (amountText) {
-									amountText.setAttribute('style', 'color: #16a34a; font-weight: bold; font-size: 1.25rem;')
+									amountText.setAttribute('style', 'color: #16a34a; font-weight: bold; font-size: 1.5rem; margin-top: 0;')
 								}
 							}
 						}
@@ -204,9 +204,11 @@ export function VietQRPayment({
 							</div>
 							
 							{/* Payment text below QR code */}
-							<div className="text-center mt-2">
-								<p className="text-foreground text-sm font-normal payment-label">Tổng thanh toán:</p>
-								<p className="text-green-600 text-xl font-bold payment-amount">{formattedAmount ? `${formattedAmount} VND` : '0 VND'}</p>
+							<div className="text-center mt-3">
+								<p className="text-foreground text-base font-semibold payment-label mb-0">Tổng thanh toán:</p>
+								<p className="text-green-600 text-2xl font-bold payment-amount mt-0">
+								{formattedAmount ? `${formattedAmount} VND` : '0 VND'}
+								</p>
 							</div>
 						</div>
 					</div>
