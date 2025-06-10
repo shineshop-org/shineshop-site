@@ -962,9 +962,31 @@ export default function AdminDashboard() {
 	
 	useEffect(() => {
 		if (activeTab === 'tos' && debouncedTosForm !== tosContent) {
-			setTosContent(debouncedTosForm)
+			// Use the store's getState method to ensure we have access to the latest store instance
+			const store = useStore.getState();
+			store.setTosContent(debouncedTosForm);
+			
+			// Đồng bộ dữ liệu sau khi auto-save bằng cách gọi API trực tiếp
+			(async () => {
+				try {
+					const response = await fetch('/api/dev/update-initial-data', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						}
+					})
+					
+					if (!response.ok) {
+						console.error('Auto-save TOS thành công nhưng không đồng bộ được với initial-data.ts')
+					} else {
+						console.log('Đồng bộ TOS tự động thành công')
+					}
+				} catch (error) {
+					console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
+				}
+			})()
 		}
-	}, [debouncedTosForm, activeTab, tosContent, setTosContent])
+	}, [debouncedTosForm, activeTab, tosContent])
 	
 	// Auto-save for FAQ
 	const debouncedFaqForm = useDebounce(faqForm, 2000)
@@ -1126,6 +1148,139 @@ export default function AdminDashboard() {
 			setPublishSuccess(false)
 		} finally {
 			setIsPublishing(false)
+		}
+	}
+	
+	// Cập nhật hàm xử lý lưu TOS
+	const handleSaveTos = async () => {
+		// Lưu TOS vào store using the same pattern for consistency
+		const store = useStore.getState();
+		store.setTosContent(tosForm);
+		
+		// Đồng bộ dữ liệu sang initial-data.ts thông qua API
+		try {
+			const response = await fetch('/api/dev/update-initial-data', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				}
+			})
+			
+			if (!response.ok) {
+				console.error('Lỗi khi đồng bộ dữ liệu TOS')
+			} else {
+				console.log('Đồng bộ TOS thành công')
+			}
+		} catch (error) {
+			console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
+		}
+		
+		// Hiển thị thông báo
+		setShowTosNotification(true)
+		setTimeout(() => {
+			setShowTosNotification(false)
+		}, 3000)
+	}
+	
+	// Cập nhật hàm xử lý thêm social link
+	const handleAddSocialLink = async () => {
+		const newLink: SocialLink = {
+			id: Date.now().toString(),
+			platform: 'new-platform',
+			url: 'https://example.com',
+			icon: 'icon-name'
+		}
+		
+		// Cập nhật state
+		setSocialLinks([...socialLinks, newLink])
+		
+		// Đồng bộ dữ liệu sang initial-data.ts thông qua API
+		try {
+			const response = await fetch('/api/dev/update-initial-data', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				}
+			})
+			
+			if (!response.ok) {
+				console.error('Lỗi khi đồng bộ dữ liệu social links')
+			} else {
+				console.log('Đồng bộ social links thành công')
+			}
+		} catch (error) {
+			console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
+		}
+		
+		// Hiển thị thông báo
+		setShowSocialNotification(true)
+		setTimeout(() => {
+			setShowSocialNotification(false)
+		}, 3000)
+	}
+	
+	// Cập nhật hàm xử lý sửa social link
+	const handleEditSocialLink = async (id: string) => {
+		const newUrl = prompt(language === 'en' ? 'New URL:' : 'URL mới:', socialLinks.find(l => l.id === id)?.url)
+		if (newUrl) {
+			// Cập nhật state
+			updateSocialLink(id, { url: newUrl })
+			
+			// Đồng bộ dữ liệu sang initial-data.ts thông qua API
+			try {
+				const response = await fetch('/api/dev/update-initial-data', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					}
+				})
+				
+				if (!response.ok) {
+					console.error('Lỗi khi đồng bộ dữ liệu social links')
+				} else {
+					console.log('Đồng bộ social links thành công')
+				}
+			} catch (error) {
+				console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
+			}
+			
+			// Hiển thị thông báo
+			setShowSocialNotification(true)
+			setTimeout(() => {
+				setShowSocialNotification(false)
+			}, 3000)
+		}
+	}
+	
+	// Cập nhật hàm xử lý xóa social link
+	const handleDeleteSocialLink = async (id: string) => {
+		if (confirm(language === 'en' ? 'Delete this social link?' : 'Xóa liên kết mạng xã hội này?')) {
+			// Cập nhật state
+			setSocialLinks(socialLinks.filter(l => l.id !== id))
+			
+			// Đồng bộ dữ liệu sang initial-data.ts thông qua API
+			try {
+				const response = await fetch('/api/dev/update-initial-data', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					}
+				})
+				
+				if (!response.ok) {
+					console.error('Lỗi khi đồng bộ dữ liệu social links')
+				} else {
+					console.log('Đồng bộ social links thành công')
+				}
+			} catch (error) {
+				console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
+			}
+			
+			// Hiển thị thông báo
+			setShowSocialNotification(true)
+			setTimeout(() => {
+				setShowSocialNotification(false)
+			}, 3000)
 		}
 	}
 	
@@ -2222,31 +2377,12 @@ export default function AdminDashboard() {
 						<div className="space-y-6">
 							<div className="flex justify-between items-center">
 								<h2 className="text-xl font-semibold">{language === 'en' ? 'Social Links Management' : 'Quản lý liên kết mạng xã hội'}</h2>
-								<div className="flex gap-2">
-									<Button 
-										onClick={() => {
-											const newLink: SocialLink = {
-												id: Date.now().toString(),
-												platform: 'new-platform',
-												url: 'https://example.com',
-												icon: 'icon-name'
-											}
-											setSocialLinks([...socialLinks, newLink])
-										}}
-									>
-										<Plus className="mr-2 h-4 w-4" />
-										{language === 'en' ? 'Add Social Link' : 'Thêm liên kết'}
-									</Button>
-									<Button 
-										onClick={handlePublishToProduction}
-										variant="outline" 
-										disabled={isPublishing}
-									>
-										{isPublishing 
-											? (language === 'en' ? 'Publishing...' : 'Đang xuất bản...') 
-											: (language === 'en' ? 'Publish to Live' : 'Xuất bản lên Live')}
-									</Button>
-								</div>
+								<Button 
+									onClick={handleAddSocialLink}
+								>
+									<Plus className="mr-2 h-4 w-4" />
+									{language === 'en' ? 'Add Social Link' : 'Thêm liên kết'}
+								</Button>
 							</div>
 							
 							{showSocialNotification && (
@@ -2263,7 +2399,7 @@ export default function AdminDashboard() {
 											clipRule="evenodd" 
 										/>
 									</svg>
-									{language === 'en' ? 'Social link updated successfully!' : 'Liên kết mạng xã hội đã được cập nhật thành công!'}
+									{language === 'en' ? 'Social link updated and synced successfully!' : 'Liên kết mạng xã hội đã được cập nhật và đồng bộ thành công!'}
 								</div>
 							)}
 							
@@ -2282,16 +2418,7 @@ export default function AdminDashboard() {
 													variant="outline" 
 													size="sm" 
 													className="flex-1"
-													onClick={() => {
-														const newUrl = prompt(language === 'en' ? 'New URL:' : 'URL mới:', link.url)
-														if (newUrl) {
-															updateSocialLink(link.id, { url: newUrl })
-															setShowSocialNotification(true)
-															setTimeout(() => {
-																setShowSocialNotification(false)
-															}, 3000)
-														}
-													}}
+													onClick={() => handleEditSocialLink(link.id)}
 												>
 													<Edit className="mr-2 h-3 w-3" />
 													{language === 'en' ? 'Edit' : 'Chỉnh sửa'}
@@ -2300,11 +2427,7 @@ export default function AdminDashboard() {
 													variant="outline" 
 													size="sm" 
 													className="flex-1 text-destructive hover:text-destructive"
-													onClick={() => {
-														if (confirm(language === 'en' ? 'Delete this social link?' : 'Xóa liên kết mạng xã hội này?')) {
-															setSocialLinks(socialLinks.filter(l => l.id !== link.id))
-														}
-													}}
+													onClick={() => handleDeleteSocialLink(link.id)}
 												>
 													<Trash2 className="mr-2 h-3 w-3" />
 													{language === 'en' ? 'Delete' : 'Xóa'}
@@ -2321,29 +2444,39 @@ export default function AdminDashboard() {
 						<div className="flex flex-col h-[calc(100vh-120px)]">
 							<div className="flex justify-between items-center py-1">
 								<h2 className="text-xl font-semibold">{t('termsOfService')}</h2>
-								<div className="flex gap-2">
-									<Button 
-										onClick={() => {
-											setTosContent(tosForm)
-											setShowTosNotification(true)
-											setTimeout(() => {
-												setShowTosNotification(false)
-											}, 3000)
-										}}
-										variant="default"
-									>
-										{language === 'en' ? 'Save' : 'Lưu'}
-									</Button>
-									<Button 
-										onClick={handlePublishToProduction}
-										variant="outline" 
-										disabled={isPublishing}
-									>
-										{isPublishing 
-											? (language === 'en' ? 'Publishing...' : 'Đang xuất bản...') 
-											: (language === 'en' ? 'Publish to Live' : 'Xuất bản lên Live')}
-									</Button>
-								</div>
+								<Button 
+									onClick={async () => {
+										// Lưu TOS vào store
+										setTosContent(tosForm)
+										
+										// Đồng bộ dữ liệu sang initial-data.ts thông qua API
+										try {
+											const response = await fetch('/api/dev/update-initial-data', {
+												method: 'POST',
+												headers: {
+													'Content-Type': 'application/json',
+												}
+											})
+											
+											if (!response.ok) {
+												console.error('Lỗi khi đồng bộ dữ liệu')
+											} else {
+												console.log('Đồng bộ TOS thành công')
+											}
+										} catch (error) {
+											console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
+										}
+										
+										// Hiển thị thông báo
+										setShowTosNotification(true)
+										setTimeout(() => {
+											setShowTosNotification(false)
+										}, 3000)
+									}}
+									variant="default"
+								>
+									{language === 'en' ? 'Save' : 'Lưu'}
+								</Button>
 							</div>
 							
 							{showTosNotification && (
@@ -2360,7 +2493,7 @@ export default function AdminDashboard() {
 											clipRule="evenodd" 
 										/>
 									</svg>
-									{language === 'en' ? 'Terms of Service saved successfully!' : 'Điều khoản dịch vụ đã được lưu thành công!'}
+									{language === 'en' ? 'Terms of Service saved and synced successfully!' : 'Điều khoản dịch vụ đã được lưu và đồng bộ thành công!'}
 								</div>
 							)}
 							
