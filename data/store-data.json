@@ -1076,7 +1076,7 @@
     {
       "id": "1",
       "platform": "Facebook",
-      "url": "https://facebook.com/shineshop",
+      "url": "https://www.facebook.com/shineshop.original",
       "icon": "facebook"
     },
     {
@@ -1086,28 +1086,10 @@
       "icon": "instagram"
     },
     {
-      "id": "3",
-      "platform": "Twitter",
-      "url": "https://twitter.com/shineshop",
-      "icon": "twitter"
-    },
-    {
       "id": "4",
       "platform": "WhatsApp",
       "url": "https://wa.me/84123456789",
       "icon": "message-circle"
-    },
-    {
-      "id": "5",
-      "platform": "Telegram",
-      "url": "https://t.me/shineshop",
-      "icon": "send"
-    },
-    {
-      "id": "6",
-      "platform": "YouTube",
-      "url": "https://youtube.com/@shineshop",
-      "icon": "youtube"
     }
   ],
   "language": "vi",
