@@ -8,10 +8,12 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
+import { Badge } from '@/app/components/ui/badge'
 import { setPageTitle } from '@/app/lib/utils'
+import { FAQArticle } from '@/app/lib/types'
 
 export default function FAQPage() {
-	const { faqArticles } = useStore()
+	const { faqArticles, language } = useStore()
 	const { t } = useTranslation()
 	const [searchQuery, setSearchQuery] = useState('')
 	const [selectedCategory, setSelectedCategory] = useState('all')
@@ -24,11 +26,34 @@ export default function FAQPage() {
 	// Get unique categories
 	const categories = ['all', ...Array.from(new Set(faqArticles.map(article => article.category)))]
 	
+	// Helper function to get localized title
+	const getLocalizedTitle = (article: FAQArticle) => {
+		if (article.isLocalized && article.localizedTitle) {
+			return language === 'en' 
+				? article.localizedTitle.en || article.title
+				: article.localizedTitle.vi || article.title
+		}
+		return article.title
+	}
+	
+	// Helper function to get localized content
+	const getLocalizedContent = (article: FAQArticle) => {
+		if (article.isLocalized && article.localizedContent) {
+			return language === 'en'
+				? article.localizedContent.en || article.content
+				: article.localizedContent.vi || article.content
+		}
+		return article.content
+	}
+	
 	// Filter articles
 	const filteredArticles = faqArticles.filter(article => {
+		const articleTitle = getLocalizedTitle(article);
+		const articleContent = getLocalizedContent(article);
+		
 		const matchesSearch = searchQuery === '' || 
-			article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			article.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			articleTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			articleContent.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			article.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 		
 		const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory
@@ -47,7 +72,7 @@ export default function FAQPage() {
 			<div className="text-center space-y-4">
 				<h1 className="text-4xl font-bold">{t('faq')}</h1>
 				<p className="text-muted-foreground">
-					Find answers to frequently asked questions
+					{language === 'en' ? 'Find answers to frequently asked questions' : 'Tìm câu trả lời cho các câu hỏi thường gặp'}
 				</p>
 			</div>
 			
@@ -75,7 +100,9 @@ export default function FAQPage() {
 							onClick={() => setSelectedCategory(category)}
 							className="rounded-full"
 						>
-							{category === 'all' ? 'All Categories' : category}
+							{category === 'all' 
+								? (language === 'en' ? 'All Categories' : 'Tất cả danh mục') 
+								: category}
 						</Button>
 					))}
 				</div>
@@ -87,11 +114,20 @@ export default function FAQPage() {
 					<Link key={article.id} href={`/faq/${article.slug}`}>
 						<Card className="h-full hover:shadow-lg transition-shadow duration-300">
 							<CardHeader>
-								<CardTitle className="line-clamp-2">{article.title}</CardTitle>
+								<CardTitle className="line-clamp-2">
+									{getLocalizedTitle(article)}
+									{article.isLocalized && (
+										<Badge variant="outline" className="ml-2 bg-primary/10 text-xs">
+											{language === 'en' ? 'Bilingual' : 'Song ngữ'}
+										</Badge>
+									)}
+								</CardTitle>
 								<div className="flex items-center gap-4 text-sm text-muted-foreground">
 									<div className="flex items-center gap-1">
 										<Calendar className="h-3 w-3" />
-										{new Date(article.updatedAt).toLocaleDateString()}
+										{new Date(article.updatedAt).toLocaleDateString(
+											language === 'en' ? 'en-US' : 'vi-VN'
+										)}
 									</div>
 									<div className="flex items-center gap-1">
 										<Tag className="h-3 w-3" />
@@ -101,7 +137,7 @@ export default function FAQPage() {
 							</CardHeader>
 							<CardContent>
 								<p className="text-muted-foreground line-clamp-3">
-									{article.content.replace(/[#*`]/g, '').substring(0, 150)}...
+									{getLocalizedContent(article).replace(/[#*`]/g, '').substring(0, 150)}...
 								</p>
 								<div className="mt-4 flex flex-wrap gap-2">
 									{article.tags.slice(0, 3).map((tag) => (
@@ -123,7 +159,9 @@ export default function FAQPage() {
 			{sortedArticles.length === 0 && (
 				<div className="text-center py-12">
 					<p className="text-muted-foreground">
-						No articles found. Try adjusting your search or filters.
+						{language === 'en' 
+							? 'No articles found. Try adjusting your search or filters.' 
+							: 'Không tìm thấy bài viết nào. Hãy thử điều chỉnh tìm kiếm hoặc bộ lọc.'}
 					</p>
 				</div>
 			)}

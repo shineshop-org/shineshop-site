@@ -1,1081 +1,2727 @@
 import { Product, FAQArticle, SocialLink, SiteConfig, PaymentInfo } from './types'
 
 export const initialProducts: Product[] = [
-  {
-    "id": "1749230782074",
-    "name": "youtube-premium",
-    "localizedName": {
-      "en": "Youtube Premium (Private Upgrade)",
-      "vi": "Youtube/Music Premium"
-    },
-    "price": 0,
-    "description": "Youtube Premium subscription service.",
-    "localizedDescription": {
-      "en": "Youtube Premium subscription service.",
-      "vi": "Nâng cấp Youtube Premium chính chủ."
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png?updatedAt=1749032381807",
-    "category": "Subscription",
-    "localizedCategory": {
-      "en": "Entertainment",
-      "vi": "Giải trí"
-    },
-    "slug": "youtube-premium",
-    "options": [
-      {
-        "id": "duration",
-        "name": "Thời hạn",
-        "type": "select",
-        "values": [
-          {
-            "value": "1 tháng",
-            "price": 30000,
-            "localizedPrice": {
-              "en": 3.5,
-              "vi": 40000
+    {
+      "id": "1749230782074",
+      "name": "youtube-premium",
+      "localizedName": {
+        "en": "Youtube Premium (Private Upgrade)",
+        "vi": "Youtube/Music Premium"
+      },
+      "price": 0,
+      "description": "Youtube Premium subscription service.",
+      "localizedDescription": {
+        "en": "Youtube Premium subscription service.",
+        "vi": "Nâng cấp Youtube Premium chính chủ."
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/youtube-premium.png?updatedAt=1749032381807",
+      "category": "Subscription",
+      "localizedCategory": {
+        "en": "Entertainment",
+        "vi": "Giải trí"
+      },
+      "slug": "youtube-premium",
+      "options": [
+        {
+          "id": "duration",
+          "name": "Thời hạn",
+          "type": "select",
+          "values": [
+            {
+              "value": "1 tháng",
+              "price": 30000,
+              "localizedPrice": {
+                "en": 3.5,
+                "vi": 40000
+              },
+              "description": "",
+              "localizedValue": {
+                "en": "1 month",
+                "vi": "1 tháng"
+              }
             },
-            "description": "",
-            "localizedValue": {
-              "en": "1 month",
-              "vi": "1 tháng"
+            {
+              "value": "3 tháng",
+              "price": 30000,
+              "localizedPrice": {
+                "en": 8.99,
+                "vi": 100000
+              },
+              "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng.",
+              "localizedValue": {
+                "en": "3 months",
+                "vi": "3 tháng"
+              }
+            },
+            {
+              "value": "6 tháng",
+              "price": 195000,
+              "localizedPrice": {
+                "en": 16.99,
+                "vi": 195000
+              },
+              "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng.",
+              "localizedValue": {
+                "en": "6 months",
+                "vi": "6 tháng"
+              }
+            },
+            {
+              "value": "12 tháng",
+              "localizedValue": {
+                "en": "12 months",
+                "vi": "12 tháng"
+              },
+              "price": 345000,
+              "localizedPrice": {
+                "en": 29.99,
+                "vi": 345000
+              },
+              "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng."
             }
-          },
-          {
-            "value": "3 tháng",
-            "price": 30000,
-            "localizedPrice": {
-              "en": 8.99,
-              "vi": 100000
-            },
-            "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng.",
-            "localizedValue": {
-              "en": "3 months",
-              "vi": "3 tháng"
-            }
-          },
-          {
-            "value": "6 tháng",
-            "price": 195000,
-            "localizedPrice": {
-              "en": 16.99,
-              "vi": 195000
-            },
-            "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng.",
-            "localizedValue": {
-              "en": "6 months",
-              "vi": "6 tháng"
-            }
-          },
-          {
-            "value": "12 tháng",
-            "localizedValue": {
-              "en": "12 months",
-              "vi": "12 tháng"
-            },
-            "price": 345000,
-            "localizedPrice": {
-              "en": 29.99,
-              "vi": 345000
-            },
-            "description": "Hỗ trợ sửa lỗi 'Không thể tham gia gia đình' do rời gia đình nhiều lần trong 12 tháng."
+          ],
+          "localizedName": {
+            "en": "Add to Family",
+            "vi": "Thêm vào Gia Đình"
           }
-        ],
-        "localizedName": {
-          "en": "Add to Family",
-          "vi": "Thêm vào Gia Đình"
+        },
+        {
+          "id": "1749372245550",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Tài khoản sẵn"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 60000
+              },
+              "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 110000
+              },
+              "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 195000
+              },
+              "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
+            }
+          ]
+        },
+        {
+          "id": "1749372304383",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Cá nhân"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "Gói kích hoạt"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 80000
+              },
+              "description": "Shop sẽ đăng nhập vào tài khoản & mật khẩu của bạn, bạn sẽ sử dụng thẻ VISA để tự thanh toán gói Premium của bạn từ tháng sau - shop chỉ đóng vai trò kích hoạt giá rẻ."
+            }
+          ]
         }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 1,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749268374071",
+      "name": "chat-gpt",
+      "localizedName": {
+        "en": "ChatGPT",
+        "vi": "ChatGPT"
       },
-      {
-        "id": "1749372245550",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Tài khoản sẵn"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "3 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 60000
-            },
-            "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "6 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 110000
-            },
-            "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 195000
-            },
-            "description": "Shop sẽ cung cấp tài khoản & mật khẩu cho bạn."
-          }
-        ]
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "ChatGPT Plus Upgrade",
+        "vi": "ChatGPT Plus Nâng cấp Chính chủ"
       },
-      {
-        "id": "1749372304383",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Cá nhân"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "Gói kích hoạt"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 80000
-            },
-            "description": "Shop sẽ đăng nhập vào tài khoản & mật khẩu của bạn, bạn sẽ sử dụng thẻ VISA để tự thanh toán gói Premium của bạn từ tháng sau - shop chỉ đóng vai trò kích hoạt giá rẻ."
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 1,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749268374071",
-    "name": "chat-gpt",
-    "localizedName": {
-      "en": "ChatGPT",
-      "vi": "ChatGPT"
-    },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "ChatGPT Plus Upgrade",
-      "vi": "ChatGPT Plus Nâng cấp Chính chủ"
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/openAI.png?updatedAt=1749225595506",
-    "category": "",
-    "localizedCategory": {
-      "en": "AI",
-      "vi": "AI"
-    },
-    "slug": "chat-gpt",
-    "options": [
-      {
-        "id": "1749268002232",
-        "name": "",
-        "localizedName": {
-          "en": "Plus Subscription",
-          "vi": "Plus"
-        },
-        "type": "select",
-        "values": [
-          {
-            "value": "",
-            "localizedValue": {
-              "en": "Shared Account",
-              "vi": "Tài khoản dùng chung"
-            },
-            "price": 0,
-            "localizedPrice": {
-              "en": 5.99,
-              "vi": 150000
-            },
-            "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
-          },
-          {
-            "value": "",
-            "localizedValue": {
-              "en": "Private Upgrade",
-              "vi": "Nâng cấp chính chủ"
-            },
-            "price": 0,
-            "localizedPrice": {
-              "en": 15,
-              "vi": 380000
-            },
-            "description": "Nâng cấp thẳng từ tài khoản của bạn"
-          }
-        ]
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/openAI.png?updatedAt=1749225595506",
+      "category": "",
+      "localizedCategory": {
+        "en": "AI",
+        "vi": "AI"
       },
-      {
-        "id": "1749464283583",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Team"
+      "slug": "chat-gpt",
+      "options": [
+        {
+          "id": "1749268002232",
+          "name": "",
+          "localizedName": {
+            "en": "Plus Subscription",
+            "vi": "Plus"
+          },
+          "type": "select",
+          "values": [
+            {
+              "value": "",
+              "localizedValue": {
+                "en": "Shared Account",
+                "vi": "Tài khoản dùng chung"
+              },
+              "price": 0,
+              "localizedPrice": {
+                "en": 5.99,
+                "vi": 150000
+              },
+              "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
+            },
+            {
+              "value": "",
+              "localizedValue": {
+                "en": "Private Upgrade",
+                "vi": "Nâng cấp chính chủ"
+              },
+              "price": 0,
+              "localizedPrice": {
+                "en": 15,
+                "vi": 380000
+              },
+              "description": "Nâng cấp thẳng từ tài khoản của bạn"
+            }
+          ]
         },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "Dùng chung"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 50000
-            },
-            "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
+        {
+          "id": "1749464283583",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Team"
           },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "Chính chủ"
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "Dùng chung"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 50000
+              },
+              "description": "Bạn sẽ sắp xếp được dùng chung với 2 người - tổng 3 người"
             },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 150000
-            },
-            "description": "Nâng cấp thẳng từ tài khoản của bạn"
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 3,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749309085391",
-    "name": "canva-pro",
-    "localizedName": {
-      "en": "Canva Pro",
-      "vi": "Canva Pro"
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "Chính chủ"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 150000
+              },
+              "description": "Nâng cấp thẳng từ tài khoản của bạn"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 3,
+      "isLocalized": true,
+      "tags": []
     },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": ""
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/canva.png?updatedAt=1749227851164",
-    "localizedCategory": {
-      "en": "Design",
-      "vi": "Thiết kế"
-    },
-    "slug": "canva-pro",
-    "options": [
-      {
-        "id": "1749308925118",
-        "name": "",
-        "localizedName": {
-          "en": "Time",
-          "vi": "Thời gian"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "1 months",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0.99,
-              "vi": 10000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "1 year",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 4.99,
-              "vi": 65000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "LIFE TIME",
-              "vi": "Vĩnh viễn"
-            },
-            "localizedPrice": {
-              "en": 20,
-              "vi": 295000
-            },
-            "description": "Bảo hành 5 năm - tính từ ngày mua hàng"
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 2,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749373306219",
-    "name": "netflix-premium",
-    "localizedName": {
-      "en": "",
-      "vi": "Netflix Premium 4K"
-    },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": "Tài khoản Netflix Premium cấp sẵn"
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/netflix-premium.jpg?updatedAt=1749226945890",
-    "localizedCategory": {
-      "en": "",
-      "vi": "Giải trí"
-    },
-    "slug": "netflix-premium",
-    "options": [
-      {
-        "id": "1749373321967",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Việt Nam"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tuần"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 25000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 70000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "3 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 195000
-            },
-            "description": ""
-          }
-        ]
+    {
+      "id": "1749309085391",
+      "name": "canva-pro",
+      "localizedName": {
+        "en": "Canva Pro",
+        "vi": "Canva Pro"
       },
-      {
-        "id": "1749373382731",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Nước ngoài"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 30000
-            },
-            "description": "Sử dụng VPN để đăng nhập cũng như sử dụng."
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 4,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749375264380",
-    "name": "",
-    "localizedName": {
-      "en": "",
-      "vi": "Spotify Premium"
-    },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": "Nâng cấp Spotify Premium chính chủ."
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/spotify-premium.png?updatedAt=1749225841726",
-    "localizedCategory": {
-      "en": "",
-      "vi": "Giải trí"
-    },
-    "slug": "spotify-premium",
-    "options": [
-      {
-        "id": "1749375040963",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Thêm vào Gia Đình"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 30000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "3 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 85000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "6 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 165000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 295000
-            },
-            "description": ""
-          }
-        ]
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
       },
-      {
-        "id": "1749375103979",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Tài khoản sẵn"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "6 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 85000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 165000
-            },
-            "description": ""
-          }
-        ]
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/canva.png?updatedAt=1749227851164",
+      "localizedCategory": {
+        "en": "Design",
+        "vi": "Thiết kế"
       },
-      {
-        "id": "1749375104452",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Cá nhân"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "6 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 195000
-            },
-            "description": ""
+      "slug": "canva-pro",
+      "options": [
+        {
+          "id": "1749308925118",
+          "name": "",
+          "localizedName": {
+            "en": "Time",
+            "vi": "Thời gian"
           },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "12 tháng"
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 months",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0.99,
+                "vi": 10000
+              },
+              "description": ""
             },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 345000
+            {
+              "localizedValue": {
+                "en": "1 year",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 4.99,
+                "vi": 65000
+              },
+              "description": ""
             },
-            "description": ""
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 5,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749450502889",
-    "name": "",
-    "localizedName": {
-      "en": "",
-      "vi": "Discord Nitro"
+            {
+              "localizedValue": {
+                "en": "LIFE TIME",
+                "vi": "Vĩnh viễn"
+              },
+              "localizedPrice": {
+                "en": 20,
+                "vi": 295000
+              },
+              "description": "Bảo hành 5 năm - tính từ ngày mua hàng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 2,
+      "isLocalized": true,
+      "tags": []
     },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": ""
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/discord-nitro.png?updatedAt=1749226999701",
-    "localizedCategory": {
-      "en": "",
-      "vi": "Giải trí"
-    },
-    "slug": "discord-nitro",
-    "options": [
-      {
-        "id": "1749458022741",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Basic"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 30000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 300000
-            },
-            "description": ""
-          }
-        ]
+    {
+      "id": "1749373306219",
+      "name": "netflix-premium",
+      "localizedName": {
+        "en": "",
+        "vi": "Netflix Premium 4K"
       },
-      {
-        "id": "1749458047194",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Nitro"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 80000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "12 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 800000
-            },
-            "description": ""
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 6,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749463271625",
-    "name": "",
-    "localizedName": {
-      "en": "",
-      "vi": "Chess.com"
-    },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": ""
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/chess.png?updatedAt=1749227078784",
-    "localizedCategory": {
-      "en": "",
-      "vi": "Giải trí"
-    },
-    "slug": "chess-com",
-    "options": [
-      {
-        "id": "1749463182285",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Gold"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 30000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 200000
-            },
-            "description": ""
-          }
-        ]
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": "Tài khoản Netflix Premium cấp sẵn"
       },
-      {
-        "id": "1749463193689",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Platinum"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 40000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 300000
-            },
-            "description": ""
-          }
-        ]
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/netflix-premium.jpg?updatedAt=1749226945890",
+      "localizedCategory": {
+        "en": "",
+        "vi": "Giải trí"
       },
-      {
-        "id": "1749463194005",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Diamond"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 60000
-            },
-            "description": ""
+      "slug": "netflix-premium",
+      "options": [
+        {
+          "id": "1749373321967",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Việt Nam"
           },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tuần"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 25000
+              },
+              "description": ""
             },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 500000
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 70000
+              },
+              "description": ""
             },
-            "description": ""
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 7,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749464085395",
-    "name": "",
-    "localizedName": {
-      "en": "",
-      "vi": "Soundcloud Artist"
-    },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": ""
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/soundcloud.png?updatedAt=1749458532383",
-    "localizedCategory": {
-      "en": "",
-      "vi": "Giải trí"
-    },
-    "slug": "sound-cloud",
-    "options": [
-      {
-        "id": "1749464055392",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Pro"
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 195000
+              },
+              "description": ""
+            }
+          ]
         },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 100000
-            },
-            "description": ""
+        {
+          "id": "1749373382731",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Nước ngoài"
           },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 600000
-            },
-            "description": ""
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 8,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749464238905",
-    "name": "",
-    "localizedName": {
-      "en": "",
-      "vi": "Apple Music"
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 30000
+              },
+              "description": "Sử dụng VPN để đăng nhập cũng như sử dụng."
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 4,
+      "isLocalized": true,
+      "tags": []
     },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": ""
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/apple-music.jpg?updatedAt=1749464167735",
-    "localizedCategory": {
-      "en": "",
-      "vi": "Giải trí"
-    },
-    "slug": "apple-music",
-    "options": [
-      {
-        "id": "1749464191906",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Cá nhân"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 30000
-            },
-            "description": ""
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 9,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749467549911",
-    "name": "perplexity",
-    "localizedName": {
-      "en": "",
-      "vi": "Perplexity"
-    },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": ""
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/perplexity.jpg?updatedAt=1749227148688",
-    "localizedCategory": {
-      "en": "",
-      "vi": "AI"
-    },
-    "slug": "perplexity",
-    "options": [
-      {
-        "id": "1749467440429",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Thêm vào Đội Nhóm"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 30000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "6 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 155000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 250000
-            },
-            "description": ""
-          }
-        ]
+    {
+      "id": "1749375264380",
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "vi": "Spotify Premium"
       },
-      {
-        "id": "1749467515749",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Cá nhân"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 năm"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 400000
-            },
-            "description": ""
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 10,
-    "isLocalized": true,
-    "tags": []
-  },
-  {
-    "id": "1749468256042",
-    "name": "super-grok",
-    "localizedName": {
-      "en": "",
-      "vi": "Super Grok"
-    },
-    "price": 0,
-    "description": "",
-    "localizedDescription": {
-      "en": "",
-      "vi": ""
-    },
-    "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/super-grok.png?updatedAt=1749226361221",
-    "localizedCategory": {
-      "en": "",
-      "vi": "AI"
-    },
-    "slug": "super-grok",
-    "options": [
-      {
-        "id": "1749468147466",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Dùng chung"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 100000
-            },
-            "description": ""
-          },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "2 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 180000
-            },
-            "description": ""
-          }
-        ]
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": "Nâng cấp Spotify Premium chính chủ."
       },
-      {
-        "id": "1749468172223",
-        "name": "",
-        "localizedName": {
-          "en": "",
-          "vi": "Cá nhân"
-        },
-        "type": "select",
-        "values": [
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "1 tháng"
-            },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 200000
-            },
-            "description": ""
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/spotify-premium.png?updatedAt=1749225841726",
+      "localizedCategory": {
+        "en": "",
+        "vi": "Giải trí"
+      },
+      "slug": "spotify-premium",
+      "options": [
+        {
+          "id": "1749375040963",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Thêm vào Gia Đình"
           },
-          {
-            "localizedValue": {
-              "en": "",
-              "vi": "2 tháng"
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 30000
+              },
+              "description": ""
             },
-            "localizedPrice": {
-              "en": 0,
-              "vi": 300000
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 85000
+              },
+              "description": ""
             },
-            "description": "'KBH' tức 'Không bảo hành' - Shop sẽ miễn hoàn toàn trách nghiệm khi bạn nhận được tài khoản có gói Super của Grok."
-          }
-        ]
-      }
-    ],
-    "relatedArticles": [],
-    "sortOrder": 11,
-    "isLocalized": true,
-    "tags": []
-  }
-]
-
-export const initialFAQArticles: FAQArticle[] = []
-
-export const initialSocialLinks: SocialLink[] = [{"id":"1","platform":"Facebook","url":"https://www.facebook.com/shineshop.original","icon":"facebook"},{"id":"3","platform":"Twitter","url":"https://twitter.com/shineshop","icon":"twitter"},{"id":"4","platform":"WhatsApp","url":"https://wa.me/84123456789","icon":"message-circle"},{"id":"5","platform":"Telegram","url":"https://t.me/shineshop","icon":"send"},{"id":"6","platform":"YouTube","url":"https://youtube.com/@shineshop","icon":"youtube"}];
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 165000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 295000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749375103979",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Tài khoản sẵn"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 85000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 165000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749375104452",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Cá nhân"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 195000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 345000
+              },
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 5,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749450502889",
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "vi": "Discord Nitro"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/discord-nitro.png?updatedAt=1749226999701",
+      "localizedCategory": {
+        "en": "",
+        "vi": "Giải trí"
+      },
+      "slug": "discord-nitro",
+      "options": [
+        {
+          "id": "1749458022741",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Basic"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 30000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 300000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749458047194",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Nitro"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 80000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 800000
+              },
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 6,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749463271625",
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "vi": "Chess.com"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/chess.png?updatedAt=1749227078784",
+      "localizedCategory": {
+        "en": "",
+        "vi": "Giải trí"
+      },
+      "slug": "chess-com",
+      "options": [
+        {
+          "id": "1749463182285",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Gold"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 30000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 200000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749463193689",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Platinum"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 40000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 300000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749463194005",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Diamond"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 60000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 500000
+              },
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 7,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749464085395",
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "vi": "Soundcloud Artist"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/soundcloud.png?updatedAt=1749458532383",
+      "localizedCategory": {
+        "en": "",
+        "vi": "Giải trí"
+      },
+      "slug": "sound-cloud",
+      "options": [
+        {
+          "id": "1749464055392",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Pro"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 100000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 600000
+              },
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 8,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749464238905",
+      "name": "",
+      "localizedName": {
+        "en": "",
+        "vi": "Apple Music"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/apple-music.jpg?updatedAt=1749464167735",
+      "localizedCategory": {
+        "en": "",
+        "vi": "Giải trí"
+      },
+      "slug": "apple-music",
+      "options": [
+        {
+          "id": "1749464191906",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Cá nhân"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 30000
+              },
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 9,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749467549911",
+      "name": "perplexity",
+      "localizedName": {
+        "en": "",
+        "vi": "Perplexity"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/perplexity.jpg?updatedAt=1749227148688",
+      "localizedCategory": {
+        "en": "",
+        "vi": "AI"
+      },
+      "slug": "perplexity",
+      "options": [
+        {
+          "id": "1749467440429",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Thêm vào Đội Nhóm"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 30000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 155000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 250000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749467515749",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Cá nhân"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 năm"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 400000
+              },
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 10,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749468256042",
+      "name": "super-grok",
+      "localizedName": {
+        "en": "",
+        "vi": "Super Grok"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/super-grok.png?updatedAt=1749226361221",
+      "localizedCategory": {
+        "en": "",
+        "vi": "AI"
+      },
+      "slug": "super-grok",
+      "options": [
+        {
+          "id": "1749468147466",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Dùng chung"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 100000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "2 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 180000
+              },
+              "description": ""
+            }
+          ]
+        },
+        {
+          "id": "1749468172223",
+          "name": "",
+          "localizedName": {
+            "en": "",
+            "vi": "Cá nhân"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 200000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "2 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 300000
+              },
+              "description": "'KBH' tức 'Không bảo hành' - Shop sẽ miễn hoàn toàn trách nghiệm khi bạn nhận được tài khoản có gói Super của Grok."
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 11,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641749995941",
+      "name": "google-one",
+      "localizedName": {
+        "en": "Google One",
+        "vi": "Google One"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Storage",
+        "vi": "Lưu trữ"
+      },
+      "slug": "google-one",
+      "options": [
+        {
+          "id": "1749641749995226",
+          "name": "",
+          "localizedName": {
+            "en": "1TB (slot gia đình)",
+            "vi": "1TB (slot gia đình)"
+          },
+          "type": "select",
+          "values": []
+        },
+        {
+          "id": "1749641749995512",
+          "name": "",
+          "localizedName": {
+            "en": "5TB (chia sẻ được cho 5 người)",
+            "vi": "5TB (chia sẻ được cho 5 người)"
+          },
+          "type": "select",
+          "values": []
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 12,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641749999506",
+      "name": "gemini---veo-3",
+      "localizedName": {
+        "en": "Gemini - Veo 3",
+        "vi": "Gemini - Veo 3"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "AI",
+        "vi": "AI"
+      },
+      "slug": "gemini---veo-3",
+      "options": [
+        {
+          "id": "1749641749999529",
+          "name": "",
+          "localizedName": {
+            "en": "Veo 3 (5 vid/ngày)",
+            "vi": "Veo 3 (5 vid/ngày)"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 150000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 13,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750000161",
+      "name": "copilot",
+      "localizedName": {
+        "en": "Copilot",
+        "vi": "Copilot"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "AI",
+        "vi": "AI"
+      },
+      "slug": "copilot",
+      "options": [
+        {
+          "id": "174964175000054",
+          "name": "",
+          "localizedName": {
+            "en": "PRO",
+            "vi": "PRO"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 380000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 14,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750000612",
+      "name": "claude",
+      "localizedName": {
+        "en": "Claude",
+        "vi": "Claude"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "AI",
+        "vi": "AI"
+      },
+      "slug": "claude",
+      "options": [
+        {
+          "id": "1749641750000582",
+          "name": "",
+          "localizedName": {
+            "en": "PRO",
+            "vi": "PRO"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 350000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 15,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750000118",
+      "name": "cursor-ai",
+      "localizedName": {
+        "en": "Cursor AI",
+        "vi": "Cursor AI"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "AI",
+        "vi": "AI"
+      },
+      "slug": "cursor-ai",
+      "options": [
+        {
+          "id": "1749641750000354",
+          "name": "",
+          "localizedName": {
+            "en": "PRO",
+            "vi": "PRO"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 600000
+              },
+              "description": "Bảo hành 3 tháng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 16,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750000298",
+      "name": "windsurf-ai",
+      "localizedName": {
+        "en": "Windsurf AI",
+        "vi": "Windsurf AI"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "AI",
+        "vi": "AI"
+      },
+      "slug": "windsurf-ai",
+      "options": [
+        {
+          "id": "1749641750000316",
+          "name": "",
+          "localizedName": {
+            "en": "PRO",
+            "vi": "PRO"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 250000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 17,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750000444",
+      "name": "brainly",
+      "localizedName": {
+        "en": "Brainly",
+        "vi": "Brainly"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "brainly",
+      "options": [
+        {
+          "id": "174964175000024",
+          "name": "",
+          "localizedName": {
+            "en": "PLUS",
+            "vi": "PLUS"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 200000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "6 tháng",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 500000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 700000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        },
+        {
+          "id": "174964175000085",
+          "name": "",
+          "localizedName": {
+            "en": "TUTOR",
+            "vi": "TUTOR"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 500000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "6 tháng",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 1200000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 1700000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 18,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "174964175000060",
+      "name": "camscanner",
+      "localizedName": {
+        "en": "Camscanner",
+        "vi": "Camscanner"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Utilities",
+        "vi": "Tiện ích"
+      },
+      "slug": "camscanner",
+      "options": [
+        {
+          "id": "1749641750000766",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 365000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 19,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750001456",
+      "name": "busuu",
+      "localizedName": {
+        "en": "Busuu",
+        "vi": "Busuu"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "busuu",
+      "options": [
+        {
+          "id": "1749641750001170",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM+",
+            "vi": "PREMIUM+"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 50000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "6 tháng",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 200000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 300000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 20,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "174964175000149",
+      "name": "chegg",
+      "localizedName": {
+        "en": "Chegg",
+        "vi": "Chegg"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "chegg",
+      "options": [
+        {
+          "id": "1749641750001238",
+          "name": "",
+          "localizedName": {
+            "en": "STUDY",
+            "vi": "STUDY"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 150000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 21,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750003349",
+      "name": "coursera",
+      "localizedName": {
+        "en": "Coursera",
+        "vi": "Coursera"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "coursera",
+      "options": [
+        {
+          "id": "1749641750003834",
+          "name": "",
+          "localizedName": {
+            "en": "PLUS",
+            "vi": "PLUS"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 700000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 22,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750003342",
+      "name": "quizlet-plus",
+      "localizedName": {
+        "en": "Quizlet Plus",
+        "vi": "Quizlet Plus"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "quizlet-plus",
+      "options": [
+        {
+          "id": "1749641750003876",
+          "name": "",
+          "localizedName": {
+            "en": "Tài khoản sẵn",
+            "vi": "Tài khoản sẵn"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "~30 ngày",
+                "vi": "~30 ngày"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 0
+              },
+              "description": "S H I N E S H O P _ Q U I Z L E T"
+            },
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 10000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 145000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        },
+        {
+          "id": "1749641750003185",
+          "name": "",
+          "localizedName": {
+            "en": "Chính chủ",
+            "vi": "Chính chủ"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 195000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 23,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750003927",
+      "name": "duolingo",
+      "localizedName": {
+        "en": "Duolingo",
+        "vi": "Duolingo"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "duolingo",
+      "options": [
+        {
+          "id": "1749641750003758",
+          "name": "",
+          "localizedName": {
+            "en": "SUPER",
+            "vi": "SUPER"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 180000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        },
+        {
+          "id": "1749641750003340",
+          "name": "",
+          "localizedName": {
+            "en": "HACK",
+            "vi": "HACK"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "100k KN",
+                "vi": "100k KN"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 10000
+              },
+              "description": "Bảo hành hoàn tiền 1 ngày. Có thể bị ban khỏi giải đấu và bảng xếp hạng"
+            },
+            {
+              "localizedValue": {
+                "en": "10k GEM",
+                "vi": "10k GEM"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 10000
+              },
+              "description": "Bảo hành hoàn tiền 1 ngày. Có thể bị ban khỏi giải đấu và bảng xếp hạng"
+            },
+            {
+              "localizedValue": {
+                "en": "1k STREAK",
+                "vi": "1k STREAK"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 10000
+              },
+              "description": "Bảo hành hoàn tiền 1 ngày. Có thể bị ban khỏi giải đấu và bảng xếp hạng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 24,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750003590",
+      "name": "lingokids",
+      "localizedName": {
+        "en": "Lingokids",
+        "vi": "Lingokids"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "lingokids",
+      "options": [
+        {
+          "id": "1749641750003998",
+          "name": "",
+          "localizedName": {
+            "en": "PLUS",
+            "vi": "PLUS"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 100000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 800000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 25,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750003183",
+      "name": "brilliant",
+      "localizedName": {
+        "en": "Brilliant",
+        "vi": "Brilliant"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "brilliant",
+      "options": [
+        {
+          "id": "1749641750003125",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 1200000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 26,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750003963",
+      "name": "elsa",
+      "localizedName": {
+        "en": "Elsa",
+        "vi": "Elsa"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "elsa",
+      "options": [
+        {
+          "id": "1749641750003496",
+          "name": "",
+          "localizedName": {
+            "en": "PRO",
+            "vi": "PRO"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "3 tháng",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 350000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 900000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        },
+        {
+          "id": "1749641750003997",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "3 tháng",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 500000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 1200000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 27,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750003254",
+      "name": "speak",
+      "localizedName": {
+        "en": "Speak",
+        "vi": "Speak"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "speak",
+      "options": [
+        {
+          "id": "1749641750003456",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 225000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 900000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        },
+        {
+          "id": "174964175000332",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM PLUS",
+            "vi": "PREMIUM PLUS"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 475000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 2100000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 28,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750004548",
+      "name": "otterai",
+      "localizedName": {
+        "en": "OtterAI",
+        "vi": "OtterAI"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "AI",
+        "vi": "AI"
+      },
+      "slug": "otterai",
+      "options": [
+        {
+          "id": "1749641750004127",
+          "name": "",
+          "localizedName": {
+            "en": "PRO",
+            "vi": "PRO"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 250000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 29,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750004118",
+      "name": "hanzii",
+      "localizedName": {
+        "en": "Hanzii",
+        "vi": "Hanzii"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "hanzii",
+      "options": [
+        {
+          "id": "1749641750004509",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "3 tháng",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 250000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 400000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "LIFE TIME",
+                "vi": "LIFE TIME"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 555555
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 30,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750004128",
+      "name": "chineseskill",
+      "localizedName": {
+        "en": "ChineseSkill",
+        "vi": "ChineseSkill"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "chineseskill",
+      "options": [
+        {
+          "id": "1749641750004214",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 100000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "6 tháng",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 400000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 600000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 31,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750004620",
+      "name": "superchinese",
+      "localizedName": {
+        "en": "SuperChinese",
+        "vi": "SuperChinese"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "superchinese",
+      "options": [
+        {
+          "id": "1749641750004942",
+          "name": "",
+          "localizedName": {
+            "en": "PLUS",
+            "vi": "PLUS"
+          },
+          "type": "select",
+          "values": []
+        },
+        {
+          "id": "1749641750004301",
+          "name": "",
+          "localizedName": {
+            "en": "CHAO",
+            "vi": "CHAO"
+          },
+          "type": "select",
+          "values": []
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 32,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "174964175000445",
+      "name": "hellochinese",
+      "localizedName": {
+        "en": "HelloChinese",
+        "vi": "HelloChinese"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "hellochinese",
+      "options": [
+        {
+          "id": "1749641750004290",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 140000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "3 tháng",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 310000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 850000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        },
+        {
+          "id": "1749641750004466",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM+",
+            "vi": "PREMIUM+"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 250000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "6 tháng",
+                "vi": "6 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 1100000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 1700000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 33,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750004742",
+      "name": "zoom-workplace-pro",
+      "localizedName": {
+        "en": "Zoom Workplace Pro",
+        "vi": "Zoom Workplace Pro"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Utilities",
+        "vi": "Tiện ích"
+      },
+      "slug": "zoom-workplace-pro",
+      "options": [
+        {
+          "id": "1749641750004319",
+          "name": "",
+          "localizedName": {
+            "en": "Tài khoản sẵn",
+            "vi": "Tài khoản sẵn"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "28 ngày",
+                "vi": "28 ngày"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 50000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng. Tài khoản dùng thử hai lần 14 ngày"
+            }
+          ]
+        },
+        {
+          "id": "1749641750004156",
+          "name": "",
+          "localizedName": {
+            "en": "Chính chủ",
+            "vi": "Chính chủ"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "1 tháng",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 150000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng. Loại xịn"
+            },
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 1500000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng. Loại xịn"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 34,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750004982",
+      "name": "truecaller",
+      "localizedName": {
+        "en": "Truecaller",
+        "vi": "Truecaller"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Utilities",
+        "vi": "Tiện ích"
+      },
+      "slug": "truecaller",
+      "options": [
+        {
+          "id": "174964175000495",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 90000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 35,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750005436",
+      "name": "office-365",
+      "localizedName": {
+        "en": "Office 365",
+        "vi": "Office 365"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Storage",
+        "vi": "Lưu trữ"
+      },
+      "slug": "office-365",
+      "options": [
+        {
+          "id": "1749641750005518",
+          "name": "",
+          "localizedName": {
+            "en": "OFFICE & 1TB ONEDRIVE",
+            "vi": "OFFICE & 1TB ONEDRIVE"
+          },
+          "type": "select",
+          "values": [
+            {
+              "localizedValue": {
+                "en": "12 tháng",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 250000
+              },
+              "description": "Bảo hành toàn bộ thời gian sử dụng"
+            }
+          ]
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 36,
+      "isLocalized": true,
+      "tags": []
+    },
+    {
+      "id": "1749641750005117",
+      "name": "fonos",
+      "localizedName": {
+        "en": "Fonos",
+        "vi": "Fonos"
+      },
+      "price": 0,
+      "description": "",
+      "localizedDescription": {
+        "en": "",
+        "vi": ""
+      },
+      "image": "",
+      "localizedCategory": {
+        "en": "Education",
+        "vi": "Học tập"
+      },
+      "slug": "fonos",
+      "options": [
+        {
+          "id": "1749641750005627",
+          "name": "",
+          "localizedName": {
+            "en": "PREMIUM",
+            "vi": "PREMIUM"
+          },
+          "type": "select",
+          "values": []
+        }
+      ],
+      "relatedArticles": [],
+      "sortOrder": 37,
+      "isLocalized": true,
+      "tags": []
+    }
+  ];
 
 
 

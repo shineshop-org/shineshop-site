@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, HelpCircle, Share2, Search, Image as ImageIcon, Bold, Italic, Link, List, Eye, EyeOff, Settings } from 'lucide-react'
+import { Edit, Trash2, Shield, LogOut, Plus, Home, LayoutGrid, FileText, ArrowDownWideNarrow, GripVertical, Globe, HelpCircle, Share2, Search, Image as ImageIcon, Bold, Italic, Link, List, Eye, EyeOff, Settings, Save } from 'lucide-react'
 import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
@@ -304,10 +304,20 @@ export default function AdminDashboard() {
 	const [isSaving, setIsSaving] = useState(false)
 	const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false)
 	const [articleSearchQuery, setArticleSearchQuery] = useState('')
-	const [faqForm, setFaqForm] = useState({ id: '', title: '', slug: '', content: '', category: '', tags: [] as string[] })
+	const [faqForm, setFaqForm] = useState({ 
+		id: '', 
+		title: '', 
+		slug: '', 
+		content: '', 
+		category: '', 
+		tags: [] as string[],
+		isLocalized: false,
+		localizedTitle: { en: '', vi: '' },
+		localizedContent: { en: '', vi: '' }
+	})
 	const [faqDialog, setFaqDialog] = useState(false)
+	const [previewDialog, setPreviewDialog] = useState(false)
 	const [editingFaq, setEditingFaq] = useState<FAQArticle | null>(null)
-	const [showMarkdownPreview, setShowMarkdownPreview] = useState(false)
 	const [showProductDescriptionPreview, setShowProductDescriptionPreview] = useState(false)
 	const [showNotification, setShowNotification] = useState(false)
 	const [showPublishNotification, setShowPublishNotification] = useState(false)
@@ -949,9 +959,12 @@ export default function AdminDashboard() {
 				content: debouncedFaqForm.content,
 				category: debouncedFaqForm.category,
 				tags: debouncedFaqForm.tags,
-				updatedAt: new Date()
+				isLocalized: debouncedFaqForm.isLocalized,
+				localizedTitle: debouncedFaqForm.localizedTitle,
+				localizedContent: debouncedFaqForm.localizedContent,
 			}
 			
+			// Update article
 			updateFaqArticle(editingFaq.id, updatedFaq)
 		}
 	}, [debouncedFaqForm, editingFaq, updateFaqArticle])
@@ -1024,12 +1037,71 @@ export default function AdminDashboard() {
 		return null
 	}
 	
+	// Add the handleSaveFaq function after handleSaveProduct (around line 744)
+	const handleSaveFaq = () => {
+		// Auto-save logic to persist FAQ changes
+		useStore.getState().syncDataToServer()
+		
+		setShowSavedNotification(true)
+		// Hide notification after 3 seconds
+		setTimeout(() => {
+			setShowSavedNotification(false)
+		}, 3000)
+	}
+	
 	return (
 		<ErrorBoundary>
 			<div className="flex flex-col min-h-screen">
 				<style jsx global>{`
 					.jshine-gradient {
 						color: #0ea5e9; /* JShine color (sky blue) instead of gradient */
+					}
+				`}</style>
+				
+				<style jsx global>{`
+					/* Custom scrollbar styling */
+					.scrollbar-custom::-webkit-scrollbar {
+						width: 8px;
+						height: 8px;
+					}
+					
+					.scrollbar-custom::-webkit-scrollbar-track {
+						background: transparent;
+						margin: 4px;
+					}
+					
+					.scrollbar-custom::-webkit-scrollbar-thumb {
+						background: rgba(155, 155, 155, 0.5);
+						border-radius: 10px;
+					}
+					
+					.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+						background: rgba(155, 155, 155, 0.7);
+					}
+					
+					/* Firefox scrollbar */
+					.scrollbar-custom {
+						scrollbar-width: thin;
+						scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+					}
+					
+					/* Increase padding around content to prevent text touching the edges */
+					#faq-content {
+						padding-right: 16px !important;
+						box-sizing: border-box;
+						background-color: transparent;
+					}
+					
+					/* Ensure focus works properly on wrapper */
+					.focus-within\:ring-2:focus-within {
+						box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3);
+					}
+					
+					/* Ensure textarea fills its container properly */
+					textarea#faq-content {
+						display: block;
+						width: 100%;
+						height: 100%;
 					}
 				`}</style>
 				
@@ -1825,36 +1897,62 @@ export default function AdminDashboard() {
 					
 					{activeTab === 'faq' && (
 						<div className="space-y-6">
-							<div className="flex justify-between items-center">
+							<div className="flex justify-between items-center mb-4">
 								<h2 className="text-xl font-semibold">{language === 'en' ? 'FAQ Management' : 'Quản lý FAQ'}</h2>
-								<Button 
-									onClick={() => {
-										setFaqForm({
-											id: '',
-											title: '',
-											slug: '',
-											content: '',
-											category: '',
-											tags: []
-										})
-										setFaqDialog(true)
-									}}
-								>
-									<Plus className="mr-2 h-4 w-4" />
-									{language === 'en' ? 'Add FAQ' : 'Thêm FAQ'}
-								</Button>
+								
+								<div className="flex items-center gap-2">
+									<Button 
+										variant="outline"
+										onClick={() => {
+											setFaqForm({
+												id: '',
+												title: '',
+												slug: '',
+												content: '',
+												category: '',
+												tags: [],
+												isLocalized: false,
+												localizedTitle: { en: '', vi: '' },
+												localizedContent: { en: '', vi: '' }
+											})
+											setFaqDialog(true)
+										}}
+									>
+										<Plus className="h-4 w-4 mr-2" />
+										{language === 'en' ? 'Add FAQ' : 'Thêm FAQ'}
+									</Button>
+								</div>
 							</div>
+							
+							{/* Save notification banner */}
+							{showSavedNotification && (
+								<div className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 flex items-center mb-4 text-green-700 dark:text-green-300">
+									<svg 
+										xmlns="http://www.w3.org/2000/svg" 
+										className="h-5 w-5 mr-2" 
+										viewBox="0 0 20 20" 
+										fill="currentColor"
+									>
+										<path 
+											fillRule="evenodd" 
+											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+											clipRule="evenodd" 
+										/>
+									</svg>
+									{language === 'en' ? 'Changes saved!' : 'Đã lưu thay đổi!'}
+								</div>
+							)}
 							
 							<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
 								{faqArticles.map((article) => (
 									<Card key={article.id} className="overflow-hidden">
-													<CardHeader className="p-4">
+										<CardHeader className="p-4">
 											<CardTitle className="text-lg">{article.title}</CardTitle>
 											<div className="flex flex-wrap gap-1 mt-1">
 												<Badge variant="secondary">
 													{article.category}
 												</Badge>
-														</div>
+											</div>
 										</CardHeader>
 										<CardContent className="p-4 pt-0">
 											<div className="flex space-x-2">
@@ -1870,7 +1968,10 @@ export default function AdminDashboard() {
 															slug: article.slug,
 															category: article.category,
 															tags: article.tags || [],
-															content: article.content
+															content: article.content,
+															isLocalized: !!article.isLocalized,
+															localizedTitle: article.localizedTitle || { en: article.title, vi: article.title },
+															localizedContent: article.localizedContent || { en: article.content, vi: article.content }
 														})
 														setFaqDialog(true)
 													}}
@@ -1902,172 +2003,216 @@ export default function AdminDashboard() {
 								if (!open) {
 									setFaqDialog(false)
 									setEditingFaq(null)
-									setShowMarkdownPreview(false)
 								}
 							}}>
-								<DialogContent className="max-w-6xl h-[90vh] overflow-hidden flex flex-col" aria-describedby="faq-dialog-description">
-									<DialogHeader className="flex-shrink-0">
-										<DialogTitle>{editingFaq 
-											? (language === 'en' ? 'Edit FAQ Article' : 'Chỉnh sửa FAQ') 
+								<DialogContent className="max-w-6xl h-[95vh] overflow-hidden flex flex-col scrollbar-custom" aria-describedby="faq-dialog-description">
+									<DialogHeader className="pb-2">
+										<DialogTitle>{editingFaq
+											? (language === 'en' ? 'Edit FAQ Article' : 'Chỉnh sửa FAQ')
 											: (language === 'en' ? 'Add FAQ Article' : 'Thêm FAQ mới')}
 										</DialogTitle>
 										<DialogDescription id="faq-dialog-description">
-											{language === 'en' 
-												? 'Write your FAQ content using Markdown formatting' 
+											{language === 'en'
+												? 'Write your FAQ content using Markdown formatting'
 												: 'Viết nội dung FAQ sử dụng định dạng Markdown'}
 										</DialogDescription>
 									</DialogHeader>
-									<div className="flex-1 overflow-y-auto">
-										<div className="space-y-4 pb-4">
-											<div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-1">
-												<div className="space-y-2">
-													<label className="text-sm font-medium">{language === 'en' ? 'Title' : 'Tiêu đề'}</label>
-													<Input 
-														value={faqForm.title}
-														onChange={(e) => setFaqForm({...faqForm, title: e.target.value})}
-														placeholder={language === 'en' ? "FAQ title..." : "Tiêu đề FAQ..."}
-														className="w-full"
-													/>
-												</div>
-												<div className="space-y-2">
-													<label className="text-sm font-medium">{language === 'en' ? 'Category' : 'Danh mục'}</label>
-													<Input 
-														value={faqForm.category}
-														onChange={(e) => setFaqForm({...faqForm, category: e.target.value})}
-														placeholder={language === 'en' ? "e.g., general, technical, billing" : "VD: chung, kỹ thuật, thanh toán"}
-														className="w-full"
-													/>
-												</div>
-											</div>
+
+									<div className="flex-1 overflow-auto flex flex-col gap-4 min-h-0">
+										<div className="flex items-center gap-2">
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												onClick={() => toggleLanguage()}
+												className="flex items-center gap-1"
+											>
+												{language === 'vi' ? <VietnamFlag className="h-4" /> : <USFlag className="h-4" />}
+												{language === 'en' ? 'English' : 'Tiếng Việt'}
+											</Button>
 											
-											<div className="space-y-2 px-1">
-												<label className="text-sm font-medium">{language === 'en' ? 'Tags (comma separated)' : 'Thẻ (phân cách bằng dấu phẩy)'}</label>
-												<Input 
-													value={faqForm.tags.join(', ')}
-													onChange={(e) => setFaqForm({
-														...faqForm, 
-														tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)
-													})}
-													placeholder={language === 'en' ? "tag1, tag2, tag3" : "thẻ1, thẻ2, thẻ3"}
-													className="w-full"
+											<div className="flex-1"></div>
+											
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												onClick={() => setPreviewDialog(true)}
+												className="flex items-center gap-1"
+											>
+												<Eye className="h-4 w-4 mr-1" />
+												{language === 'en' ? 'Preview' : 'Xem trước'}
+											</Button>
+											
+											<div className="flex items-center">
+												<input 
+													type="checkbox" 
+													id="isLocalized"
+													className="mr-2"
+													checked={faqForm.isLocalized}
+													onChange={(e) => setFaqForm({...faqForm, isLocalized: e.target.checked})}
 												/>
+												<label htmlFor="isLocalized">
+													{language === 'en' ? 'Enable bilingual content' : 'Bật nội dung song ngữ'}
+												</label>
 											</div>
 										</div>
 										
-										<div className="px-1">
-											<div className="flex items-center justify-between mb-2">
-												<label className="text-sm font-medium">{language === 'en' ? 'Content' : 'Nội dung'}</label>
-												<Button
-													type="button"
-													variant="ghost"
-													size="sm"
-													onClick={() => setShowMarkdownPreview(!showMarkdownPreview)}
-												>
-													{showMarkdownPreview 
-														? <EyeOff className="h-4 w-4 mr-1" /> 
-														: <Eye className="h-4 w-4 mr-1" />
-													}
-													{showMarkdownPreview 
-														? (language === 'en' ? 'Hide Preview' : 'Ẩn xem trước') 
-														: (language === 'en' ? 'Show Preview' : 'Xem trước')}
-												</Button>
-											</div>
-											
-											<div className={`grid ${showMarkdownPreview ? 'grid-cols-2 gap-4' : 'grid-cols-1'} h-[350px]`}>
-												<div className="border rounded-md overflow-hidden flex flex-col">
-													<MarkdownToolbar 
-														onInsert={(text) => {
-															const textarea = document.getElementById('faq-content') as HTMLTextAreaElement
-															if (textarea) {
-																const start = textarea.selectionStart
-																const end = textarea.selectionEnd
-																const currentValue = faqForm.content
-																const newValue = currentValue.substring(0, start) + text + currentValue.substring(end)
-																setFaqForm({...faqForm, content: newValue})
-																
-																// Restore cursor position
-																setTimeout(() => {
-																	textarea.focus()
-																	textarea.setSelectionRange(start + text.length, start + text.length)
-																}, 0)
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<Input
+												type="text"
+												value={faqForm.isLocalized 
+													? (language === 'en' ? faqForm.localizedTitle.en : faqForm.localizedTitle.vi) 
+													: faqForm.title}
+												onChange={(e) => {
+													if (faqForm.isLocalized) {
+														setFaqForm({
+															...faqForm, 
+															localizedTitle: {
+																...faqForm.localizedTitle,
+																[language]: e.target.value
 															}
-														}}
-													/>
-													<textarea
-														id="faq-content"
-														className="flex-1 w-full p-3 resize-none font-mono text-sm overflow-y-auto"
-														value={faqForm.content}
-														onChange={(e) => setFaqForm({...faqForm, content: e.target.value})}
-														placeholder={language === 'en' 
-															? "Write your FAQ content in Markdown..." 
-															: "Viết nội dung FAQ bằng Markdown..."}
-													/>
-												</div>
+														});
+													} else {
+														setFaqForm({...faqForm, title: e.target.value});
+													}
+												}}
+												placeholder={language === 'en' ? "FAQ title..." : "Tiêu đề FAQ..."}
+												className="w-full"
+											/>
+											
+											<Input
+												type="text"
+												value={faqForm.category}
+												onChange={(e) => setFaqForm({...faqForm, category: e.target.value})}
+												placeholder={language === 'en' ? "Category..." : "Danh mục..."}
+												className="w-full"
+											/>
+										</div>
+										
+										<Input
+											type="text"
+											value={faqForm.tags.join(', ')}
+											onChange={(e) => setFaqForm({
+												...faqForm,
+												tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
+											})}
+											placeholder={language === 'en' ? "Tags (comma separated)..." : "Thẻ (phân cách bằng dấu phẩy)..."}
+											className="w-full"
+										/>
+										
+										<div className="flex items-center gap-2 border p-1 rounded-md">
+											<MarkdownToolbar onInsert={(text) => {
+												const textarea = document.getElementById('faq-content') as HTMLTextAreaElement
+												if (!textarea) return
 												
-												{showMarkdownPreview && (
-													<div className="border rounded-md p-4 overflow-y-auto bg-muted/10">
-														<div 
-															className="prose prose-sm dark:prose-invert max-w-none"
-															dangerouslySetInnerHTML={{
-																__html: faqForm.content
-																	.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
-																	.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-semibold mt-6 mb-3">$1</h2>')
-																	.replace(/^### (.*?)$/gm, '<h3 class="text-xl font-medium mt-5 mb-2">$1</h3>')
-																	.replace(/^#### (.*?)$/gm, '<h4 class="text-lg font-medium mt-4 mb-2">$1</h4>')
-																	.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-																	.replace(/\*(.*?)\*/g, '<em>$1</em>')
-																	.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="jshine-gradient">$1</a>')
-																	.replace(/^- (.*?)$/gm, '<li class="ml-4">$1</li>')
-																	.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-md my-4" />')
-																	.replace(/\n/g, '<br>')
-															}}
-														/>
-													</div>
-												)}
-											</div>
+												const start = textarea.selectionStart
+												const end = textarea.selectionEnd
+												const currentValue = faqForm.isLocalized 
+													? (language === 'en' ? faqForm.localizedContent.en : faqForm.localizedContent.vi) 
+													: faqForm.content
+												
+												const newValue = currentValue.substring(0, start) + text + currentValue.substring(end)
+												
+												if (faqForm.isLocalized) {
+													setFaqForm({
+														...faqForm, 
+														localizedContent: {
+															...faqForm.localizedContent,
+															[language]: newValue
+														}
+													});
+												} else {
+													setFaqForm({...faqForm, content: newValue});
+												}
+												
+												// Set focus back to textarea after insertion
+												setTimeout(() => {
+													textarea.focus()
+													textarea.selectionStart = start + text.length
+													textarea.selectionEnd = start + text.length
+												}, 0)
+											}} />
+										</div>
+										
+										<div className="flex-1 relative border rounded-md focus-within:ring-2 focus-within:ring-primary focus-within:border-primary overflow-hidden">
+											<textarea
+												id="faq-content"
+												className="w-full h-full p-4 font-mono text-sm resize-none border-0 outline-none focus:outline-none focus:ring-0 min-h-[350px] scrollbar-custom"
+												style={{ 
+													scrollbarWidth: 'thin',
+													scrollbarColor: 'rgba(155, 155, 155, 0.5) transparent' 
+												}}
+												value={faqForm.isLocalized 
+													? (language === 'en' ? faqForm.localizedContent.en : faqForm.localizedContent.vi) 
+													: faqForm.content}
+												onChange={(e) => {
+													if (faqForm.isLocalized) {
+														setFaqForm({
+															...faqForm, 
+															localizedContent: {
+																...faqForm.localizedContent,
+																[language]: e.target.value
+															}
+														});
+													} else {
+														setFaqForm({...faqForm, content: e.target.value});
+													}
+												}}
+												placeholder={language === 'en'
+													? "Write your FAQ content in Markdown..."
+													: "Viết nội dung FAQ bằng Markdown..."}
+											></textarea>
 										</div>
 									</div>
-									<DialogFooter className="flex-shrink-0 mt-4">
+
+									<DialogFooter className="flex justify-between items-center mt-4">
 										<Button
 											type="button"
 											variant="outline"
 											onClick={() => {
 												setFaqDialog(false)
 												setEditingFaq(null)
-												setShowMarkdownPreview(false)
 											}}
 										>
 											{language === 'en' ? 'Cancel' : 'Hủy'}
 										</Button>
+										
 										<Button
 											type="button"
 											onClick={() => {
-												if (!faqForm.title || !faqForm.content) {
-													alert(language === 'en' ? 'Title and content are required!' : 'Tiêu đề và nội dung là bắt buộc!')
+												if (!faqForm.title && !faqForm.localizedTitle.en && !faqForm.localizedTitle.vi) {
+													alert(language === 'en' ? 'Title is required' : 'Yêu cầu nhập tiêu đề')
 													return
 												}
 												
-												const slug = faqForm.slug || generateSlug(faqForm.title)
+												if (!faqForm.content && !faqForm.localizedContent.en && !faqForm.localizedContent.vi) {
+													alert(language === 'en' ? 'Content is required' : 'Yêu cầu nhập nội dung')
+													return
+												}
+												
+												const slug = faqForm.slug || generateSlug(faqForm.title || faqForm.localizedTitle.en || faqForm.localizedTitle.vi)
 												
 												if (editingFaq) {
-													// Edit existing
-													setFaqArticles(faqArticles.map(a => 
-														a.id === editingFaq.id 
-															? { 
-																...faqForm, 
-																slug,
-																createdAt: editingFaq.createdAt,
-																updatedAt: new Date()
-															} 
+													// Update existing article
+													setFaqArticles(faqArticles.map(a =>
+														a.id === editingFaq.id
+															? {
+																	...a,
+																	...faqForm,
+																	slug,
+																	createdAt: editingFaq.createdAt,
+																	updatedAt: new Date()
+																}
 															: a
 													))
 												} else {
-													// Add new
+													// Add new article
 													setFaqArticles([
 														...faqArticles,
-														{ 
-															...faqForm, 
-															id: Date.now().toString(), 
+														{
+															...faqForm,
+															id: Date.now().toString(),
 															slug,
 															createdAt: new Date(),
 															updatedAt: new Date()
@@ -2077,7 +2222,6 @@ export default function AdminDashboard() {
 												
 												setFaqDialog(false)
 												setEditingFaq(null)
-												setShowMarkdownPreview(false)
 											}}
 										>
 											{language === 'en' ? 'Save' : 'Lưu'}
@@ -2219,6 +2363,41 @@ export default function AdminDashboard() {
 						</Button>
 					</DialogFooter>
 				</DialogContent>
+			</Dialog>
+
+			{/* Preview Dialog */}
+			<Dialog open={previewDialog} onOpenChange={setPreviewDialog}>
+			  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" aria-describedby="preview-dialog-description">
+			    <DialogHeader>
+			      <DialogTitle>
+			        {language === 'en' ? 'Preview' : 'Xem trước'}
+			      </DialogTitle>
+			      <DialogDescription id="preview-dialog-description">
+			        {faqForm.isLocalized 
+			          ? (language === 'en' 
+			              ? faqForm.localizedTitle.en || faqForm.title 
+			              : faqForm.localizedTitle.vi || faqForm.title) 
+			          : faqForm.title}
+			      </DialogDescription>
+			    </DialogHeader>
+
+			    <div className="mt-4 border rounded p-6 bg-white dark:bg-background min-h-[300px]">
+			      <div 
+			        className="prose prose-sm max-w-none dark:prose-invert"
+			        dangerouslySetInnerHTML={{ 
+			          __html: faqForm.isLocalized
+			            ? (language === 'en' ? faqForm.localizedContent.en : faqForm.localizedContent.vi)
+			            : faqForm.content
+			        }}
+			      ></div>
+			    </div>
+
+			    <DialogFooter className="mt-4">
+			      <Button onClick={() => setPreviewDialog(false)}>
+			        {language === 'en' ? 'Close' : 'Đóng'}
+			      </Button>
+			    </DialogFooter>
+			  </DialogContent>
 			</Dialog>
 		</div>
 	</ErrorBoundary>

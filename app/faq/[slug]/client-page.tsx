@@ -18,7 +18,7 @@ interface FaqArticleClientProps {
 }
 
 export default function FaqArticleClient({ slug, initialArticle }: FaqArticleClientProps) {
-	const { faqArticles } = useStore()
+	const { faqArticles, language } = useStore()
 	const [article, setArticle] = useState<FAQArticle>(initialArticle)
 	const router = useRouter()
 	
@@ -32,12 +32,31 @@ export default function FaqArticleClient({ slug, initialArticle }: FaqArticleCli
 		}
 	}, [slug, faqArticles])
 	
+	// Get the appropriate title and content based on language and localization
+	const getLocalizedTitle = () => {
+		if (article.isLocalized && article.localizedTitle) {
+			return language === 'en' 
+				? article.localizedTitle.en || article.title
+				: article.localizedTitle.vi || article.title
+		}
+		return article.title
+	}
+	
+	const getLocalizedContent = () => {
+		if (article.isLocalized && article.localizedContent) {
+			return language === 'en'
+				? article.localizedContent.en || article.content
+				: article.localizedContent.vi || article.content
+		}
+		return article.content
+	}
+	
 	// Set page title when article changes
 	useEffect(() => {
-		if (article && article.title) {
-			setPageTitle(article.title)
+		if (article) {
+			setPageTitle(getLocalizedTitle())
 		}
-	}, [article])
+	}, [article, language])
 	
 	return (
 		<div className="max-w-4xl mx-auto py-8">
@@ -45,18 +64,20 @@ export default function FaqArticleClient({ slug, initialArticle }: FaqArticleCli
 			<Link href="/faq">
 				<Button variant="ghost" className="mb-6">
 					<ArrowLeft className="mr-2 h-4 w-4" />
-					Back to FAQ
+					{language === 'en' ? 'Back to FAQ' : 'Quay lại FAQ'}
 				</Button>
 			</Link>
 			
 			{/* Article */}
 			<Card>
 				<CardHeader className="space-y-4">
-					<h1 className="text-3xl font-bold">{article.title}</h1>
+					<h1 className="text-3xl font-bold">{getLocalizedTitle()}</h1>
 					<div className="flex items-center gap-4 text-sm text-muted-foreground">
 						<div className="flex items-center gap-1">
 							<Calendar className="h-4 w-4" />
-							{new Date(article.updatedAt).toLocaleDateString()}
+							{new Date(article.updatedAt).toLocaleDateString(
+								language === 'en' ? 'en-US' : 'vi-VN'
+							)}
 						</div>
 						<div className="flex items-center gap-1">
 							<Tag className="h-4 w-4" />
@@ -94,7 +115,7 @@ export default function FaqArticleClient({ slug, initialArticle }: FaqArticleCli
 								a: ({ href, children }) => <a href={href} className="jshine-gradient">{children}</a>,
 							}}
 						>
-							{article.content}
+							{getLocalizedContent()}
 						</ReactMarkdown>
 					</div>
 				</CardContent>
