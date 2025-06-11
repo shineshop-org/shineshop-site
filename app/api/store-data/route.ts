@@ -75,6 +75,38 @@ function readStoreData() {
 	}
 }
 
+// Buộc build lại initial-data.ts từ dữ liệu trong store-data.json
+function rebuildInitialData() {
+	// Không thực hiện rebuild trong production
+	if (process.env.NODE_ENV !== 'development') {
+		return { success: false, message: 'Rebuild chỉ được thực hiện trong môi trường development' }
+	}
+	
+	try {
+		// Gọi API route update-initial-data
+		fetch('/api/dev/update-initial-data', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			console.log('Rebuild initial-data result:', data)
+			return { success: true, message: 'Đã gửi yêu cầu rebuild initial-data' }
+		})
+		.catch(error => {
+			console.error('Error rebuilding initial-data:', error)
+			return { success: false, message: 'Lỗi khi rebuild initial-data' }
+		})
+		
+		return { success: true, message: 'Đã gửi yêu cầu rebuild initial-data' }
+	} catch (error) {
+		console.error('Error rebuilding initial-data:', error)
+		return { success: false, message: 'Lỗi khi rebuild initial-data' }
+	}
+}
+
 export async function GET() {
 	try {
 		ensureDataDir()
@@ -159,9 +191,13 @@ export async function POST(request: NextRequest) {
 		try {
 			fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(mergedData, null, 2), 'utf-8')
 			
+			// Thực hiện rebuild initial-data sau khi lưu thành công
+			const rebuildResult = rebuildInitialData();
+			
 			return NextResponse.json({ 
 				success: true,
-				message: 'Data updated successfully'
+				message: 'Data updated successfully',
+				rebuildResult
 			});
 		} catch (writeError) {
 			console.error('Error writing store data:', writeError);

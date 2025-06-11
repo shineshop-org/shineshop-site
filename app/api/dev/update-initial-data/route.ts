@@ -24,15 +24,6 @@ function readStoreData() {
 // Hàm cập nhật initial-data.ts
 function updateInitialData(data: any) {
   try {
-    // Đọc nội dung hiện tại của file
-    let currentContent: string;
-    try {
-      currentContent = fs.readFileSync(INITIAL_DATA_PATH, 'utf-8')
-    } catch (readError) {
-      console.error('Lỗi khi đọc file initial-data.ts:', readError);
-      throw new Error(`Không thể đọc file initial-data.ts: ${(readError as Error).message}`);
-    }
-    
     // Tạo backup trước khi sửa đổi
     const backupDir = path.join(process.cwd(), 'data', 'backups')
     if (!fs.existsSync(backupDir)) {
@@ -42,47 +33,68 @@ function updateInitialData(data: any) {
     // Tạo backup với timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const backupPath = path.join(backupDir, `initial-data-${timestamp}.ts`)
-    fs.writeFileSync(backupPath, currentContent)
+    
+    // Thay thế toàn bộ file initial-data.ts với phiên bản mới đọc dữ liệu từ store-data.json
+    const newContent = `import { Product, FAQArticle, SocialLink, SiteConfig, PaymentInfo } from './types'
+import fs from 'fs'
+import path from 'path'
 
-    // Chuẩn bị các phần dữ liệu cần cập nhật
-    const socialLinks = JSON.stringify(data.socialLinks || [])
-    const siteConfig = JSON.stringify(data.siteConfig || {})
-    
-    // Tạo nội dung chuẩn với dấu chấm phẩy
-    const formattedSocialLinks = `export const initialSocialLinks: SocialLink[] = ${socialLinks};`
-    const formattedSiteConfig = `export const initialSiteConfig: SiteConfig = ${siteConfig};`
-    
-    // Cập nhật file với dữ liệu mới
-    let updatedContent = currentContent
-    
-    // Cập nhật Social Links
-    const socialLinksRegex = /export const initialSocialLinks: SocialLink\[\] = ([\s\S]*?);/
-    if (socialLinksRegex.test(updatedContent)) {
-      updatedContent = updatedContent.replace(socialLinksRegex, formattedSocialLinks)
-    } else {
-      console.warn('Không thể tìm thấy mẫu Social Links trong file, thêm vào cuối file')
-      updatedContent += '\n' + formattedSocialLinks + '\n'
+// Đường dẫn đến file data
+const STORE_DATA_PATH = path.join(process.cwd(), 'data', 'store-data.json')
+
+// Đọc dữ liệu từ store-data.json
+function getStoreData() {
+  try {
+    if (fs.existsSync(STORE_DATA_PATH)) {
+      const fileContent = fs.readFileSync(STORE_DATA_PATH, 'utf-8')
+      return JSON.parse(fileContent)
     }
-    
-    // Cập nhật Site Config
-    const siteConfigRegex = /export const initialSiteConfig: SiteConfig = ([\s\S]*?);/
-    if (siteConfigRegex.test(updatedContent)) {
-      updatedContent = updatedContent.replace(siteConfigRegex, formattedSiteConfig)
-    } else {
-      console.warn('Không thể tìm thấy mẫu Site Config trong file, thêm vào cuối file')
-      updatedContent += '\n' + formattedSiteConfig + '\n'
-    }
-    
-    // Đảm bảo không có dấu chấm phẩy kép
-    updatedContent = updatedContent.replace(/;;/g, ';')
-    
-    // Ghi file đã cập nhật ngay cả khi không có thay đổi
+  } catch (error) {
+    console.error('Error reading store data:', error)
+  }
+  
+  // Fallback to empty values if file doesn't exist or can't be read
+  return {
+    products: [],
+    faqArticles: [],
+    socialLinks: [],
+    paymentInfo: {},
+    siteConfig: {},
+    language: 'vi',
+    theme: 'light',
+    dataVersion: 1
+  }
+}
+
+// Đọc dữ liệu từ file
+const storeData = getStoreData()
+
+// Export các giá trị từ store-data.json
+export const initialProducts: Product[] = storeData.products || []
+export const initialFAQArticles: FAQArticle[] = storeData.faqArticles || []
+export const initialSocialLinks: SocialLink[] = storeData.socialLinks || []
+export const initialPaymentInfo: PaymentInfo = storeData.paymentInfo || {}
+export const initialSiteConfig: SiteConfig = storeData.siteConfig || {}
+export const initialTOSContent: string = storeData.tosContent || ''
+export const initialLanguage = storeData.language || 'vi'
+export const initialTheme = storeData.theme || 'light'
+export const dataVersion = storeData.dataVersion || 1`
+
+    // Backup file hiện tại trước khi ghi đè
     try {
-      fs.writeFileSync(INITIAL_DATA_PATH, updatedContent, 'utf-8')
+      const currentContent = fs.readFileSync(INITIAL_DATA_PATH, 'utf-8')
+      fs.writeFileSync(backupPath, currentContent)
+    } catch (readError) {
+      console.error('Lỗi khi đọc/backup file initial-data.ts:', readError)
+    }
+
+    // Ghi file mới
+    try {
+      fs.writeFileSync(INITIAL_DATA_PATH, newContent, 'utf-8')
       console.log('Đã cập nhật initial-data.ts thành công')
     } catch (writeError) {
-      console.error('Lỗi khi ghi file initial-data.ts:', writeError);
-      throw new Error(`Không thể ghi file initial-data.ts: ${(writeError as Error).message}`);
+      console.error('Lỗi khi ghi file initial-data.ts:', writeError)
+      throw new Error(`Không thể ghi file initial-data.ts: ${(writeError as Error).message}`)
     }
     
     return {
