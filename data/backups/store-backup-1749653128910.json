@@ -1475,7 +1475,7 @@
       "name": "camscanner",
       "localizedName": {
         "en": "Camscanner",
-        "vi": "Camscanner"
+        "vi": "CamScanner"
       },
       "price": 0,
       "description": "",
@@ -1483,7 +1483,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/camscanner.png?updatedAt=1749643624935",
       "localizedCategory": {
         "en": "Utilities",
         "vi": "Tiện ích"
@@ -2525,7 +2525,7 @@
         "en": "Utilities",
         "vi": "Tiện ích"
       },
-      "slug": "zoom-workplace-pro",
+      "slug": "zoom",
       "options": [
         {
           "id": "1749641750004319",
