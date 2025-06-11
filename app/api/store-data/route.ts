@@ -6,45 +6,12 @@ import path from 'path'
 export const dynamic = 'force-static'
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'store-data.json')
-const BACKUP_DIR = path.join(process.cwd(), 'data')
-const BACKUPS_DIR = path.join(process.cwd(), 'data', 'backups')
+const DATA_DIR = path.join(process.cwd(), 'data')
 
 // Ensure data directory exists
 function ensureDataDir() {
-	if (!fs.existsSync(BACKUP_DIR)) {
-		fs.mkdirSync(BACKUP_DIR, { recursive: true })
-	}
-	// Ensure backups directory exists
-	if (!fs.existsSync(BACKUPS_DIR)) {
-		fs.mkdirSync(BACKUPS_DIR, { recursive: true })
-	}
-}
-
-// Create backup of current data
-function createBackup(data: any) {
-	try {
-		ensureDataDir()
-		const timestamp = Date.now()
-		const backupPath = path.join(BACKUPS_DIR, `store-backup-${timestamp}.json`)
-		fs.writeFileSync(backupPath, JSON.stringify(data, null, 2), 'utf-8')
-		
-		// Keep only last 5 backups
-		const backupFiles = fs.readdirSync(BACKUPS_DIR)
-			.filter(file => file.startsWith('store-backup-') && file.endsWith('.json'))
-			.sort()
-		
-		if (backupFiles.length > 5) {
-			const filesToDelete = backupFiles.slice(0, backupFiles.length - 5)
-			filesToDelete.forEach(file => {
-				try {
-					fs.unlinkSync(path.join(BACKUPS_DIR, file))
-				} catch (error) {
-					console.warn('Failed to delete old backup:', file, error)
-				}
-			})
-		}
-	} catch (error) {
-		console.warn('Failed to create backup:', error)
+	if (!fs.existsSync(DATA_DIR)) {
+		fs.mkdirSync(DATA_DIR, { recursive: true })
 	}
 }
 
@@ -157,9 +124,6 @@ export async function POST(request: NextRequest) {
 		
 		// Đọc dữ liệu hiện tại để merge
 		const existingData = readStoreData();
-		
-		// Tạo backup trước khi cập nhật
-		createBackup(existingData);
 		
 		// Merge dữ liệu từ request vào dữ liệu hiện tại
 		const mergedData = { ...existingData, ...data };

@@ -24,16 +24,6 @@ function readStoreData() {
 // Hàm cập nhật initial-data.ts
 function updateInitialData(data: any) {
   try {
-    // Tạo backup trước khi sửa đổi
-    const backupDir = path.join(process.cwd(), 'data', 'backups')
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true })
-    }
-    
-    // Tạo backup với timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    const backupPath = path.join(backupDir, `initial-data-${timestamp}.ts`)
-    
     // Thay thế toàn bộ file initial-data.ts với phiên bản mới đọc dữ liệu từ store-data.json
     const newContent = `import { Product, FAQArticle, SocialLink, SiteConfig, PaymentInfo } from './types'
 import fs from 'fs'
@@ -80,14 +70,6 @@ export const initialLanguage = storeData.language || 'vi'
 export const initialTheme = storeData.theme || 'light'
 export const dataVersion = storeData.dataVersion || 1`
 
-    // Backup file hiện tại trước khi ghi đè
-    try {
-      const currentContent = fs.readFileSync(INITIAL_DATA_PATH, 'utf-8')
-      fs.writeFileSync(backupPath, currentContent)
-    } catch (readError) {
-      console.error('Lỗi khi đọc/backup file initial-data.ts:', readError)
-    }
-
     // Ghi file mới
     try {
       fs.writeFileSync(INITIAL_DATA_PATH, newContent, 'utf-8')
@@ -99,8 +81,7 @@ export const dataVersion = storeData.dataVersion || 1`
     
     return {
       success: true,
-      message: 'initial-data.ts đã được cập nhật thành công',
-      backup: backupPath
+      message: 'initial-data.ts đã được cập nhật thành công'
     }
   } catch (error) {
     console.error('Error updating initial data:', error)
