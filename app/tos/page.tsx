@@ -1,14 +1,13 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { useStore } from '@/app/lib/store'
 import { useTranslation } from '@/app/hooks/use-translations'
 import { Card, CardContent } from '@/app/components/ui/card'
 import ReactMarkdown from 'react-markdown'
 import { setPageTitle } from '@/app/lib/utils'
+import { initialTOSContent } from '@/app/lib/initial-data'
 
 export default function TOSPage() {
-	const { tosContent } = useStore()
 	const { t } = useTranslation()
 	
 	// Set page title on component mount
@@ -44,7 +43,7 @@ export default function TOSPage() {
 								a: ({ href, children }) => <a href={href} className="jshine-gradient">{children}</a>,
 							}}
 						>
-							{tosContent}
+							{initialTOSContent}
 						</ReactMarkdown>
 					</div>
 				</CardContent>

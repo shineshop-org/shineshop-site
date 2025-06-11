@@ -31,11 +31,12 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import ErrorBoundary from '@/app/components/providers/error-boundary'
 
 // Add the jshine-gradient CSS class as in the product page
 const jshineGradientClassName = "text-[#0ea5e9]" // JShine color (sky blue)
 
-type TabType = 'products' | 'faq' | 'social' | 'tos' | 'settings'
+type TabType = 'products' | 'faq' | 'settings'
 type ProductTabType = 'details' | 'card-order'
 
 // Sortable item component for drag and drop
@@ -276,74 +277,55 @@ function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
 }
 
 export default function AdminDashboard() {
-	const router = useRouter()
+	// Extract state from store
 	const { 
-		isAdminAuthenticated, 
-		setAdminAuthenticated,
-		products,
+		products, 
+		faqArticles, 
+		language, 
+		setLanguage,
 		addProduct,
-		faqArticles,
-		addFaqArticle,
-		deleteFaqArticle,
-		setFaqArticles,
-		socialLinks,
-		setSocialLinks,
 		updateProduct,
-		updateFaqArticle,
-		updateSocialLink,
 		deleteProduct,
-		tosContent,
-		setTosContent,
+		updateFaqArticle,
+		setAdminAuthenticated,
 		siteConfig,
 		setSiteConfig,
-		language,
-		setLanguage,
+		setFaqArticles
 	} = useStore()
 	
+	// Router and Translation
+	const router = useRouter()
 	const { t } = useTranslation()
 	
+	// State variables
 	const [isLoading, setIsLoading] = useState(true)
 	const [isPublishing, setIsPublishing] = useState(false)
 	const [publishSuccess, setPublishSuccess] = useState(false)
-	const [activeTab, setActiveTab] = useState<TabType>('products')
-	const [productTab, setProductTab] = useState<ProductTabType>('details')
-	const [showTosNotification, setShowTosNotification] = useState(false)
-	const [showSocialNotification, setShowSocialNotification] = useState(false)
-	
-	// Kiểm tra môi trường
-	const isDevelopment = process.env.NODE_ENV === 'development'
-	
-	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-	const [productDialog, setProductDialog] = useState(false)
-	const [tosForm, setTosForm] = useState(tosContent || '')
-	const [selectedArticles, setSelectedArticles] = useState<string[]>([])
-	const [sortableProducts, setSortableProducts] = useState<Product[]>([])
 	const [isSaving, setIsSaving] = useState(false)
+	const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false)
+	const [articleSearchQuery, setArticleSearchQuery] = useState('')
+	const [faqForm, setFaqForm] = useState({ id: '', title: '', slug: '', content: '', category: '', tags: [] as string[] })
 	const [faqDialog, setFaqDialog] = useState(false)
 	const [editingFaq, setEditingFaq] = useState<FAQArticle | null>(null)
-	const [faqForm, setFaqForm] = useState<{
-		id: string;
-		title: string;
-		slug: string;
-		content: string;
-		category: string;
-		tags: string[];
-	}>({
-		id: '',
-		title: '',
-		slug: '',
-		content: '',
-		category: '',
-		tags: []
-	})
 	const [showMarkdownPreview, setShowMarkdownPreview] = useState(false)
 	const [showProductDescriptionPreview, setShowProductDescriptionPreview] = useState(false)
-	const [articleSearchQuery, setArticleSearchQuery] = useState('')
-	const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false)
-	const [productToDelete, setProductToDelete] = useState<Product | null>(null)
+	const [showNotification, setShowNotification] = useState(false)
+	const [showPublishNotification, setShowPublishNotification] = useState(false)
 	
-	// Added state object to track price input string values
+	// Tab state
+	const [activeTab, setActiveTab] = useState<TabType>('products')
+	const [productTab, setProductTab] = useState<ProductTabType>('details')
+	
+	// Product state
+	const [productToDelete, setProductToDelete] = useState<Product | null>(null)
+	const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+	const [productDialog, setProductDialog] = useState(false)
+	const [selectedArticles, setSelectedArticles] = useState<string[]>([])
+	const [sortedProducts, setSortedProducts] = useState<Product[]>([])
 	const [priceInputValues, setPriceInputValues] = useState<Record<string, string>>({})
+	
+	// More state variables
+	const isDevelopment = process.env.NODE_ENV === 'development'
 	
 	// Setup sensors for drag and drop
 	const sensors = useSensors(
@@ -361,7 +343,7 @@ export default function AdminDashboard() {
 	useEffect(() => {
 		if (products.length > 0) {
 			// Sort products by sortOrder
-			setSortableProducts([...products].sort((a, b) => a.sortOrder - b.sortOrder))
+			setSortedProducts([...products].sort((a, b) => a.sortOrder - b.sortOrder))
 		}
 	}, [products])
 	
@@ -783,7 +765,7 @@ export default function AdminDashboard() {
 		const { active, over } = event
 		
 		if (over && active.id !== over.id) {
-			setSortableProducts((items) => {
+			setSortedProducts((items) => {
 				// Find the indices of the items
 				const oldIndex = items.findIndex((item) => item.id === active.id)
 				const newIndex = items.findIndex((item) => item.id === over.id)
@@ -957,37 +939,6 @@ export default function AdminDashboard() {
 		}
 	}, [debouncedProductForm, debouncedSelectedArticles, editingProduct, updateProduct])
 	
-	// Auto-save for TOS
-	const debouncedTosForm = useDebounce(tosForm, 2000)
-	
-	useEffect(() => {
-		if (activeTab === 'tos' && debouncedTosForm !== tosContent) {
-			// Use the store's getState method to ensure we have access to the latest store instance
-			const store = useStore.getState();
-			store.setTosContent(debouncedTosForm);
-			
-			// Đồng bộ dữ liệu sau khi auto-save bằng cách gọi API trực tiếp
-			(async () => {
-				try {
-					const response = await fetch('/api/dev/update-initial-data', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						}
-					})
-					
-					if (!response.ok) {
-						console.error('Auto-save TOS thành công nhưng không đồng bộ được với initial-data.ts')
-					} else {
-						console.log('Đồng bộ TOS tự động thành công')
-					}
-				} catch (error) {
-					console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
-				}
-			})()
-		}
-	}, [debouncedTosForm, activeTab, tosContent])
-	
 	// Auto-save for FAQ
 	const debouncedFaqForm = useDebounce(faqForm, 2000)
 	
@@ -1025,262 +976,41 @@ export default function AdminDashboard() {
 		setEditingSiteConfig(siteConfig)
 	}, [siteConfig])
 	
-	// Handle publishing to production by updating static data file
+	// Handle publishing to production
 	const handlePublishToProduction = async () => {
-		if (!confirm(language === 'en' 
-			? 'This will update all content including titles, FAQ, TOS, and products to the static file and push to GitHub for deployment. Continue?' 
-			: 'Thao tác này sẽ cập nhật tất cả nội dung bao gồm tiêu đề, FAQ, TOS, và sản phẩm vào file tĩnh và đẩy lên GitHub để triển khai. Tiếp tục?')) {
-			return
-		}
-		
 		setIsPublishing(true)
 		setPublishSuccess(false)
 		
 		try {
-			// First ensure all local changes are saved to the server
-			await useStore.getState().syncDataToServer()
-			
-			// Step 1: Update the static data file
-			const updateResponse = await fetch('/api/dev/update-file', {
+			// Call the API to trigger the publish
+			const response = await fetch('/api/cache-purge', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					forceUpdate: true, // Force update all content
-					dataVersion: 2 // Ensure the latest data version is used
-				})
+					secret: process.env.NEXT_PUBLIC_CACHE_SECRET || 'local-dev',
+				}),
 			})
 			
-			if (!updateResponse.ok) {
-				const errorData = await updateResponse.json()
-				throw new Error(errorData.error || 'Failed to update static data file')
+			if (!response.ok) {
+				throw new Error(`HTTP error ${response.status}`)
 			}
 			
-			// Step 2: Push changes to GitHub with retry mechanism
-			const maxRetries = 3
-			let retryCount = 0
-			let gitPushSuccess = false
-			let lastError: Error | null = null
+			const result = await response.json()
+			console.log('Publish result:', result)
 			
-			while (retryCount < maxRetries && !gitPushSuccess) {
-				try {
-					if (retryCount > 0) {
-						console.log(`Retrying git push (attempt ${retryCount + 1} of ${maxRetries})...`)
-						// Small delay before retry
-						await new Promise(resolve => setTimeout(resolve, 1000))
-					}
-					
-					const pushResponse = await fetch('/api/dev/git-push', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify({
-							commands: [
-								'git add -A',
-								'git commit -m "feat: update static data file for production"',
-								'git push origin main'
-							]
-						}),
-						// Increase timeout for the fetch request
-						signal: AbortSignal.timeout(60000) // 60 seconds timeout
-					})
-					
-					// If fetch itself succeeded but the API reported an error
-					if (!pushResponse.ok) {
-						const pushData = await pushResponse.json()
-						throw new Error(pushData.error || 'Failed to push changes to GitHub')
-					}
-					
-					// Try to parse response even if status is ok
-					const pushData = await pushResponse.json()
-					
-					// Check if the actual Git operations succeeded
-					if (!pushData.success) {
-						throw new Error(pushData.error || 'Git operations failed')
-					}
-					
-					// Mark success and exit retry loop
-					gitPushSuccess = true
-					
-					// Log success details
-					console.log('Git push results:', pushData.results)
-				} catch (error) {
-					lastError = error instanceof Error ? error : new Error(String(error))
-					retryCount++
-					console.warn(`Git push attempt ${retryCount} failed:`, error)
-					
-					// If we've exhausted all retries, don't continue
-					if (retryCount >= maxRetries) {
-						console.error('All git push retries failed')
-					}
-				}
-			}
-
-			// Check if git push was successful or if we should treat it as a warning
-			if (!gitPushSuccess) {
-				// This is a non-fatal error - show warning but still mark overall process as successful
-				console.warn('Git push warning:', lastError)
-				setPublishSuccess(true)
-				
-				// Show warning message
-				setTimeout(() => {
-					alert(language === 'en'
-						? `Content was updated successfully, but GitHub push had issues. Your changes are saved locally but may not be deployed yet. Error: ${lastError?.message || 'Unknown error'}`
-						: `Nội dung đã được cập nhật thành công, nhưng việc đẩy lên GitHub gặp sự cố. Các thay đổi của bạn đã được lưu cục bộ nhưng có thể chưa được triển khai. Lỗi: ${lastError?.message || 'Lỗi không xác định'}`)
-				}, 500)
-			} else {
-				// If we reach here, everything was successful
-				console.log('Successfully published content updates and pushed to GitHub')
-				setPublishSuccess(true)
-				
-				// Auto-hide success message after 5 seconds
-				setTimeout(() => {
-					setPublishSuccess(false)
-				}, 5000)
-			}
+			// Show success notification
+			setPublishSuccess(true)
+			setShowPublishNotification(true)
+			setTimeout(() => {
+				setShowPublishNotification(false)
+			}, 3000)
 		} catch (error) {
 			console.error('Error publishing to production:', error)
-			alert(language === 'en' 
-				? `Error publishing: ${(error as Error).message}` 
-				: `Lỗi khi xuất bản: ${(error as Error).message}`)
 			setPublishSuccess(false)
 		} finally {
 			setIsPublishing(false)
-		}
-	}
-	
-	// Cập nhật hàm xử lý lưu TOS
-	const handleSaveTos = async () => {
-		// Lưu TOS vào store using the same pattern for consistency
-		const store = useStore.getState();
-		store.setTosContent(tosForm);
-		
-		// Đồng bộ dữ liệu sang initial-data.ts thông qua API
-		try {
-			const response = await fetch('/api/dev/update-initial-data', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				}
-			})
-			
-			if (!response.ok) {
-				console.error('Lỗi khi đồng bộ dữ liệu TOS')
-			} else {
-				console.log('Đồng bộ TOS thành công')
-			}
-		} catch (error) {
-			console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
-		}
-		
-		// Hiển thị thông báo
-		setShowTosNotification(true)
-		setTimeout(() => {
-			setShowTosNotification(false)
-		}, 3000)
-	}
-	
-	// Cập nhật hàm xử lý thêm social link
-	const handleAddSocialLink = async () => {
-		const newLink: SocialLink = {
-			id: Date.now().toString(),
-			platform: 'new-platform',
-			url: 'https://example.com',
-			icon: 'icon-name'
-		}
-		
-		// Cập nhật state
-		setSocialLinks([...socialLinks, newLink])
-		
-		// Đồng bộ dữ liệu sang initial-data.ts thông qua API
-		try {
-			const response = await fetch('/api/dev/update-initial-data', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				}
-			})
-			
-			if (!response.ok) {
-				console.error('Lỗi khi đồng bộ dữ liệu social links')
-			} else {
-				console.log('Đồng bộ social links thành công')
-			}
-		} catch (error) {
-			console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
-		}
-		
-		// Hiển thị thông báo
-		setShowSocialNotification(true)
-		setTimeout(() => {
-			setShowSocialNotification(false)
-		}, 3000)
-	}
-	
-	// Cập nhật hàm xử lý sửa social link
-	const handleEditSocialLink = async (id: string) => {
-		const newUrl = prompt(language === 'en' ? 'New URL:' : 'URL mới:', socialLinks.find(l => l.id === id)?.url)
-		if (newUrl) {
-			// Cập nhật state
-			updateSocialLink(id, { url: newUrl })
-			
-			// Đồng bộ dữ liệu sang initial-data.ts thông qua API
-			try {
-				const response = await fetch('/api/dev/update-initial-data', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					}
-				})
-				
-				if (!response.ok) {
-					console.error('Lỗi khi đồng bộ dữ liệu social links')
-				} else {
-					console.log('Đồng bộ social links thành công')
-				}
-			} catch (error) {
-				console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
-			}
-			
-			// Hiển thị thông báo
-			setShowSocialNotification(true)
-			setTimeout(() => {
-				setShowSocialNotification(false)
-			}, 3000)
-		}
-	}
-	
-	// Cập nhật hàm xử lý xóa social link
-	const handleDeleteSocialLink = async (id: string) => {
-		if (confirm(language === 'en' ? 'Delete this social link?' : 'Xóa liên kết mạng xã hội này?')) {
-			// Cập nhật state
-			setSocialLinks(socialLinks.filter(l => l.id !== id))
-			
-			// Đồng bộ dữ liệu sang initial-data.ts thông qua API
-			try {
-				const response = await fetch('/api/dev/update-initial-data', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					}
-				})
-				
-				if (!response.ok) {
-					console.error('Lỗi khi đồng bộ dữ liệu social links')
-				} else {
-					console.log('Đồng bộ social links thành công')
-				}
-			} catch (error) {
-				console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
-			}
-			
-			// Hiển thị thông báo
-			setShowSocialNotification(true)
-			setTimeout(() => {
-				setShowSocialNotification(false)
-			}, 3000)
 		}
 	}
 	
@@ -1295,90 +1025,75 @@ export default function AdminDashboard() {
 	}
 	
 	return (
-		<div className="flex flex-col min-h-screen">
-			<style jsx global>{`
-				.jshine-gradient {
-					color: #0ea5e9; /* JShine color (sky blue) instead of gradient */
-				}
-			`}</style>
-			
-			<div className="container grid flex-1 gap-6 md:grid-cols-[200px_1fr] py-6">
-				{/* Sidebar */}
-				<div className="flex flex-col gap-2">
-					<Button 
-							variant={activeTab === 'products' ? 'default' : 'ghost'} 
-							className="justify-start"
-							onClick={() => setActiveTab('products')}
-						>
-							<Home className="mr-2 h-4 w-4" />
-							{t('products')}
-						</Button>
-					<Button 
-						variant={activeTab === 'faq' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('faq')}
-					>
-						<HelpCircle className="mr-2 h-4 w-4" />
-						{language === 'en' ? 'FAQ' : 'Câu hỏi thường gặp'}
-					</Button>
-					<Button 
-						variant={activeTab === 'social' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('social')}
-					>
-						<Share2 className="mr-2 h-4 w-4" />
-						{language === 'en' ? 'Social Links' : 'Liên kết mạng xã hội'}
-					</Button>
-					<Button 
-						variant={activeTab === 'tos' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('tos')}
-					>
-						<FileText className="mr-2 h-4 w-4" />
-						{language === 'en' ? 'Terms of Service' : 'Điều khoản dịch vụ'}
-					</Button>
-					<Button 
-						variant={activeTab === 'settings' ? 'default' : 'ghost'} 
-						className="justify-start"
-						onClick={() => setActiveTab('settings')}
-					>
-						<Settings className="mr-2 h-4 w-4" />
-						{language === 'en' ? 'General Settings' : 'Cài đặt chung'}
-					</Button>
-				</div>
+		<ErrorBoundary>
+			<div className="flex flex-col min-h-screen">
+				<style jsx global>{`
+					.jshine-gradient {
+						color: #0ea5e9; /* JShine color (sky blue) instead of gradient */
+					}
+				`}</style>
 				
-				{/* Main Content */}
-				<div className="flex-1">
-					{activeTab === 'products' && (
-						<div className="space-y-4">
-							<Tabs value={productTab} onValueChange={(v) => setProductTab(v as ProductTabType)}>
-								<div className="flex justify-between items-center">
-									<TabsList>
-										<TabsTrigger value="details">
-											<FileText className="h-4 w-4 mr-2" />
-											{t('productDetails')}
-										</TabsTrigger>
-										<TabsTrigger value="card-order">
-											<LayoutGrid className="h-4 w-4 mr-2" />
-											{t('productCards')}
-										</TabsTrigger>
-									</TabsList>
+				<div className="container grid flex-1 gap-6 md:grid-cols-[200px_1fr] py-6">
+					{/* Sidebar */}
+					<div className="flex flex-col gap-2">
+						<Button 
+								variant={activeTab === 'products' ? 'default' : 'ghost'} 
+								className="justify-start"
+								onClick={() => setActiveTab('products')}
+							>
+								<LayoutGrid className="mr-2 h-4 w-4" />
+								{t('products')}
+							</Button>
+						<Button 
+							variant={activeTab === 'faq' ? 'default' : 'ghost'} 
+							className="justify-start"
+							onClick={() => setActiveTab('faq')}
+						>
+							<HelpCircle className="mr-2 h-4 w-4" />
+							{language === 'en' ? 'FAQ' : 'Câu hỏi thường gặp'}
+						</Button>
+						<Button 
+							variant={activeTab === 'settings' ? 'default' : 'ghost'} 
+							className="justify-start"
+							onClick={() => setActiveTab('settings')}
+						>
+							<Settings className="mr-2 h-4 w-4" />
+							{language === 'en' ? 'General Settings' : 'Cài đặt chung'}
+						</Button>
+					</div>
+					
+					{/* Main Content */}
+					<div className="flex-1">
+						{activeTab === 'products' && (
+							<div className="space-y-4">
+								<Tabs value={productTab} onValueChange={(v) => setProductTab(v as ProductTabType)}>
+									<div className="flex justify-between items-center">
+										<TabsList>
+											<TabsTrigger value="details">
+												<FileText className="h-4 w-4 mr-2" />
+												{t('productDetails')}
+											</TabsTrigger>
+											<TabsTrigger value="card-order">
+												<ArrowDownWideNarrow className="h-4 w-4 mr-2" />
+												{t('productCards')}
+											</TabsTrigger>
+										</TabsList>
+										
+										{productTab === 'details' && (
+											<Button onClick={() => setProductDialog(true)}>
+												<Plus className="mr-2 h-4 w-4" />
+												{t('addProduct')}
+											</Button>
+										)}
+									</div>
 									
-									{productTab === 'details' && (
-										<Button onClick={() => setProductDialog(true)}>
-											<Plus className="mr-2 h-4 w-4" />
-											{t('addProduct')}
-										</Button>
-									)}
-								</div>
-								
-								<TabsContent value="details" className="mt-6">
-									{/* Product Details Tab */}
-									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-										{products
-											.slice()
-											.sort((a, b) => parseInt(b.id) - parseInt(a.id)) // Sort by id (newest first)
-											.map((product) => {
+									<TabsContent value="details" className="mt-6">
+										{/* Product Details Tab */}
+										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+											{products
+												.slice()
+												.sort((a, b) => parseInt(b.id) - parseInt(a.id)) // Sort by id (newest first)
+												.map((product) => {
 											// Get localized product name
 											const productName = language === 'en' 
 												? (product.localizedName?.en || product.name)
@@ -1472,11 +1187,11 @@ export default function AdminDashboard() {
 													onDragEnd={handleDragEnd}
 												>
 													<SortableContext
-														items={sortableProducts.map(product => product.id)}
+														items={sortedProducts.map(product => product.id)}
 														strategy={verticalListSortingStrategy}
 													>
 														<div className="grid grid-cols-1 gap-2">
-															{sortableProducts.map((product) => (
+															{sortedProducts.map((product) => (
 																<SortableProductItem
 																	key={product.id}
 																	product={product}
@@ -2373,142 +2088,6 @@ export default function AdminDashboard() {
 						</div>
 					)}
 					
-					{activeTab === 'social' && (
-						<div className="space-y-6">
-							<div className="flex justify-between items-center">
-								<h2 className="text-xl font-semibold">{language === 'en' ? 'Social Links Management' : 'Quản lý liên kết mạng xã hội'}</h2>
-								<Button 
-									onClick={handleAddSocialLink}
-								>
-									<Plus className="mr-2 h-4 w-4" />
-									{language === 'en' ? 'Add Social Link' : 'Thêm liên kết'}
-								</Button>
-							</div>
-							
-							{showSocialNotification && (
-								<div className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 mb-2 flex items-center text-green-700 dark:text-green-300">
-									<svg 
-										xmlns="http://www.w3.org/2000/svg" 
-										className="h-5 w-5 mr-2" 
-										viewBox="0 0 20 20" 
-										fill="currentColor"
-									>
-										<path 
-											fillRule="evenodd" 
-											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
-											clipRule="evenodd" 
-										/>
-									</svg>
-									{language === 'en' ? 'Social link updated and synced successfully!' : 'Liên kết mạng xã hội đã được cập nhật và đồng bộ thành công!'}
-								</div>
-							)}
-							
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-								{socialLinks.map((link) => (
-									<Card key={link.id} className="overflow-hidden">
-										<CardHeader className="p-4">
-											<CardTitle className="text-lg">{link.platform}</CardTitle>
-											<div className="text-sm text-muted-foreground">
-												{link.url}
-											</div>
-										</CardHeader>
-										<CardContent className="p-4 pt-0">
-											<div className="flex space-x-2">
-												<Button 
-													variant="outline" 
-													size="sm" 
-													className="flex-1"
-													onClick={() => handleEditSocialLink(link.id)}
-												>
-													<Edit className="mr-2 h-3 w-3" />
-													{language === 'en' ? 'Edit' : 'Chỉnh sửa'}
-												</Button>
-												<Button 
-													variant="outline" 
-													size="sm" 
-													className="flex-1 text-destructive hover:text-destructive"
-													onClick={() => handleDeleteSocialLink(link.id)}
-												>
-													<Trash2 className="mr-2 h-3 w-3" />
-													{language === 'en' ? 'Delete' : 'Xóa'}
-												</Button>
-											</div>
-										</CardContent>
-									</Card>
-								))}
-							</div>
-						</div>
-					)}
-					
-					{activeTab === 'tos' && (
-						<div className="flex flex-col h-[calc(100vh-120px)]">
-							<div className="flex justify-between items-center py-1">
-								<h2 className="text-xl font-semibold">{t('termsOfService')}</h2>
-								<Button 
-									onClick={async () => {
-										// Lưu TOS vào store
-										setTosContent(tosForm)
-										
-										// Đồng bộ dữ liệu sang initial-data.ts thông qua API
-										try {
-											const response = await fetch('/api/dev/update-initial-data', {
-												method: 'POST',
-												headers: {
-													'Content-Type': 'application/json',
-												}
-											})
-											
-											if (!response.ok) {
-												console.error('Lỗi khi đồng bộ dữ liệu')
-											} else {
-												console.log('Đồng bộ TOS thành công')
-											}
-										} catch (error) {
-											console.error('Lỗi khi gọi API đồng bộ dữ liệu:', error)
-										}
-										
-										// Hiển thị thông báo
-										setShowTosNotification(true)
-										setTimeout(() => {
-											setShowTosNotification(false)
-										}, 3000)
-									}}
-									variant="default"
-								>
-									{language === 'en' ? 'Save' : 'Lưu'}
-								</Button>
-							</div>
-							
-							{showTosNotification && (
-								<div className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 border rounded-md p-3 mb-2 flex items-center text-green-700 dark:text-green-300">
-									<svg 
-										xmlns="http://www.w3.org/2000/svg" 
-										className="h-5 w-5 mr-2" 
-										viewBox="0 0 20 20" 
-										fill="currentColor"
-									>
-										<path 
-											fillRule="evenodd" 
-											d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
-											clipRule="evenodd" 
-										/>
-									</svg>
-									{language === 'en' ? 'Terms of Service saved and synced successfully!' : 'Điều khoản dịch vụ đã được lưu và đồng bộ thành công!'}
-								</div>
-							)}
-							
-							<textarea 
-								className="w-full p-4 border rounded-md shadow-sm h-[calc(100vh-170px)] font-mono text-base flex-1 focus:outline-none focus:ring-1 focus:ring-primary"
-								value={tosForm} 
-								onChange={(e) => setTosForm(e.target.value)}
-								placeholder={language === 'en' 
-									? "# Terms of Service\n\n**Effective Date: January 1, 2024**\n\n## 1. Acceptance of Terms\n\nBy accessing and using Shine Shop..."
-									: "# Điều khoản dịch vụ\n\n**Ngày hiệu lực: Ngày 1 tháng 1 năm 2024**\n\n## 1. Chấp nhận điều khoản\n\nBằng việc truy cập và sử dụng Shine Shop..."
-								}
-							/>
-						</div>
-					)}
-					
 					{activeTab === 'settings' && (
 						<div className="space-y-6">
 							<h2 className="text-xl font-semibold">{language === 'en' ? 'General Settings' : 'Cài đặt chung'}</h2>
@@ -2642,5 +2221,6 @@ export default function AdminDashboard() {
 				</DialogContent>
 			</Dialog>
 		</div>
+	</ErrorBoundary>
 	)
 } 

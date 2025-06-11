@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "dev:no-refresh": "NEXT_DISABLE_FAST_REFRESH=true next dev",
+    "dev:windows-no-refresh": "set NEXT_DISABLE_FAST_REFRESH=true && next dev",
     "build": "next build",
     "pages:build": "npx @cloudflare/next-on-pages",
     "pages:deploy": "npx @cloudflare/next-on-pages --experimental-minify",

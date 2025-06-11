@@ -53,9 +53,8 @@ interface StoreState {
 	siteConfig: SiteConfig
 	setSiteConfig: (config: SiteConfig) => void
 	
-	// TOS
+	// TOS - readonly
 	tosContent: string
-	setTosContent: (content: string) => void
 	
 	// Admin
 	isAdminAuthenticated: boolean
@@ -283,12 +282,8 @@ export const useStore = create<StoreState>()((set, get) => ({
 		get().syncDataToServer()
 	},
 	
-	// TOS
+	// TOS - readonly
 	tosContent: initialTOSContent || '',
-	setTosContent: (content) => {
-		set({ tosContent: content })
-		get().syncDataToServer()
-	},
 	
 	// Admin
 	isAdminAuthenticated: false,
@@ -303,87 +298,59 @@ export const useStore = create<StoreState>()((set, get) => ({
 	// Load data from server
 	loadDataFromServer: async () => {
 		try {
-			// Only attempt to load from server in development mode
-			const isDevelopment = process.env.NODE_ENV === 'development'
-			
-			// Set theme based on system preference
-			const systemTheme = getSystemThemePreference()
-			
-			// Always default to Vietnamese
-			const defaultLanguage = getDefaultLanguage()
-			
-			if (!isDevelopment) {
-				// In production, just mark as initialized and use static data with detected preferences
-				set({ 
-					isInitialized: true,
-					products: initialProducts,
-					faqArticles: initialFAQArticles,
-					socialLinks: initialSocialLinks,
-					language: defaultLanguage,
-					theme: systemTheme,
-					paymentInfo: initialPaymentInfo,
-					siteConfig: initialSiteConfig,
-					tosContent: initialTOSContent,
-					dataVersion: CURRENT_DATA_VERSION
-				})
-				return {
-					products: initialProducts,
-					faqArticles: initialFAQArticles,
-					socialLinks: initialSocialLinks,
-					language: defaultLanguage,
-					theme: systemTheme,
-					paymentInfo: initialPaymentInfo,
-					siteConfig: initialSiteConfig,
-					tosContent: initialTOSContent,
-					dataVersion: CURRENT_DATA_VERSION
-				}
+			// Skip in static builds
+			if (typeof window === 'undefined') {
+				return
 			}
 			
-			try {
-				const data = await loadFromServer()
-				// Strict data requirement - no fallbacks
-				set({
-					products: data.products,
-					faqArticles: data.faqArticles,
-					socialLinks: data.socialLinks,
-					language: defaultLanguage,
-					theme: systemTheme,
-					paymentInfo: data.paymentInfo,
-					siteConfig: data.siteConfig,
-					tosContent: data.tosContent,
-					isInitialized: true,
-					dataVersion: CURRENT_DATA_VERSION
-				})
-				return data
-			} catch (serverError) {
-				console.error('Failed to load data from server, using static data', serverError)
-				
-				// In case of error, ensure we're still initialized with static data and detected preferences
-				set({ 
-					isInitialized: true,
-					products: initialProducts,
-					faqArticles: initialFAQArticles,
-					socialLinks: initialSocialLinks,
-					language: defaultLanguage,
-					theme: systemTheme,
-					paymentInfo: initialPaymentInfo,
-					siteConfig: initialSiteConfig,
-					tosContent: initialTOSContent,
-					dataVersion: CURRENT_DATA_VERSION
-				})
-				
-				// Don't throw the error, just return static data
-				return {
-					products: initialProducts,
-					faqArticles: initialFAQArticles,
-					socialLinks: initialSocialLinks,
-					language: defaultLanguage,
-					theme: systemTheme,
-					paymentInfo: initialPaymentInfo,
-					siteConfig: initialSiteConfig,
-					tosContent: initialTOSContent,
-					dataVersion: CURRENT_DATA_VERSION
+			// Only attempt to load from server in development mode
+			const isDevelopment = process.env.NODE_ENV === 'development'
+			if (!isDevelopment) {
+				console.log('Running in production mode, skipping server data load')
+				return
+			}
+			
+			const response = await fetch('/api/store-data')
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`)
+			}
+			
+			const data = await response.json()
+			
+			// Validate and set data if available
+			if (data) {
+				if (data.products && Array.isArray(data.products)) {
+					set({ products: data.products })
 				}
+				
+				if (data.faqArticles && Array.isArray(data.faqArticles)) {
+					set({ faqArticles: data.faqArticles })
+				}
+				
+				if (data.socialLinks && Array.isArray(data.socialLinks)) {
+					set({ socialLinks: data.socialLinks })
+				}
+				
+				if (data.paymentInfo) {
+					set({ paymentInfo: data.paymentInfo })
+				}
+				
+				if (data.siteConfig) {
+					set({ siteConfig: data.siteConfig })
+				}
+				
+				if (data.language) {
+					set({ language: data.language })
+				}
+				
+				if (data.theme) {
+					set({ theme: data.theme as 'light' | 'dark' })
+				}
+				
+				set({ dataVersion: data.dataVersion || 1 })
+				
+				// Mark as initialized
+				set({ isInitialized: true })
 			}
 		} catch (error) {
 			console.error('Failed to load data, using static data', error)
@@ -409,19 +376,6 @@ export const useStore = create<StoreState>()((set, get) => ({
 				tosContent: initialTOSContent,
 				dataVersion: CURRENT_DATA_VERSION
 			})
-			
-			// Return static data instead of throwing
-			return {
-				products: initialProducts,
-				faqArticles: initialFAQArticles,
-				socialLinks: initialSocialLinks,
-				language: initialLanguage || 'vi',
-				theme: systemTheme,
-				paymentInfo: initialPaymentInfo,
-				siteConfig: initialSiteConfig,
-				tosContent: initialTOSContent,
-				dataVersion: CURRENT_DATA_VERSION
-			}
 		}
 	},
 	
@@ -439,7 +393,6 @@ export const useStore = create<StoreState>()((set, get) => ({
 				theme: state.theme,
 				paymentInfo: state.paymentInfo,
 				siteConfig: state.siteConfig,
-				tosContent: state.tosContent,
 				dataVersion: CURRENT_DATA_VERSION
 			}
 			

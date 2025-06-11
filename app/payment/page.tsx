@@ -43,6 +43,49 @@ export default function PaymentPage() {
 		setPageTitle('Payment')
 	}, [])
 
+	// Auto-scroll functionality
+	useEffect(() => {
+		const scrollToBottom = () => {
+			const documentHeight = document.documentElement.scrollHeight;
+			const viewportHeight = window.innerHeight;
+			const maxScrollTop = documentHeight - viewportHeight;
+			
+			// Animation settings
+			const duration = 1000; // 1 second
+			const startTime = performance.now();
+			const startScrollTop = window.scrollY;
+			
+			// Easing function for smooth animation
+			const easeInOutCubic = (t: number) => {
+				return t < 0.5 
+					? 4 * t * t * t 
+					: (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+			};
+			
+			// Animation frame function
+			const animateScroll = (currentTime: number) => {
+				const elapsedTime = currentTime - startTime;
+				const progress = Math.min(elapsedTime / duration, 1);
+				const easedProgress = easeInOutCubic(progress);
+				
+				const scrollTop = startScrollTop + (maxScrollTop - startScrollTop) * easedProgress;
+				window.scrollTo(0, scrollTop);
+				
+				if (progress < 1) {
+					requestAnimationFrame(animateScroll);
+				}
+			};
+			
+			// Start animation
+			requestAnimationFrame(animateScroll);
+		};
+		
+		// Start scrolling after a short delay to ensure page is fully rendered
+		const timeoutId = setTimeout(scrollToBottom, 500);
+		
+		return () => clearTimeout(timeoutId);
+	}, [selectedMethod]);
+
 	const handleCopy = async (text: string) => {
 		try {
 			await navigator.clipboard.writeText(text)

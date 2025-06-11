@@ -1075,7 +1075,7 @@ export const initialProducts: Product[] = [
 
 export const initialFAQArticles: FAQArticle[] = []
 
-export const initialSocialLinks: SocialLink[] = [{"id":"1","platform":"Facebook","url":"https://www.facebook.com/shineshop.original","icon":"facebook"},{"id":"3","platform":"Twitter","url":"https://twitter.com/shineshop","icon":"twitter"},{"id":"4","platform":"WhatsApp","url":"https://wa.me/84123456789","icon":"message-circle"},{"id":"5","platform":"Telegram","url":"https://t.me/shineshop","icon":"send"},{"id":"6","platform":"YouTube","url":"https://youtube.com/@shineshop","icon":"youtube"}];
+export const initialSocialLinks: SocialLink[] = [{"id":"1","platform":"Facebook","url":"https://www.facebook.com/shineshop.original","icon":"facebook"},{"id":"2","platform":"Instagram","url":"https://instagram.com/shineshop","icon":"instagram"},{"id":"3","platform":"Twitter","url":"https://twitter.com/shineshop","icon":"twitter"},{"id":"4","platform":"WhatsApp","url":"https://wa.me/84123456789","icon":"message-circle"},{"id":"5","platform":"Telegram","url":"https://t.me/shineshop","icon":"send"},{"id":"6","platform":"YouTube","url":"https://youtube.com/@shineshop","icon":"youtube"}];
 
 
 

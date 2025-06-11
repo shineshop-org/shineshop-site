@@ -58,18 +58,29 @@ function safeJsonParse(text: string) {
 	}
 }
 
+// Đọc dữ liệu từ file
+function readStoreData() {
+	try {
+		if (!fs.existsSync(DATA_FILE_PATH)) {
+			// Nếu file không tồn tại, trả về đối tượng rỗng
+			return {}
+		}
+		
+		const fileContent = fs.readFileSync(DATA_FILE_PATH, 'utf-8')
+		return safeJsonParse(fileContent)
+	} catch (error) {
+		console.error('Error reading store data:', error)
+		// Trả về đối tượng rỗng nếu có lỗi
+		return {}
+	}
+}
+
 export async function GET() {
 	try {
 		ensureDataDir()
 		
-		// Check if data file exists
-		if (!fs.existsSync(DATA_FILE_PATH)) {
-			return NextResponse.json(null)
-		}
-		
-		// Read data from file
-		const fileContent = fs.readFileSync(DATA_FILE_PATH, 'utf-8')
-		const data = safeJsonParse(fileContent)
+		// Đọc dữ liệu từ file
+		const data = readStoreData()
 		
 		return NextResponse.json(data)
 	} catch (error) {
@@ -85,11 +96,8 @@ export async function POST(request: NextRequest) {
 	try {
 		let data;
 		
-		// Kiểm tra Content-Type header nhưng không báo lỗi nếu nó không đúng
-		const contentType = request.headers.get('content-type')
-		
+		// Đọc dữ liệu từ request
 		try {
-			// Thử parse request.json() trước (cách hiện tại)
 			data = await request.json();
 		} catch (jsonError) {
 			try {
@@ -115,19 +123,18 @@ export async function POST(request: NextRequest) {
 		
 		ensureDataDir()
 		
-		// Create backup before saving new data
-		if (fs.existsSync(DATA_FILE_PATH)) {
-			try {
-				const currentData = safeJsonParse(fs.readFileSync(DATA_FILE_PATH, 'utf-8'))
-				createBackup(currentData)
-			} catch (error) {
-				console.warn('Failed to read current data for backup:', error)
-			}
-		}
+		// Đọc dữ liệu hiện tại để merge
+		const existingData = readStoreData();
+		
+		// Tạo backup trước khi cập nhật
+		createBackup(existingData);
+		
+		// Merge dữ liệu từ request vào dữ liệu hiện tại
+		const mergedData = { ...existingData, ...data };
 		
 		// Sanitize descriptions to handle special characters
-		if (data.products && Array.isArray(data.products)) {
-			data.products = data.products.map((product: any) => {
+		if (mergedData.products && Array.isArray(mergedData.products)) {
+			mergedData.products = mergedData.products.map((product: any) => {
 				// Sanitize option descriptions
 				if (product.options && Array.isArray(product.options)) {
 					product.options = product.options.map((option: any) => {
@@ -148,15 +155,26 @@ export async function POST(request: NextRequest) {
 			});
 		}
 		
-		// Save data to file
-		fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8')
-		
-		return NextResponse.json({ success: true })
+		// Save data to file with error handling
+		try {
+			fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(mergedData, null, 2), 'utf-8')
+			
+			return NextResponse.json({ 
+				success: true,
+				message: 'Data updated successfully'
+			});
+		} catch (writeError) {
+			console.error('Error writing store data:', writeError);
+			return NextResponse.json(
+				{ error: 'Failed to write store data', message: (writeError as Error).message },
+				{ status: 200 } // Vẫn trả về 200 để tránh refresh trang
+			);
+		}
 	} catch (error) {
-		console.error('Error saving store data:', error)
+		console.error('Error processing store data request:', error);
 		return NextResponse.json(
-			{ error: 'Failed to save store data', message: (error as Error).message },
-			{ status: 500 }
-		)
+			{ error: 'Failed to process store data request', message: (error as Error).message },
+			{ status: 200 } // Trả về 200 thay vì 500 để tránh refresh trang
+		);
 	}
 } 

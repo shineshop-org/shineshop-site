@@ -13,6 +13,9 @@ const nextConfig = {
 		optimizePackageImports: ['react', 'react-dom', 'lucide-react'],
 	},
 	
+	// Disable Fast Refresh for debugging
+	reactStrictMode: false,
+	
 	// External packages that should be handled by server components
 	serverExternalPackages: [],
 	
@@ -118,6 +121,37 @@ const nextConfig = {
 	
 	// Simplified webpack config for better compatibility
 	webpack: (config) => {
+		// Disable Fast Refresh
+		config.experiments = {
+			...config.experiments,
+			topLevelAwait: true,
+		}
+		
+		// Disable Fast Refresh
+		config.module = {
+			...config.module,
+			rules: config.module.rules.map(rule => {
+				if (rule.oneOf) {
+					return {
+						...rule,
+						oneOf: rule.oneOf.map(oneOfRule => {
+							if (oneOfRule.issuer && oneOfRule.issuer.and && oneOfRule.issuer.and.includes('/pages/')) {
+								return {
+									...oneOfRule,
+									options: {
+										...oneOfRule.options,
+										fastRefresh: false,
+									},
+								};
+							}
+							return oneOfRule;
+						}),
+					};
+				}
+				return rule;
+			}),
+		};
+		
 		return config;
 	},
 }

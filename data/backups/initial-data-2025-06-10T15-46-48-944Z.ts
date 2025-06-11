@@ -1075,7 +1075,7 @@ export const initialProducts: Product[] = [
 
 export const initialFAQArticles: FAQArticle[] = []
 
-export const initialSocialLinks: SocialLink[] = [{"id":"1","platform":"Facebook","url":"https://www.facebook.com/shineshop.original","icon":"facebook"},{"id":"3","platform":"Twitter","url":"https://twitter.com/shineshop","icon":"twitter"},{"id":"4","platform":"WhatsApp","url":"https://wa.me/84123456789","icon":"message-circle"},{"id":"5","platform":"Telegram","url":"https://t.me/shineshop","icon":"send"},{"id":"6","platform":"YouTube","url":"https://youtube.com/@shineshop","icon":"youtube"}];
+export const initialSocialLinks: SocialLink[] = [{"id":"1","platform":"Facebook","url":"https://facebook.com/shineshop","icon":"facebook"},{"id":"2","platform":"Instagram","url":"https://instagram.com/shineshop","icon":"instagram"},{"id":"3","platform":"Twitter","url":"https://twitter.com/shineshop","icon":"twitter"},{"id":"4","platform":"WhatsApp","url":"https://wa.me/84123456789","icon":"message-circle"},{"id":"5","platform":"Telegram","url":"https://t.me/shineshop","icon":"send"},{"id":"6","platform":"YouTube","url":"https://youtube.com/@shineshop","icon":"youtube"}];
 
 
 
@@ -1087,35 +1087,7 @@ export const initialSocialLinks: SocialLink[] = [{"id":"1","platform":"Facebook"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const initialTOSContent = "# Điều khoản Dịch vụ - SHINE SHOP\n\n**Thời gian áp dụng:** **Bắt đầu từ ngày 15/04/2025**\n\n---\n\n## 1. Giới thiệu\n\nSHINE SHOP - Chúng tôi cung cấp các dịch vụ online, nâng cấp các loại tài khoản, các gói đăng ký trả phí đến từ nhiều dịch vụ lớn với mức giá thấp hơn.\n\nMọi hoạt động thông báo, trao đổi, mua hàng chỉ diễn ra duy nhất trên trang [Facebook \"SHINE SHOP\"](https://www.facebook.com/shineshop.original) hoặc [Instagram @shineshop_original](https://www.instagram.com/shineshop_original).\n\nBằng cách sử dụng dịch vụ của SHINE SHOP, bạn đã chấp nhận và tuân thủ Điều khoản này.\n\n---\n\n## 2. Mô tả Dịch vụ\n\nChúng tôi cung cấp quyền truy cập vào các Tài khoản/Gói dịch vụ của bên thứ ba.\n\nThông tin chi tiết về tài khoản và giới hạn (nếu có) sẽ được ghi rõ trong mô tả từng sản phẩm hoặc qua trao đổi tin nhắn trên [Facebook](https://www.facebook.com/shineshop.original) hoặc [Instagram](https://www.instagram.com/shineshop_original).\n\nNgười Mua hiểu rằng SHINE SHOP không phải là Nhà Cung cấp Gốc và chỉ là bên trung gian.\n\n---\n\n## 3. Mua hàng và thanh toán\n\nNgười Mua chỉ có thể đặt hàng qua [Facebook](https://www.facebook.com/shineshop.original) hoặc [Instagram](https://www.instagram.com/shineshop_original).\n\nGiá Dịch vụ có thể thay đổi mà không cần báo trước (trừ đơn hàng đã xác nhận).\n\nThanh toán phải được thực hiện đầy đủ theo phương thức chấp nhận như chuyển khoản, ví điện tử,...\n\nDịch vụ sẽ được kích hoạt sau khi SHINE SHOP xác nhận thanh toán.\n\n---\n\n## 4. Giao nhận Tài khoản/Gói dịch vụ\n\nThông tin Tài khoản sẽ được gửi qua email, tin nhắn hoặc phương thức thỏa thuận sau khi thanh toán.\n\nNgười Mua cần kiểm tra ngay sau khi nhận và thông báo lỗi đăng nhập trong vòng 24h.\n\n---\n\n## 5. Quy định sử dụng Tài khoản/Gói dịch vụ\n\nNgười Mua phải sử dụng dịch vụ hợp pháp và tuân thủ điều khoản của Nhà Cung cấp Gốc.\n\n**Nghiêm cấm:**\n- Thay đổi thông tin đăng nhập khi chưa được cho phép.\n- Chia sẻ tài khoản/gói dịch vụ trái phép.\n- Dùng cho mục đích bất hợp pháp.\n- Gây hại đến hệ thống của Nhà Cung cấp Gốc.\n\nCũng phải tuân thủ các yêu cầu riêng được nêu rõ khi trao đổi/mua hàng.\n\n---\n\n## 6. Bảo hành và Hỗ trợ\n\nSHINE SHOP cam kết dịch vụ đúng mô tả.\n\nChính sách bảo hành sẽ ghi trong phần thông tin sản phẩm hoặc trao đổi qua [Facebook](https://www.facebook.com/shineshop.original)/[Instagram](https://www.instagram.com/shineshop_original).\n\nNgười Mua cần gửi hóa đơn, bằng chứng thanh toán để yêu cầu bảo hành.\n\n**Miễn bảo hành khi:**\n- Vi phạm mục 5.\n- Tài khoản bị khóa/hạn chế bởi Nhà Cung cấp Gốc do lý do ngoài kiểm soát.\n- Hết thời gian bảo hành.\n\nNếu không bảo hành được trong 1 tuần từ ngày yêu cầu đầu tiên, Người Mua có quyền yêu cầu hoàn tiền theo thời gian sử dụng.\n\nNếu đã gửi yêu cầu >2 lần (cách nhau ≥24h) mà không nhận phản hồi, hãy liên hệ Zalo \"Nguyễn Tùng Lâm\" để tiếp tục xử lý hoặc yêu cầu hoàn tiền.\n\n---\n\n## 7. Chính sách Hoàn tiền\n\nÁp dụng khi dịch vụ còn trong thời gian bảo hành và tuân thủ mục 6.\n\n- Nếu SHINE SHOP không thể bảo hành: hoàn tiền **theo thời gian sử dụng**.\n- Nếu Người Mua muốn hoàn tiền khi SHINE SHOP vẫn có thể bảo hành: hoàn tiền **50% theo thời gian sử dụng**.\n\n---\n\n## 8. Tự bảo mật thông tin cá nhân\n\nNgười Mua phải bảo mật các thông tin nhạy cảm (mật khẩu, email...) nếu dịch vụ yêu cầu.\n\nSHINE SHOP không chịu trách nhiệm với các thông tin này, trừ khi đã có thỏa thuận cụ thể.\n\n---\n\n## 9. Vi phạm và Chấm dứt\n\nSHINE SHOP có quyền chấm dứt dịch vụ ngay lập tức nếu Người Mua vi phạm bất kỳ điều khoản nào.\n\n---\n\n## 10. Thay đổi điều khoản dịch vụ\n\nSHINE SHOP có thể sửa đổi điều khoản bất kỳ lúc nào.\n\nNếu sửa đổi quan trọng, sẽ có thông báo trước ít nhất [15 ngày].\n\nTiếp tục sử dụng đồng nghĩa bạn đồng ý với điều khoản mới. Nếu không, vui lòng ngừng sử dụng dịch vụ.\n\n---\n\n## 12. Liên hệ\n\nNếu có câu hỏi, vui lòng liên hệ:\n\n- Email: shineshop.org@gmail.com\n\n---\n\n**Cập nhật lần cuối: 14/04/2025**\n";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const initialTOSContent = "# Điều khoản Dịch vụ\n\n**Thời gian áp dụng:** **Bắt đầu từ ngày 15/04/2025**\n\n---\n\n## 1. Giới thiệu\n\nChào mừng bạn đến với SHINE SHOP. Chúng tôi cung cấp các dịch vụ online, nâng cấp các loại tài khoản, các gói đăng ký trả phí đến từ nhiều dịch vụ lớn với mức giá thấp hơn.\n\nMọi hoạt động thông báo, trao đổi, mua hàng chỉ diễn ra duy nhất trên trang [Facebook \"SHINE SHOP\"](https://www.facebook.com/shineshop.original) hoặc [Instagram @shineshop_original](https://www.instagram.com/shineshop_original).\n\nBằng cách sử dụng dịch vụ của SHINE SHOP, bạn đã chấp nhận và tuân thủ Điều khoản này.\n\n---\n\n## 2. Mô tả Dịch vụ\n\nChúng tôi cung cấp quyền truy cập vào các Tài khoản/Gói dịch vụ của bên thứ ba.\n\nThông tin chi tiết về tài khoản và giới hạn (nếu có) sẽ được ghi rõ trong mô tả từng sản phẩm hoặc qua trao đổi tin nhắn trên [Facebook](https://www.facebook.com/shineshop.original) hoặc [Instagram](https://www.instagram.com/shineshop_original).\n\nNgười Mua hiểu rằng SHINE SHOP không phải là Nhà Cung cấp Gốc và chỉ là bên trung gian.\n\n---\n\n## 3. Mua hàng và thanh toán\n\nNgười Mua chỉ có thể đặt hàng qua [Facebook](https://www.facebook.com/shineshop.original) hoặc [Instagram](https://www.instagram.com/shineshop_original).\n\nGiá Dịch vụ có thể thay đổi mà không cần báo trước (trừ đơn hàng đã xác nhận).\n\nThanh toán phải được thực hiện đầy đủ theo phương thức chấp nhận như chuyển khoản, ví điện tử,...\n\nDịch vụ sẽ được kích hoạt sau khi SHINE SHOP xác nhận thanh toán.\n\n---\n\n## 4. Giao nhận Tài khoản/Gói dịch vụ\n\nThông tin Tài khoản sẽ được gửi qua email, tin nhắn hoặc phương thức thỏa thuận sau khi thanh toán.\n\nNgười Mua cần kiểm tra ngay sau khi nhận và thông báo lỗi đăng nhập trong vòng 24h.\n\n---\n\n## 5. Quy định sử dụng Tài khoản/Gói dịch vụ\n\nNgười Mua phải sử dụng dịch vụ hợp pháp và tuân thủ điều khoản của Nhà Cung cấp Gốc.\n\n**Nghiêm cấm:**\n- Thay đổi thông tin đăng nhập khi chưa được cho phép.\n- Chia sẻ tài khoản/gói dịch vụ trái phép.\n- Dùng cho mục đích bất hợp pháp.\n- Gây hại đến hệ thống của Nhà Cung cấp Gốc.\n\nCũng phải tuân thủ các yêu cầu riêng được nêu rõ khi trao đổi/mua hàng.\n\n---\n\n## 6. Bảo hành và Hỗ trợ\n\nSHINE SHOP cam kết dịch vụ đúng mô tả.\n\nChính sách bảo hành sẽ ghi trong phần thông tin sản phẩm hoặc trao đổi qua [Facebook](https://www.facebook.com/shineshop.original)/[Instagram](https://www.instagram.com/shineshop_original).\n\nNgười Mua cần gửi hóa đơn, bằng chứng thanh toán để yêu cầu bảo hành.\n\n**Miễn bảo hành khi:**\n- Vi phạm mục 5.\n- Tài khoản bị khóa/hạn chế bởi Nhà Cung cấp Gốc do lý do ngoài kiểm soát.\n- Hết thời gian bảo hành.\n\nNếu không bảo hành được trong 1 tuần từ ngày yêu cầu đầu tiên, Người Mua có quyền yêu cầu hoàn tiền theo thời gian sử dụng.\n\nNếu đã gửi yêu cầu >2 lần (cách nhau ≥24h) mà không nhận phản hồi, hãy liên hệ Zalo \"Nguyễn Tùng Lâm\" để tiếp tục xử lý hoặc yêu cầu hoàn tiền.\n\n---\n\n## 7. Chính sách Hoàn tiền\n\nÁp dụng khi dịch vụ còn trong thời gian bảo hành và tuân thủ mục 6.\n\n- Nếu SHINE SHOP không thể bảo hành: hoàn tiền **theo thời gian sử dụng**.\n- Nếu Người Mua muốn hoàn tiền khi SHINE SHOP vẫn có thể bảo hành: hoàn tiền **50% theo thời gian sử dụng**.\n\n---\n\n## 8. Tự bảo mật thông tin cá nhân\n\nNgười Mua phải bảo mật các thông tin nhạy cảm (mật khẩu, email...) nếu dịch vụ yêu cầu.\n\nSHINE SHOP không chịu trách nhiệm với các thông tin này, trừ khi đã có thỏa thuận cụ thể.\n\n---\n\n## 9. Vi phạm và Chấm dứt\n\nSHINE SHOP có quyền chấm dứt dịch vụ ngay lập tức nếu Người Mua vi phạm bất kỳ điều khoản nào.\n\n---\n\n## 10. Thay đổi điều khoản dịch vụ\n\nSHINE SHOP có thể sửa đổi điều khoản bất kỳ lúc nào.\n\nNếu sửa đổi quan trọng, sẽ có thông báo trước ít nhất [15 ngày].\n\nTiếp tục sử dụng đồng nghĩa bạn đồng ý với điều khoản mới. Nếu không, vui lòng ngừng sử dụng dịch vụ.\n\n---\n\n## 12. Liên hệ\n\nNếu có câu hỏi, vui lòng liên hệ:\n\n- Email: shineshop.org@gmail.com\n\n---\n\n**Cập nhật lần cuối: 14/04/2025**\n";
 
 
 
@@ -1128,20 +1100,6 @@ export const initialTOSContent = "# Điều khoản Dịch vụ - SHINE SHOP\n\n
 
 
 export const initialSiteConfig: SiteConfig = {"siteTitle":"SHINE SHOP","heroTitle":"Welcome to SHINE SHOP!","heroQuote":"Anh em mình cứ thế thôi hẹ hẹ hẹ","contactLinks":{"facebook":"https://facebook.com/shineshop","whatsapp":"https://wa.me/84123456789"}};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
