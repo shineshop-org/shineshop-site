@@ -6,6 +6,9 @@ import CryptoJS from 'crypto-js'
 const isDevelopment = process.env.NODE_ENV === 'development'
 const isProduction = process.env.NODE_ENV === 'production'
 
+// Enable debug logging only in development and when explicitly wanted
+const ENABLE_DEBUG_LOGGING = isDevelopment && false // Set to true to enable verbose logging
+
 // Cache version - increment this when deploying major content changes
 const CACHE_VERSION = '1.0.5'
 
@@ -19,23 +22,95 @@ export function middleware(req: NextRequest) {
 	const referer = req.headers.get('referer') || ''
 	const userAgent = req.headers.get('user-agent') || ''
 	
-	// Skip middleware for admin pages in development
-	if (process.env.NODE_ENV === 'development' && pathname.startsWith('/admin')) {
-		return NextResponse.next()
+	// -------------------- ADMIN ROUTES PROTECTION --------------------
+	// Skip ALL middleware processing for admin routes and API routes
+	// This is critical to prevent redirects during admin operations
+	if (pathname.startsWith('/admin') || pathname.startsWith('/api')) {
+		const response = NextResponse.next()
+		
+		// Set admin session cookies for admin routes
+		if (pathname.startsWith('/admin')) {
+			response.cookies.set('adminAuthenticated', 'true', {
+				httpOnly: true,
+				maxAge: 60 * 60, // 1 hour
+				path: '/',
+				sameSite: 'strict'
+			})
+			
+			response.cookies.set('admin_session', 'true', {
+				httpOnly: true,
+				maxAge: 60 * 60, // 1 hour
+				path: '/',
+				sameSite: 'strict'
+			})
+			
+			// Add admin headers to prevent redirects
+			response.headers.set('X-Admin-Request', 'true')
+			response.headers.set('X-Prevent-Redirect', 'true')
+			response.headers.set('X-Admin-Session', 'true')
+		}
+		
+		// For API routes, set cache control headers
+		if (pathname.startsWith('/api')) {
+			response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+			response.headers.set('Pragma', 'no-cache')
+			response.headers.set('Expires', '0')
+		}
+		
+		return response
 	}
 
+	// -------------------- ADMIN CONTEXT DETECTION --------------------
+	// Check all possible indicators of being in admin context
+	const isAdminRequest = req.headers.get('X-Admin-Request') === 'true'
+	const preventRedirect = req.headers.get('X-Prevent-Redirect') === 'true'
+	const isAdminSession = req.headers.get('X-Admin-Session') === 'true'
+	const adminReferer = referer && referer.includes('/admin')
+	const cookies = req.cookies
+	const hasAdminCookie = cookies.has('admin_session') || cookies.has('adminAuthenticated')
+	
+	// Create a strong admin context indicator
+	const isAdminContext = isAdminRequest || preventRedirect || isAdminSession || adminReferer || hasAdminCookie
+	
+	// Skip all redirects if we're in admin context
+	if (isAdminContext) {
+		// Only log in debug mode to reduce console noise
+		if (ENABLE_DEBUG_LOGGING) {
+			console.log('Admin context detected, skipping redirects')
+		}
+		const response = NextResponse.next()
+		response.headers.set('X-Admin-Context', 'true')
+		return response
+	}
+	
 	// Skip redirect for navbar paths
 	if (NAVBAR_PATHS.some(path => pathname === path || pathname.startsWith(`${path}/`))) {
 		return NextResponse.next()
 	}
 
-	// For homepage redirects - to prevent loops, only redirect if not coming from /store
-	if (pathname === '/' && !referer.includes('/store')) {
+	// -------------------- HOMEPAGE REDIRECT --------------------
+	// For homepage redirects - Only redirect if NOT in admin context
+	if (pathname === '/' && 
+	    !referer.includes('/store') && 
+	    !referer.includes('/admin') && 
+	    !req.headers.get('X-Requested-With')?.includes('fetch')) {
 		// Redirect homepage to /store
 		url.pathname = '/store'
 		return NextResponse.redirect(url)
 	}
+	
+	// -------------------- STORE PROTECTION --------------------
+	// If this is a navigation to /store but we detect admin context
+	// redirect back to admin dashboard instead
+	if (pathname === '/store' && isAdminContext) {
+		if (ENABLE_DEBUG_LOGGING) {
+			console.log('Prevented redirect to /store for admin user, redirecting back to admin')
+		}
+		url.pathname = '/admin/dashboard'
+		return NextResponse.redirect(url)
+	}
 
+	// -------------------- CACHE HEADERS --------------------
 	// Add cache control headers to prevent browser caching
 	const response = NextResponse.next()
 	

@@ -1088,7 +1088,7 @@
         "en": "Storage",
         "vi": "Lưu trữ"
       },
-      "slug": "google-one",
+      "slug": "google-drive",
       "options": [
         {
           "id": "1749641749995226",
@@ -1141,7 +1141,7 @@
           "name": "",
           "localizedName": {
             "en": "Veo 3 (5 vid/ngày)",
-            "vi": "Pro"
+            "vi": "Veo 3 (5 vid/ngày)"
           },
           "type": "select",
           "values": [
@@ -1152,7 +1152,7 @@
               },
               "localizedPrice": {
                 "en": 0,
-                "vi": 15000
+                "vi": 150000
               },
               "description": "Bảo hành toàn bộ thời gian sử dụng"
             }
@@ -1177,7 +1177,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/copilot.png?updatedAt=1749642974005",
       "localizedCategory": {
         "en": "AI",
         "vi": "AI"
@@ -1217,7 +1217,7 @@
       "name": "claude",
       "localizedName": {
         "en": "Claude",
-        "vi": "Claude"
+        "vi": "ClaudeAI"
       },
       "price": 0,
       "description": "",
@@ -1225,12 +1225,12 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/claude.avif?updatedAt=1749642804882",
       "localizedCategory": {
         "en": "AI",
         "vi": "AI"
       },
-      "slug": "claude",
+      "slug": "claude-ai",
       "options": [
         {
           "id": "1749641750000582",
@@ -1273,7 +1273,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/cursor.png?updatedAt=1749643055647",
       "localizedCategory": {
         "en": "AI",
         "vi": "AI"
@@ -1321,7 +1321,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/windsurf.png?updatedAt=1749642936987",
       "localizedCategory": {
         "en": "AI",
         "vi": "AI"
@@ -1369,7 +1369,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/brainly.webp?updatedAt=1749642858583",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -1475,7 +1475,7 @@
       "name": "camscanner",
       "localizedName": {
         "en": "Camscanner",
-        "vi": "CamScanner"
+        "vi": "Camscanner"
       },
       "price": 0,
       "description": "",
@@ -1531,7 +1531,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/busuu.webp?updatedAt=1749642737018",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -1649,7 +1649,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/Thumbnail_508fa1-1200x675.webp?updatedAt=1749642629602",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -1697,7 +1697,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/quizlet.png?updatedAt=1749227223919",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -1789,7 +1789,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/super-doulingo.jpg?updatedAt=1749227593920",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -1881,7 +1881,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/lingokids.jpg?updatedAt=1749360055711",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -1940,7 +1940,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/brilliant%20.png?updatedAt=1749360448195",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -1988,7 +1988,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/elsa.webp?updatedAt=1749227594006",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -2080,7 +2080,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/speak.jpg?updatedAt=1749360448287",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -2172,7 +2172,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/otter-ai.WEB?updatedAt=1749642506209",
       "localizedCategory": {
         "en": "AI",
         "vi": "AI"
@@ -2208,76 +2208,6 @@
       "tags": []
     },
     {
-      "id": "1749641750004118",
-      "name": "hanzii",
-      "localizedName": {
-        "en": "Hanzii",
-        "vi": "Hanzii"
-      },
-      "price": 0,
-      "description": "",
-      "localizedDescription": {
-        "en": "",
-        "vi": ""
-      },
-      "image": "",
-      "localizedCategory": {
-        "en": "Education",
-        "vi": "Học tập"
-      },
-      "slug": "hanzii",
-      "options": [
-        {
-          "id": "1749641750004509",
-          "name": "",
-          "localizedName": {
-            "en": "PREMIUM",
-            "vi": "PREMIUM"
-          },
-          "type": "select",
-          "values": [
-            {
-              "localizedValue": {
-                "en": "3 tháng",
-                "vi": "3 tháng"
-              },
-              "localizedPrice": {
-                "en": 0,
-                "vi": 250000
-              },
-              "description": "Bảo hành toàn bộ thời gian sử dụng"
-            },
-            {
-              "localizedValue": {
-                "en": "12 tháng",
-                "vi": "12 tháng"
-              },
-              "localizedPrice": {
-                "en": 0,
-                "vi": 400000
-              },
-              "description": "Bảo hành toàn bộ thời gian sử dụng"
-            },
-            {
-              "localizedValue": {
-                "en": "LIFE TIME",
-                "vi": "LIFE TIME"
-              },
-              "localizedPrice": {
-                "en": 0,
-                "vi": 555555
-              },
-              "description": "Bảo hành toàn bộ thời gian sử dụng"
-            }
-          ]
-        }
-      ],
-      "relatedArticles": [],
-      "sortOrder": 30,
-      "isLocalized": true,
-      "tags": []
-    },
-    {
       "id": "1749641750004128",
       "name": "chineseskill",
       "localizedName": {
@@ -2290,7 +2220,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/CHINESESKILL.webp?updatedAt=1749360448371",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -2360,7 +2290,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/superchinese.png?updatedAt=1749642452040",
       "localizedCategory": {
         "en": "Education",
         "vi": "Học tập"
@@ -2520,12 +2450,12 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/zoom.png?updatedAt=1749642387074",
       "localizedCategory": {
         "en": "Utilities",
         "vi": "Tiện ích"
       },
-      "slug": "zoom",
+      "slug": "zoom6+6",
       "options": [
         {
           "id": "1749641750004319",
@@ -2601,7 +2531,7 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/true-caller.avif?updatedAt=1749227684542",
       "localizedCategory": {
         "en": "Utilities",
         "vi": "Tiện ích"
@@ -2649,10 +2579,10 @@
         "en": "",
         "vi": ""
       },
-      "image": "",
+      "image": "https://ik.imagekit.io/ngynlaam/PRODUCT/microsoft365.png?updatedAt=1749225957456",
       "localizedCategory": {
         "en": "Storage",
-        "vi": "Lưu trữ"
+        "vi": "Hiệu suất"
       },
       "slug": "office-365",
       "options": [
@@ -2681,42 +2611,6 @@
       ],
       "relatedArticles": [],
       "sortOrder": 36,
-      "isLocalized": true,
-      "tags": []
-    },
-    {
-      "id": "1749641750005117",
-      "name": "fonos",
-      "localizedName": {
-        "en": "Fonos",
-        "vi": "Fonos"
-      },
-      "price": 0,
-      "description": "",
-      "localizedDescription": {
-        "en": "",
-        "vi": ""
-      },
-      "image": "",
-      "localizedCategory": {
-        "en": "Education",
-        "vi": "Học tập"
-      },
-      "slug": "fonos",
-      "options": [
-        {
-          "id": "1749641750005627",
-          "name": "",
-          "localizedName": {
-            "en": "PREMIUM",
-            "vi": "PREMIUM"
-          },
-          "type": "select",
-          "values": []
-        }
-      ],
-      "relatedArticles": [],
-      "sortOrder": 37,
       "isLocalized": true,
       "tags": []
     }

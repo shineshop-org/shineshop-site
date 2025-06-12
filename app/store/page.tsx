@@ -238,28 +238,30 @@ function ProductCard({ product, language }: ProductCardProps) {
 			<Card className="overflow-hidden h-full border border-border/50 dark:border-primary/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:border-primary/50 dark:hover:border-primary/40 dark:bg-card/80" style={{ pointerEvents: 'auto' }}>
 				{/* 16:9 Aspect Ratio Container */}
 				<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-					{product.image && product.image.trim() !== '' ? (
-						<img
-							src={`${product.image}`}
-							alt={getProductName()}
-							className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-							loading="eager"
-							onError={(e) => {
-								// Retry loading with timestamp if image fails to load
-								const imgElement = e.currentTarget;
-								const src = imgElement.src;
-								
-								// Only add timestamp if not already present
-								if (!src.includes('?t=')) {
-									imgElement.src = `${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`;
-								}
-							}}
-						/>
-					) : (
-						<div className="absolute inset-0 bg-muted flex items-center justify-center">
+					{/* Sử dụng div placeholder cho cả client và server để đảm bảo hydration nhất quán */}
+					<div className="absolute inset-0 bg-muted flex items-center justify-center">
+						{/* Chỉ hiển thị hình ảnh ở client-side sau khi component đã mounted */}
+						{isMounted && product.image && product.image.trim() !== '' ? (
+							<img
+								src={`${product.image}`}
+								alt={getProductName()}
+								className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+								loading="eager"
+								onError={(e) => {
+									// Retry loading with timestamp if image fails to load
+									const imgElement = e.currentTarget;
+									const src = imgElement.src;
+									
+									// Only add timestamp if not already present
+									if (!src.includes('?t=')) {
+										imgElement.src = `${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`;
+									}
+								}}
+							/>
+						) : (
 							<div className="text-muted-foreground text-4xl">📦</div>
-						</div>
-					)}
+						)}
+					</div>
 				</div>
 				<CardContent className="p-3 relative z-10 bg-background dark:bg-card/90">
 					<h3 className="font-semibold text-sm truncate mb-1" title={getProductName()}>

@@ -67,6 +67,9 @@ interface StoreState {
 	
 	// Phiên bản dữ liệu
 	dataVersion: number
+	
+	// Sync error state
+	syncError: boolean
 }
 
 // Helper function to save data to server
@@ -80,13 +83,28 @@ async function saveToServer(data: any) {
 			throw new Error('API not available in production static export mode')
 		}
 
+		// Use a non-navigating fetch approach to prevent page transitions
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => {
+			try {
+				controller.abort('Timeout exceeded');
+			} catch (e) {
+				console.warn('Error aborting fetch:', e);
+			}
+		}, 8000); // Increased from 5 to 8 seconds for more reliability
+		
 		const response = await fetch('/api/store-data', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(data),
+			signal: controller.signal,
+			// Add cache: 'no-store' to prevent caching issues
+			cache: 'no-store',
 		})
+		
+		clearTimeout(timeoutId);
 		
 		if (response.status === 404 || response.status === 501) {
 			throw new Error('API endpoint not available')
@@ -101,8 +119,15 @@ async function saveToServer(data: any) {
 		
 		return await response.json()
 	} catch (error) {
+		// Improve error logging for aborted requests
+		if ((error as any).name === 'AbortError') {
+			console.warn('Request was aborted (timeout):', error);
+			return { success: false, error: 'Request timeout', aborted: true };
+		}
+		
 		console.error('Error saving to server:', error)
-		throw error // Re-throw error instead of falling back
+		// Don't throw the error, just return a failure object
+		return { success: false, error: (error as Error).message }
 	}
 }
 
@@ -117,12 +142,27 @@ async function loadFromServer() {
 			throw new Error('API not available in production static export mode')
 		}
 
+		// Use a non-navigating fetch approach
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => {
+			try {
+				controller.abort('Timeout exceeded');
+			} catch (e) {
+				console.warn('Error aborting fetch:', e);
+			}
+		}, 8000); // Increased from 5 to 8 seconds for more reliability
+		
 		const response = await fetch('/api/store-data', {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
 			},
+			signal: controller.signal,
+			// Add cache: 'no-store' to prevent caching issues
+			cache: 'no-store',
 		})
+		
+		clearTimeout(timeoutId);
 		
 		if (!response.ok) {
 			// Check if it's 404 (API not found) or 501 (API not available in static mode)
@@ -134,8 +174,15 @@ async function loadFromServer() {
 		
 		return await response.json()
 	} catch (error) {
+		// Improve error logging for aborted requests
+		if ((error as any).name === 'AbortError') {
+			console.warn('Request was aborted (timeout):', error);
+			return { success: false, error: 'Request timeout', aborted: true };
+		}
+		
 		console.error('Error loading from server:', error)
-		throw error // Re-throw error instead of falling back
+		// Don't throw the error, just return a failure object
+		return { success: false, error: (error as Error).message }
 	}
 }
 
@@ -194,6 +241,9 @@ export const useStore = create<StoreState>()((set, get) => ({
 		
 		get().syncDataToServer()
 	},
+	
+	// Sync error state
+	syncError: false,
 	
 	// Products
 	products: initialProducts,
@@ -382,35 +432,148 @@ export const useStore = create<StoreState>()((set, get) => ({
 	// Save data to server
 	syncDataToServer: async () => {
 		try {
-			const state = get()
-			
-			// Create data object with current data
-			const data = {
-				products: state.products,
-				faqArticles: state.faqArticles,
-				socialLinks: state.socialLinks,
-				language: state.language,
-				theme: state.theme,
-				paymentInfo: state.paymentInfo,
-				siteConfig: state.siteConfig,
-				dataVersion: CURRENT_DATA_VERSION
+			// Skip if no window (server-side rendering)
+			if (typeof window === 'undefined') {
+				return;
 			}
 			
-			// Only attempt to save to server in development mode
-			const isDevelopment = process.env.NODE_ENV === 'development'
-			if (!isDevelopment) {
-				console.log('Running in production mode, skipping server sync')
-				return
+			// Check for an existing debounce timer
+			if ((window as any)._syncDataTimeout) {
+				// Don't create multiple syncs, just use the existing one
+				console.log('Sync already scheduled, skipping redundant sync');
+				return;
 			}
 			
-			// Save to server - this only updates store-data.json and does NOT trigger reloads
-			await saveToServer(data)
+			// Get the current state to preserve it in case of hot-reload
+			const currentState = get();
 			
-			// Update data version after successful save
-			set({ dataVersion: CURRENT_DATA_VERSION })
+			// Preserve current products in localStorage before sync
+			try {
+				localStorage.setItem('shineshop-products-backup', 
+					JSON.stringify(currentState.products));
+			} catch (e) {
+				console.error('Failed to backup products to localStorage', e);
+			}
+			
+			// Setup a safe sync with debounce
+			(window as any)._syncDataTimeout = setTimeout(async () => {
+				try {
+					// Set a flag to block navigation during sync
+					(window as any).__preventAdminNavigation = true;
+					
+					const state = get();
+					
+					// Create data object with current data
+					const data = {
+						products: state.products,
+						faqArticles: state.faqArticles,
+						socialLinks: state.socialLinks,
+						language: state.language,
+						theme: state.theme,
+						paymentInfo: state.paymentInfo,
+						siteConfig: state.siteConfig,
+						dataVersion: CURRENT_DATA_VERSION
+					};
+					
+					// Only attempt to save to server in development mode
+					const isDevelopment = process.env.NODE_ENV === 'development';
+					if (!isDevelopment) {
+						console.log('Running in production mode, skipping server sync');
+						return;
+					}
+					
+					// Use a controlled API call that won't trigger navigation
+					try {
+						// Add cache busting to prevent browser caching issues
+						const cacheBuster = `?_t=${Date.now()}`;
+						
+						// Check if we're in the admin dashboard
+						const isInAdmin = typeof window !== 'undefined' && 
+							window.location.pathname.includes('/admin/dashboard');
+						
+						// Use a non-navigating fetch with explicit no-cache settings
+						const controller = new AbortController();
+						const timeoutId = setTimeout(() => {
+							try {
+								controller.abort('Timeout exceeded');
+							} catch (e) {
+								console.warn('Error aborting fetch:', e);
+							}
+						}, 8000); // Increased timeout from 5 to 8 seconds
+						
+						// Create a custom header to signal this is an admin-initiated request
+						const headers = {
+							'Content-Type': 'application/json',
+							'Cache-Control': 'no-cache, no-store, must-revalidate',
+							'Pragma': 'no-cache',
+							'Expires': '0'
+						};
+						
+						// Add a special header if we're in admin
+						if (isInAdmin) {
+							Object.assign(headers, {
+								'X-Admin-Request': 'true',
+								'X-Prevent-Redirect': 'true'
+							});
+						}
+						
+						const response = await fetch(`/api/store-data${cacheBuster}`, {
+							method: 'POST',
+							headers,
+							body: JSON.stringify(data),
+							signal: controller.signal,
+							cache: 'no-store',
+							// Crucial: prevent redirect
+							redirect: 'error'
+						});
+						
+						clearTimeout(timeoutId);
+						
+						// Only parse JSON if we need to - skip otherwise
+						if (response.ok) {
+							// Update data version after successful save
+							set({ dataVersion: CURRENT_DATA_VERSION });
+							console.log('Data synced successfully');
+							
+							// Mark sync time to help recover from hot reloads
+							if (typeof window !== 'undefined') {
+								(window as any).__lastSyncTime = Date.now();
+							}
+						} else {
+							console.error('Error syncing data, status:', response.status);
+						}
+					} catch (fetchError) {
+						// If this is an AbortError, it's likely just a timeout
+						if ((fetchError as any).name === 'AbortError') {
+							console.warn('Sync request timed out, but may have completed');
+							// Don't treat timeouts as fatal errors
+							set({ syncError: false });
+						} else {
+							console.error('Fetch error during sync:', fetchError);
+							set({ syncError: true });
+						}
+						// Intentionally not re-throwing to prevent navigation
+					}
+				} catch (syncError) {
+					console.error('Error during sync preparation:', syncError);
+					// Intentionally not re-throwing to prevent navigation
+				} finally {
+					// Always clean up
+					delete (window as any)._syncDataTimeout;
+					
+					// Keep navigation prevention for a bit longer to ensure recompiles don't trigger navigation
+					setTimeout(() => {
+						delete (window as any).__preventAdminNavigation;
+					}, 3000);
+				}
+			}, 1000); // Longer debounce of 1 second
+			
+			// Return a resolved promise
+			return Promise.resolve();
 		} catch (error) {
-			console.error('Error syncing data to server:', error)
+			console.error('Error in syncDataToServer:', error);
 			// Don't throw error, just log
+			return Promise.resolve();
 		}
 	}
 })) 

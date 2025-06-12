@@ -444,33 +444,6 @@ export default function AdminDashboard() {
 				return originalFetch.call(this, input, newInit);
 			};
 			
-			// Prevent form submissions that might navigate away
-			const formSubmitHandler = (e: SubmitEvent) => {
-				const form = e.target as HTMLFormElement;
-				if (form && !form.hasAttribute('data-admin-form')) {
-					// If this is not an explicitly marked admin form, prevent default
-					// This helps catch any unexpected form submissions
-					console.log('Blocked potential navigation-causing form submission');
-					e.preventDefault();
-					e.stopPropagation();
-				}
-			};
-			
-			// Listen for all form submissions
-			document.addEventListener('submit', formSubmitHandler, true);
-			
-			// Detect and prevent page unloads when saving is in progress
-			window.addEventListener('beforeunload', (e) => {
-				// Check if we have a flag indicating we're in the middle of saving
-				if (sessionStorage.getItem('prevent_navigation') === 'true') {
-					console.log('Prevented page unload during save operation');
-					e.preventDefault();
-					// Standard way to show "are you sure" dialog
-					e.returnValue = '';
-					return '';
-				}
-			});
-			
 			// Cleanup on unmount
 			return () => {
 				// Restore original methods
@@ -481,7 +454,6 @@ export default function AdminDashboard() {
 				// Remove event listeners
 				window.removeEventListener('popstate', handlePopState);
 				document.removeEventListener('click', clickHandler, true);
-				document.removeEventListener('submit', formSubmitHandler, true);
 				
 				// Remove flag
 				delete (window as any).__isAdminPage;
@@ -837,13 +809,7 @@ export default function AdminDashboard() {
 	}
 	
 	// Function to handle saving product - completely rewritten
-	const handleSaveProduct = (e?: React.FormEvent) => {
-		// Prevent default form submission behavior
-		if (e) {
-			e.preventDefault()
-			e.stopPropagation()
-		}
-		
+	const handleSaveProduct = () => {
 		setIsSaving(true)
 		
 		if (!productForm.slug) {
@@ -891,8 +857,6 @@ export default function AdminDashboard() {
 				try {
 					localStorage.setItem('last-saved-product', JSON.stringify(productToSave))
 					;(window as any).__lastSavedProductTime = Date.now()
-					// Set a session flag to prevent navigation
-					sessionStorage.setItem('prevent_navigation', 'true')
 				} catch (e) {
 					console.error('Failed to backup product to localStorage', e)
 				}
@@ -927,18 +891,13 @@ export default function AdminDashboard() {
 							'X-Admin-Request': 'true',
 							'X-Prevent-Redirect': 'true',
 							'X-Admin-Session': 'true',
-							'X-No-Navigation': 'true',
-							'X-No-Reload': 'true',
-							'X-Fresh': Date.now().toString() // Add a timestamp to prevent caching
+							'X-No-Navigation': 'true'
 						},
 						body: JSON.stringify({
 							products: updatedProducts
 						}),
 						cache: 'no-store',
 						credentials: 'include',
-						// Add this to prevent page navigation
-						redirect: 'manual',
-						keepalive: true
 					})
 					
 					if (!response.ok) {
@@ -951,20 +910,11 @@ export default function AdminDashboard() {
 						setShowSavedNotification(false)
 					}, 3000)
 					
-					// Clear the navigation prevention flag
-					if (typeof window !== 'undefined') {
-						try {
-							sessionStorage.removeItem('prevent_navigation')
-						} catch (e) {
-							console.error('Failed to clear navigation flag', e)
-						}
-					}
-					
 				} catch (error) {
 					console.error('Error syncing to server:', error)
 					alert(language === 'en' 
-							? 'Error saving changes. Your changes are applied locally but may not be persisted.' 
-							: 'Lỗi khi lưu thay đổi. Thay đổi của bạn đã được áp dụng cục bộ nhưng có thể không được lưu trữ.')
+						? 'Error saving changes. Your changes are applied locally but may not be persisted.' 
+						: 'Lỗi khi lưu thay đổi. Thay đổi của bạn đã được áp dụng cục bộ nhưng có thể không được lưu trữ.')
 				} finally {
 					setIsSaving(false)
 				}
@@ -1224,7 +1174,8 @@ export default function AdminDashboard() {
 	// 	}
 	// }, [debouncedFaqForm, editingFaq, updateFaqArticle])
 	
-	
+	// Add showSavedNotification state back
+	const [showSavedNotification, setShowSavedNotification] = useState(false)
 	
 	// Site config state for editing
 	const [editingSiteConfig, setEditingSiteConfig] = useState(siteConfig)
@@ -1618,7 +1569,6 @@ export default function AdminDashboard() {
 								}
 							}}>
 								<DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" aria-describedby="product-dialog-description">
-									<form onSubmit={(e) => handleSaveProduct(e)} data-admin-form="true">
 									<DialogHeader>
 										<div className="flex items-center justify-between">
 											<div>
@@ -2177,12 +2127,11 @@ export default function AdminDashboard() {
 									</div>
 									<DialogFooter className="sticky bottom-0 pt-4 pb-2 bg-background border-t">
 										<div className="flex items-center justify-end w-full">
-											<Button type="submit" className="px-8" disabled={!productForm.slug}>
+											<Button onClick={handleSaveProduct} className="px-8" disabled={!productForm.slug}>
 												{t('save')}
 											</Button>
 										</div>
 									</DialogFooter>
-									</form>
 								</DialogContent>
 							</Dialog>
 						</div>

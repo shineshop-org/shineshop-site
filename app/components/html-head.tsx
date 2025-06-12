@@ -29,6 +29,49 @@ export function HtmlHead() {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={siteConfig?.siteTitle || "SHINE SHOP"} />
       <meta name="twitter:description" content="Shop for premium electronics, accessories, and more at Shine Shop. Quality products with excellent customer service." />
+      
+      {/* Script to prevent navigation when saving from admin */}
+      <Script id="prevent-admin-navigation" strategy="beforeInteractive">
+        {`
+          (function() {
+            // Add a variable to track if navigation should be prevented
+            window.__preventAdminNavigation = false;
+            
+            // Override history.pushState to prevent navigation when flag is set
+            const originalPushState = history.pushState;
+            history.pushState = function() {
+              // Check if we should prevent navigation
+              if (window.__preventAdminNavigation && 
+                  window.location.pathname.includes('/admin') &&
+                  !arguments[2].includes('/admin')) {
+                console.log('Navigation prevented by admin protection');
+                return;
+              }
+              return originalPushState.apply(this, arguments);
+            };
+            
+            // Override window.location setter to prevent navigation
+            const originalLocationDescriptor = Object.getOwnPropertyDescriptor(window, 'location');
+            if (originalLocationDescriptor && originalLocationDescriptor.configurable) {
+              Object.defineProperty(window, 'location', {
+                configurable: true,
+                get: function() { 
+                  return originalLocationDescriptor.get.call(this);
+                },
+                set: function(url) {
+                  if (window.__preventAdminNavigation && 
+                      window.location.pathname.includes('/admin') &&
+                      typeof url === 'string' && !url.includes('/admin')) {
+                    console.log('Location change prevented by admin protection');
+                    return url;
+                  }
+                  return originalLocationDescriptor.set.call(this, url);
+                }
+              });
+            }
+          })();
+        `}
+      </Script>
     </>
   )
 } 

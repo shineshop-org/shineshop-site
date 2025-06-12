@@ -7,6 +7,7 @@ import { ThemeProvider } from 'next-themes';
 import { SystemPreferencesProvider } from '@/app/components/system-preferences';
 import ErrorBoundary from './error-boundary';
 import ErrorProvider from './error-provider';
+import GlobalErrorHandler from './global-error-handler';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       </ErrorProvider>
       <NavigationTracker />
       <RSCErrorHandler />
+      <GlobalErrorHandler />
       <SystemPreferencesProvider />
     </>
   );

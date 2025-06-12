@@ -7,6 +7,7 @@ export const dynamic = 'force-static'
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'store-data.json')
 const DATA_DIR = path.join(process.cwd(), 'data')
+const INITIAL_DATA_PATH = path.join(process.cwd(), 'app', 'lib', 'initial-data.ts')
 
 // Ensure data directory exists
 function ensureDataDir() {
@@ -50,33 +51,99 @@ function rebuildInitialData() {
 	}
 	
 	try {
-		// Gọi API route update-initial-data
-		fetch('/api/dev/update-initial-data', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-		.then(response => response.json())
-		.then(data => {
-			console.log('Rebuild initial-data result:', data)
-			return { success: true, message: 'Đã gửi yêu cầu rebuild initial-data' }
-		})
-		.catch(error => {
-			console.error('Error rebuilding initial-data:', error)
-			return { success: false, message: 'Lỗi khi rebuild initial-data' }
-		})
+		// Đọc dữ liệu từ store-data.json
+		const storeData = readStoreData();
 		
-		return { success: true, message: 'Đã gửi yêu cầu rebuild initial-data' }
+		// Tạo nội dung file initial-data.ts mới
+		const newContent = `import { Product, FAQArticle, SocialLink, SiteConfig, PaymentInfo } from './types'
+
+// Định nghĩa giá trị mặc định cho dữ liệu
+const defaultStoreData = {
+  products: [],
+  faqArticles: [],
+  socialLinks: [],
+  paymentInfo: {
+    bankName: "Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam",
+    accountNumber: "MS00T09331707449347",
+    accountName: "SHINE SHOP",
+    qrTemplate: "compact",
+    wiseEmail: "payment@shineshop.org",
+    paypalEmail: "paypal@shineshop.org"
+  },
+  siteConfig: {
+    siteTitle: "SHINE SHOP",
+    heroTitle: "Welcome to SHINE SHOP!",
+    heroQuote: "Anh em mình cứ thế thôi hẹ hẹ hẹ",
+    contactLinks: {
+      facebook: "https://facebook.com/shineshop",
+      whatsapp: "https://wa.me/84123456789"
+    }
+  },
+  tosContent: "",
+  language: 'vi',
+  theme: 'light',
+  dataVersion: 1
+}
+
+// Cố gắng import JSON trực tiếp - điều này hoạt động tại build-time
+let storeData;
+try {
+  // Import động - chỉ hoạt động nếu file tồn tại và chỉ ở build time
+  // @ts-ignore - Bỏ qua lỗi TypeScript về import động
+  storeData = require('../../data/store-data.json');
+} catch (error) {
+  // Fallback nếu không thể import
+  console.info('Không thể import store-data.json, sử dụng dữ liệu mặc định');
+  storeData = defaultStoreData;
+}
+
+// Export các giá trị
+export const initialProducts: Product[] = storeData.products || defaultStoreData.products;
+export const initialFAQArticles: FAQArticle[] = storeData.faqArticles || defaultStoreData.faqArticles;
+export const initialSocialLinks: SocialLink[] = storeData.socialLinks || defaultStoreData.socialLinks;
+export const initialPaymentInfo: PaymentInfo = storeData.paymentInfo || defaultStoreData.paymentInfo;
+export const initialSiteConfig: SiteConfig = storeData.siteConfig || defaultStoreData.siteConfig;
+export const initialTOSContent: string = storeData.tosContent || defaultStoreData.tosContent;
+export const initialLanguage = storeData.language || defaultStoreData.language;
+export const initialTheme = storeData.theme || defaultStoreData.theme;
+export const dataVersion = storeData.dataVersion || defaultStoreData.dataVersion;`;
+
+		// Ghi file mới
+		try {
+			fs.writeFileSync(INITIAL_DATA_PATH, newContent, 'utf-8');
+			console.log('Đã cập nhật initial-data.ts thành công');
+			return { success: true, message: 'Đã cập nhật initial-data.ts thành công' };
+		} catch (writeError) {
+			console.error('Lỗi khi ghi file initial-data.ts:', writeError);
+			return { 
+				success: false, 
+				message: `Không thể ghi file initial-data.ts: ${(writeError as Error).message}` 
+			};
+		}
 	} catch (error) {
 		console.error('Error rebuilding initial-data:', error)
-		return { success: false, message: 'Lỗi khi rebuild initial-data' }
+		return { 
+			success: false, 
+			message: `Lỗi khi rebuild initial-data: ${(error as Error).message}` 
+		}
 	}
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
 	try {
 		ensureDataDir()
+		
+		// Kiểm tra nếu yêu cầu rebuild
+		const { searchParams } = new URL(request.url)
+		const shouldRebuild = searchParams.get('rebuild') === 'true'
+		
+		if (shouldRebuild) {
+			const rebuildResult = rebuildInitialData()
+			return NextResponse.json({
+				...readStoreData(),
+				rebuildResult
+			})
+		}
 		
 		// Đọc dữ liệu từ file
 		const data = readStoreData()
@@ -95,6 +162,15 @@ export async function POST(request: NextRequest) {
 	try {
 		let data;
 		
+		// Check for admin headers to set a cookie that will prevent redirects
+		const isAdminRequest = request.headers.get('X-Admin-Request') === 'true';
+		const preventRedirect = request.headers.get('X-Prevent-Redirect') === 'true';
+		const isAdminSession = request.headers.get('X-Admin-Session') === 'true';
+		const isFromAdmin = request.headers.get('referer')?.includes('/admin');
+		
+		// Create an indicator for admin context
+		const isAdminContext = isAdminRequest || preventRedirect || isAdminSession || isFromAdmin;
+		
 		// Đọc dữ liệu từ request
 		try {
 			data = await request.json();
@@ -105,19 +181,33 @@ export async function POST(request: NextRequest) {
 				data = safeJsonParse(text);
 			} catch (textError) {
 				console.error('Error parsing request:', textError);
-				return NextResponse.json(
-					{ error: 'Invalid JSON format in request body' },
-					{ status: 200 } // Trả về 200 thay vì 400 để tương thích với store.ts
+				// Return success response to avoid redirects
+				const response = NextResponse.json(
+					{ error: 'Invalid JSON format in request body', success: false },
+					{ status: 200 }
 				);
+				
+				if (isAdminContext) {
+					addAdminCookiesToResponse(response);
+				}
+				
+				return response;
 			}
 		}
 		
 		if (!data) {
 			console.error('No data received');
-			return NextResponse.json(
-				{ error: 'No data received' },
-				{ status: 200 } // Trả về 200 thay vì 400 để tương thích với store.ts
+			// Return success response to avoid redirects
+			const response = NextResponse.json(
+				{ error: 'No data received', success: false },
+				{ status: 200 }
 			);
+			
+			if (isAdminContext) {
+				addAdminCookiesToResponse(response);
+			}
+			
+			return response;
 		}
 		
 		ensureDataDir()
@@ -151,30 +241,93 @@ export async function POST(request: NextRequest) {
 			});
 		}
 		
+		// Kiểm tra nếu yêu cầu rebuild từ query param
+		const { searchParams } = new URL(request.url)
+		const shouldRebuild = searchParams.get('rebuild') === 'true'
+		
 		// Save data to file with error handling
 		try {
 			fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(mergedData, null, 2), 'utf-8')
 			
-			// Thực hiện rebuild initial-data sau khi lưu thành công
-			const rebuildResult = rebuildInitialData();
+			// Chỉ thực hiện rebuild khi có param rebuild=true
+			let rebuildResult: any = { executed: false, message: 'Không có yêu cầu rebuild' };
+			if (shouldRebuild) {
+				rebuildResult = rebuildInitialData();
+			}
 			
-			return NextResponse.json({ 
+			// Create response with success message
+			const response = NextResponse.json({ 
 				success: true,
 				message: 'Data updated successfully',
-				rebuildResult
+				rebuildResult,
+				adminContext: isAdminContext
 			});
+			
+			// Always set admin session cookies for admin-originated requests
+			if (isAdminContext) {
+				addAdminCookiesToResponse(response);
+			}
+			
+			return response;
 		} catch (writeError) {
 			console.error('Error writing store data:', writeError);
-			return NextResponse.json(
-				{ error: 'Failed to write store data', message: (writeError as Error).message },
-				{ status: 200 } // Vẫn trả về 200 để tránh refresh trang
+			
+			// Create error response
+			const response = NextResponse.json(
+				{ error: 'Failed to write store data', message: (writeError as Error).message, success: false },
+				{ status: 200 } // Still return 200 to avoid redirect
 			);
+			
+			// Still set admin cookies even on error for admin-originated requests
+			if (isAdminContext) {
+				addAdminCookiesToResponse(response);
+			}
+			
+			return response;
 		}
 	} catch (error) {
 		console.error('Error processing store data request:', error);
-		return NextResponse.json(
-			{ error: 'Failed to process store data request', message: (error as Error).message },
-			{ status: 200 } // Trả về 200 thay vì 500 để tránh refresh trang
+		// Create error response
+		const response = NextResponse.json(
+			{ error: 'Failed to process store data request', message: (error as Error).message, success: false },
+			{ status: 200 } // Still return 200 to avoid redirect
 		);
+		
+		// Try to set admin cookies even on general error, just in case
+		try {
+			addAdminCookiesToResponse(response);
+		} catch (e) {
+			console.error('Error setting admin cookies:', e);
+		}
+		
+		return response;
 	}
+}
+
+// Helper function to add admin cookies to responses
+function addAdminCookiesToResponse(response: NextResponse) {
+	// Set admin session cookies
+	response.cookies.set('adminAuthenticated', 'true', {
+		httpOnly: true,
+		maxAge: 60 * 60, // 1 hour
+		path: '/',
+		sameSite: 'strict'
+	});
+	
+	response.cookies.set('admin_session', 'true', {
+		httpOnly: true,
+		maxAge: 60 * 60, // 1 hour
+		path: '/',
+		sameSite: 'strict'
+	});
+	
+	// Add headers to prevent redirects
+	response.headers.set('X-Prevent-Redirect', 'true');
+	response.headers.set('X-Admin-Request', 'true');
+	response.headers.set('X-Admin-Session', 'true');
+	response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+	response.headers.set('Pragma', 'no-cache');
+	response.headers.set('Expires', '0');
+	
+	return response;
 } 

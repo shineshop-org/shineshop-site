@@ -24,51 +24,59 @@ function readStoreData() {
 // Hàm cập nhật initial-data.ts
 function updateInitialData(data: any) {
   try {
-    // Thay thế toàn bộ file initial-data.ts với phiên bản mới đọc dữ liệu từ store-data.json
+    // Thay thế toàn bộ file initial-data.ts với phiên bản mới dùng import trực tiếp
     const newContent = `import { Product, FAQArticle, SocialLink, SiteConfig, PaymentInfo } from './types'
-import fs from 'fs'
-import path from 'path'
 
-// Đường dẫn đến file data
-const STORE_DATA_PATH = path.join(process.cwd(), 'data', 'store-data.json')
-
-// Đọc dữ liệu từ store-data.json
-function getStoreData() {
-  try {
-    if (fs.existsSync(STORE_DATA_PATH)) {
-      const fileContent = fs.readFileSync(STORE_DATA_PATH, 'utf-8')
-      return JSON.parse(fileContent)
+// Định nghĩa giá trị mặc định cho dữ liệu
+const defaultStoreData = {
+  products: [],
+  faqArticles: [],
+  socialLinks: [],
+  paymentInfo: {
+    bankName: "Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam",
+    accountNumber: "MS00T09331707449347",
+    accountName: "SHINE SHOP",
+    qrTemplate: "compact",
+    wiseEmail: "payment@shineshop.org",
+    paypalEmail: "paypal@shineshop.org"
+  },
+  siteConfig: {
+    siteTitle: "SHINE SHOP",
+    heroTitle: "Welcome to SHINE SHOP!",
+    heroQuote: "Anh em mình cứ thế thôi hẹ hẹ hẹ",
+    contactLinks: {
+      facebook: "https://facebook.com/shineshop",
+      whatsapp: "https://wa.me/84123456789"
     }
-  } catch (error) {
-    console.error('Error reading store data:', error)
-  }
-  
-  // Fallback to empty values if file doesn't exist or can't be read
-  return {
-    products: [],
-    faqArticles: [],
-    socialLinks: [],
-    paymentInfo: {},
-    siteConfig: {},
-    language: 'vi',
-    theme: 'light',
-    dataVersion: 1
-  }
+  },
+  tosContent: "",
+  language: 'vi',
+  theme: 'light',
+  dataVersion: 1
 }
 
-// Đọc dữ liệu từ file
-const storeData = getStoreData()
+// Cố gắng import JSON trực tiếp - điều này hoạt động tại build-time
+let storeData;
+try {
+  // Import động - chỉ hoạt động nếu file tồn tại và chỉ ở build time
+  // @ts-ignore - Bỏ qua lỗi TypeScript về import động
+  storeData = require('../../data/store-data.json');
+} catch (error) {
+  // Fallback nếu không thể import
+  console.info('Không thể import store-data.json, sử dụng dữ liệu mặc định');
+  storeData = defaultStoreData;
+}
 
-// Export các giá trị từ store-data.json
-export const initialProducts: Product[] = storeData.products || []
-export const initialFAQArticles: FAQArticle[] = storeData.faqArticles || []
-export const initialSocialLinks: SocialLink[] = storeData.socialLinks || []
-export const initialPaymentInfo: PaymentInfo = storeData.paymentInfo || {}
-export const initialSiteConfig: SiteConfig = storeData.siteConfig || {}
-export const initialTOSContent: string = storeData.tosContent || ''
-export const initialLanguage = storeData.language || 'vi'
-export const initialTheme = storeData.theme || 'light'
-export const dataVersion = storeData.dataVersion || 1`
+// Export các giá trị
+export const initialProducts: Product[] = storeData.products || defaultStoreData.products;
+export const initialFAQArticles: FAQArticle[] = storeData.faqArticles || defaultStoreData.faqArticles;
+export const initialSocialLinks: SocialLink[] = storeData.socialLinks || defaultStoreData.socialLinks;
+export const initialPaymentInfo: PaymentInfo = storeData.paymentInfo || defaultStoreData.paymentInfo;
+export const initialSiteConfig: SiteConfig = storeData.siteConfig || defaultStoreData.siteConfig;
+export const initialTOSContent: string = storeData.tosContent || defaultStoreData.tosContent;
+export const initialLanguage = storeData.language || defaultStoreData.language;
+export const initialTheme = storeData.theme || defaultStoreData.theme;
+export const dataVersion = storeData.dataVersion || defaultStoreData.dataVersion;`
 
     // Ghi file mới
     try {
