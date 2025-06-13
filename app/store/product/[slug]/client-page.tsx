@@ -613,11 +613,11 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 						</div>
 						
 						{/* TOS agreement text */}
-						<p className="text-center text-sm text-foreground italic">
+						<p className="text-center text-[0.95rem] text-foreground italic">
 							Khi bạn đã mua hàng đồng nghĩa rằng việc bạn hoàn toàn đồng ý và tuân thủ{' '}
-							<JShineLink href="/tos">
-								Điều khoản và Điều kiện
-							</JShineLink>
+							<a href="/tos" className="jshine-gradient">
+								Điều khoản Dịch vụ
+							</a>
 							{' '}của chúng tôi
 						</p>
 					</div>

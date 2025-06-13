@@ -13,7 +13,7 @@ const ENABLE_DEBUG_LOGGING = isDevelopment && false // Set to true to enable ver
 const CACHE_VERSION = '1.0.5'
 
 // Define navbar paths that should be exempt from redirects
-const NAVBAR_PATHS = ['/payment', '/social', '/service', '/faq']
+const NAVBAR_PATHS = ['/payment', '/social', '/service', '/faq', '/tos']
 
 // Middleware
 export function middleware(req: NextRequest) {
