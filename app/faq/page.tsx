@@ -69,7 +69,7 @@ export default function FAQPage() {
 	return (
 		<div className="max-w-6xl mx-auto py-8 space-y-8">
 			{/* Header */}
-			<div className="text-center space-y-4">
+			<div className="text-center space-y-4 px-2 sm:px-0">
 				<h1 className="text-4xl font-bold">{t('faq')}</h1>
 				<p className="text-muted-foreground">
 					{language === 'en' ? 'Find answers to frequently asked questions' : 'Tìm câu trả lời cho các câu hỏi thường gặp'}
@@ -77,7 +77,7 @@ export default function FAQPage() {
 			</div>
 			
 			{/* Search and Filters */}
-			<div className="space-y-4">
+			<div className="space-y-4 px-2 sm:px-0">
 				{/* Search Bar */}
 				<div className="relative">
 					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -91,14 +91,14 @@ export default function FAQPage() {
 				</div>
 				
 				{/* Category Filter */}
-				<div className="flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-2 overflow-x-auto py-1">
 					{categories.map((category) => (
 						<Button
 							key={category}
 							variant={selectedCategory === category ? 'default' : 'outline'}
 							size="sm"
 							onClick={() => setSelectedCategory(category)}
-							className="rounded-full"
+							className="rounded-full whitespace-nowrap"
 						>
 							{category === 'all' 
 								? (language === 'en' ? 'All Categories' : 'Tất cả danh mục') 
@@ -109,7 +109,7 @@ export default function FAQPage() {
 			</div>
 			
 			{/* Articles Grid */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 sm:px-0">
 				{sortedArticles.map((article) => (
 					<Link key={article.id} href={`/faq/${article.slug}`}>
 						<Card className="h-full hover:shadow-lg transition-shadow duration-300">

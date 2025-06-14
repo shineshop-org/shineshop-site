@@ -625,9 +625,9 @@ function ProductClientInner({ slug, initialProduct }: ProductClientProps) {
 			</div>
 			
 			{/* Description and Related Articles */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
+			<div className="grid grid-cols-1 gap-6 mt-8">
 				{/* Description - Always show */}
-				<div className="lg:col-span-2">
+				<div>
 					<Card className="dark:bg-card/80 dark:border-primary/20">
 						<CardHeader>
 							<CardTitle>{t('productDetails')}</CardTitle>

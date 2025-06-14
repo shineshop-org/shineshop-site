@@ -10,6 +10,7 @@ import { useTranslation } from '@/app/hooks/use-translations'
 import { ThemeSwitch } from '@/app/components/theme-switch'
 import { useTheme } from 'next-themes'
 import { setLanguagePreference } from '@/app/lib/cookies'
+import { MobileMenu } from '@/app/components/mobile-menu'
 
 // Flag SVG Components
 const VietnamFlag = () => (
@@ -179,42 +180,50 @@ export function Navbar() {
 					
 					{/* Navigation items */}
 					<div className="flex items-center space-x-4">
-						{/* Language toggle - Enhanced with fixed width */}
-						<div className="hidden sm:flex items-center">
-							{renderLanguageToggle()}
+						{/* Mobile menu - visible only on small screens */}
+						<div className="lg:hidden">
+							<MobileMenu />
 						</div>
-						
-						{/* Payment */}
-						<a href="/payment/" onClick={(e) => handleNavigation(e, '/payment/')}>
-							<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
-								{t('payment')}
-							</Button>
-						</a>
-						
-						{/* Contact */}
-						<a href="/social/" onClick={(e) => handleNavigation(e, '/social/')}>
-							<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
-								{t('contact')}
-							</Button>
-						</a>
-						
-						{/* Tools */}
-						<a href="/service/" onClick={(e) => handleNavigation(e, '/service/')}>
-							<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
-								{t('tools')}
-							</Button>
-						</a>
-						
-						{/* Theme toggle */}
-						<ThemeSwitch />
-						
-						{/* FAQ */}
-						<a href="/faq/" onClick={(e) => handleNavigation(e, '/faq/')}>
-							<Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 dark:hover:bg-primary/20 hover:scale-110 transition-all duration-200">
-								<HelpCircle className="h-5 w-5" />
-								<span className="sr-only">FAQ</span>
-							</Button>
-						</a>
+
+						{/* Desktop navigation - hidden on small screens */}
+						<div className="hidden lg:flex items-center space-x-4">
+							{/* Language toggle - Enhanced with fixed width */}
+							<div className="flex items-center">
+								{renderLanguageToggle()}
+							</div>
+							
+							{/* Payment */}
+							<a href="/payment/" onClick={(e) => handleNavigation(e, '/payment/')}>
+								<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
+									{t('payment')}
+								</Button>
+							</a>
+							
+							{/* Contact */}
+							<a href="/social/" onClick={(e) => handleNavigation(e, '/social/')}>
+								<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
+									{t('contact')}
+								</Button>
+							</a>
+							
+							{/* Tools */}
+							<a href="/service/" onClick={(e) => handleNavigation(e, '/service/')}>
+								<Button variant="ghost" size="sm" className="hover:bg-primary/10 dark:hover:bg-primary/20">
+									{t('tools')}
+								</Button>
+							</a>
+							
+							{/* Theme toggle */}
+							<ThemeSwitch />
+							
+							{/* FAQ */}
+							<a href="/faq/" onClick={(e) => handleNavigation(e, '/faq/')}>
+								<Button variant="ghost" size="icon" className="rounded-full hover:bg-primary/10 dark:hover:bg-primary/20 hover:scale-110 transition-all duration-200">
+									<HelpCircle className="h-5 w-5" />
+									<span className="sr-only">FAQ</span>
+								</Button>
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>

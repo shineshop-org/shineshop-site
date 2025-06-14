@@ -124,16 +124,16 @@ export default function PaymentPage() {
 			</div>
 			
 			{/* Payment Method Selection */}
-			<div className="flex justify-center gap-4 mb-8">
+			<div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 px-2">
 				{paymentMethods.map((method) => (
 					<Button
 						key={method.id}
 						variant={selectedMethod === method.id ? 'default' : 'outline'}
-						size="lg"
+						size="sm"
 						onClick={() => setSelectedMethod(method.id)}
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 flex-1 sm:flex-none"
 					>
-						<method.icon className={`h-5 w-5 ${selectedMethod === method.id ? '' : method.color}`} />
+						<method.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${selectedMethod === method.id ? '' : method.color}`} />
 						{method.name}
 					</Button>
 				))}
@@ -141,16 +141,18 @@ export default function PaymentPage() {
 			
 			{/* VietQR Payment */}
 			{selectedMethod === 'vietqr' && (
-				<VietQRPayment
-					accountNumber={paymentInfo.accountNumber}
-					bankName={paymentInfo.bankName}
-					accountName={paymentInfo.accountName}
-				/>
+				<div className="px-2 sm:px-0">
+					<VietQRPayment
+						accountNumber={paymentInfo.accountNumber}
+						bankName={paymentInfo.bankName}
+						accountName={paymentInfo.accountName}
+					/>
+				</div>
 			)}
 			
 			{/* Wise Payment */}
 			{selectedMethod === 'wise' && (
-				<div className="max-w-6xl mx-auto">
+				<div className="max-w-6xl mx-auto px-2 sm:px-0">
 					<Card>
 						<CardHeader>
 							<CardTitle className="text-center">Wise Transfer</CardTitle>
@@ -159,7 +161,7 @@ export default function PaymentPage() {
 							<div className="flex flex-col md:flex-row gap-6">
 								{/* QR Code on the left */}
 								<div className="flex-1 flex flex-col items-center justify-center p-4 bg-green-50 dark:bg-green-950 rounded-lg">
-									<div className="relative w-48 h-48 mb-3">
+									<div className="relative w-36 h-36 sm:w-48 sm:h-48 mb-3">
 										<Image
 											src="/wise-qr.png"
 											alt="Wise QR Code"
@@ -213,7 +215,7 @@ export default function PaymentPage() {
 			
 			{/* PayPal Payment */}
 			{selectedMethod === 'paypal' && (
-				<div className="max-w-6xl mx-auto">
+				<div className="max-w-6xl mx-auto px-2 sm:px-0">
 					<Card>
 						<CardHeader>
 							<CardTitle className="text-center">PayPal Payment</CardTitle>
@@ -222,7 +224,7 @@ export default function PaymentPage() {
 							<div className="flex flex-col md:flex-row gap-6">
 								{/* QR Code on the left */}
 								<div className="flex-1 flex flex-col items-center justify-center p-4 bg-indigo-50 dark:bg-indigo-950 rounded-lg">
-									<div className="relative w-48 h-48 mb-3">
+									<div className="relative w-36 h-36 sm:w-48 sm:h-48 mb-3">
 										<Image
 											src="/paypal-qr.png"
 											alt="PayPal QR Code"

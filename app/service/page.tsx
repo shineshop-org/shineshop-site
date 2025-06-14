@@ -38,22 +38,22 @@ export default function ServicePage() {
 	
 	return (
 		<div className="max-w-6xl mx-auto py-8">
-			<div className="text-center mb-8">
+			<div className="text-center mb-8 px-2 sm:px-0">
 				<h1 className="text-4xl font-bold jshine-gradient">{t('services')}</h1>
 				<p className="text-muted-foreground mt-2">
 					Useful tools and utilities for our customers
 				</p>
 			</div>
 			
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 sm:px-0">
 				{services.map((service) => (
 					<Link key={service.id} href={service.href}>
 						<Card className="h-full hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-							<CardContent className="flex items-center p-6">
-								<div className={`w-12 h-12 rounded-lg ${service.bgColor} ${service.color} flex items-center justify-center`}>
-									<service.icon className="h-6 w-6" />
+							<CardContent className="flex items-center p-4 sm:p-6">
+								<div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${service.bgColor} ${service.color} flex items-center justify-center`}>
+									<service.icon className="h-5 w-5 sm:h-6 sm:w-6" />
 								</div>
-								<h3 className="text-xl font-medium ml-4">{service.title}</h3>
+								<h3 className="text-lg sm:text-xl font-medium ml-3 sm:ml-4">{service.title}</h3>
 							</CardContent>
 						</Card>
 					</Link>

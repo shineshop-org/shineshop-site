@@ -30,8 +30,17 @@ export function VietQRPayment({
 	const [isLoading, setIsLoading] = useState(false)
 	const [copied, setCopied] = useState(false)
 	const [copyButtonSuccess, setCopyButtonSuccess] = useState(false)
+	const [activeQrLink, setActiveQrLink] = useState(1)
 	
 	const qrImageRef = useRef<HTMLImageElement>(null)
+
+	// QR API links
+	const qrLinks = [
+		'https://img.vietqr.io/image/970407-MS00T09331707449347-Djwd2Cb.jpg?accountName=SHINE%20SHOP&amount=0&addInfo=SHINE%20SHOP',
+		'https://api.vietqr.io/image/970422-598422222-M58hYc1.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
+		'https://api.vietqr.io/image/970422-598422222-UgaSJbV.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
+		''
+	]
 
 	// Handle amount input change
 	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,167 +145,229 @@ export function VietQRPayment({
 		}
 	}
 
-	// Update QR URL when amount changes
+	// Change QR API Link
+	const changeQrLink = (linkIndex: number) => {
+		if (linkIndex === 4 && !qrLinks[3]) return; // Skip if link 4 is empty
+		setActiveQrLink(linkIndex)
+	}
+
+	// Update QR URL when amount changes or QR link changes
 	useEffect(() => {
+		if (!qrLinks[activeQrLink - 1]) return;
+		
+		const currentBaseUrl = qrLinks[activeQrLink - 1];
+		
 		if (amount) {
 			setIsLoading(true)
 			
 			const timer = setTimeout(() => {
-				const separator = baseQrUrl.includes('?') ? '&' : '?'
-				const newQrUrl = `${baseQrUrl}${separator}amount=${amount}`
+				const separator = currentBaseUrl.includes('?') ? '&' : '?'
+				const newQrUrl = `${currentBaseUrl}${separator}amount=${amount}`
 				setQrUrl(newQrUrl)
 				setIsLoading(false)
 			}, 500)
 			
 			return () => clearTimeout(timer)
 		} else {
-			const separator = baseQrUrl.includes('?') ? '&' : '?'
-			setQrUrl(`${baseQrUrl}${separator}amount=0`)
+			const separator = currentBaseUrl.includes('?') ? '&' : '?'
+			setQrUrl(`${currentBaseUrl}${separator}amount=0`)
 		}
-	}, [amount, baseQrUrl])
+	}, [amount, activeQrLink])
 
 	return (
-		<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+		<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 			{/* QR Code and Amount Input */}
 			<div className="flex flex-col items-center">
 				<div className="w-full max-w-sm mb-4">
-					{/* QR Code with gradient border and payment text */}
-					<div className="relative rounded-lg overflow-hidden qr-container bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-[3px]">
-						<div className="bg-background rounded-lg p-4 flex flex-col items-center">
-							{/* QR Code with loading effect */}
-							<div className="relative flex items-center justify-center">
-								{qrUrl ? (
-									<div className={`transition-opacity duration-300 ${isLoading ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
-										{qrUrl && qrUrl.trim() !== '' ? (
-											<Image 
-												ref={qrImageRef}
-												src={qrUrl}
-												alt="VietQR Payment Code"
-												width={300}
-												height={300}
-												className="w-full h-auto"
-												unoptimized
-											/>
-										) : (
-											<div className="p-6 flex flex-col items-center justify-center bg-muted rounded-lg">
-												<div className="w-16 h-16 border-4 border-muted-foreground/20 rounded-lg flex items-center justify-center mb-2">
-													<span className="text-2xl">QR</span>
+					{/* QR Code container with QR link selector buttons */}
+					<div className="flex">
+						{/* QR Code with gradient border and payment text */}
+						<div className="relative rounded-lg overflow-hidden qr-container bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-[3px] flex-grow">
+							<div className="bg-background rounded-lg p-3 sm:p-4 flex flex-col items-center">
+								{/* QR Code with loading effect */}
+								<div className="relative flex items-center justify-center">
+									{qrUrl ? (
+										<div className={`transition-opacity duration-300 ${isLoading ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
+											{qrUrl && qrUrl.trim() !== '' ? (
+												<Image 
+													ref={qrImageRef}
+													src={qrUrl}
+													alt="VietQR Payment Code"
+													width={250}
+													height={250}
+													className="w-full max-w-[250px] h-auto"
+													unoptimized
+												/>
+											) : (
+												<div className="p-4 sm:p-6 flex flex-col items-center justify-center bg-muted rounded-lg">
+													<div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-muted-foreground/20 rounded-lg flex items-center justify-center mb-2">
+														<span className="text-xl sm:text-2xl">QR</span>
+													</div>
+													<p className="text-center text-muted-foreground text-xs sm:text-sm">Nhập số tiền để tạo mã QR</p>
 												</div>
-												<p className="text-center text-muted-foreground text-sm">Nhập số tiền để tạo mã QR</p>
-											</div>
-										)}
-									</div>
-								) : (
-									<div className="p-6 flex flex-col items-center justify-center bg-muted rounded-lg">
-										<div className="w-16 h-16 border-4 border-muted-foreground/20 rounded-lg flex items-center justify-center mb-2">
-											<span className="text-2xl">QR</span>
+											)}
 										</div>
-										<p className="text-center text-muted-foreground text-sm">Nhập số tiền để tạo mã QR</p>
-									</div>
-								)}
+									) : (
+										<div className="p-4 sm:p-6 flex flex-col items-center justify-center bg-muted rounded-lg">
+											<div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-muted-foreground/20 rounded-lg flex items-center justify-center mb-2">
+												<span className="text-xl sm:text-2xl">QR</span>
+											</div>
+											<p className="text-center text-muted-foreground text-xs sm:text-sm">Nhập số tiền để tạo mã QR</p>
+										</div>
+									)}
+									
+									{/* Loading indicator */}
+									{isLoading && (
+										<div className="absolute inset-0 flex items-center justify-center">
+											<div className="w-8 h-8 sm:w-10 sm:h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+										</div>
+									)}
+								</div>
 								
-								{/* Loading indicator */}
-								{isLoading && (
-									<div className="absolute inset-0 flex items-center justify-center">
-										<div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-									</div>
-								)}
-							</div>
-							
-							{/* Payment text below QR code */}
-							<div className="text-center mt-3">
-								<p className="text-foreground text-base font-semibold payment-label mb-0">Tổng thanh toán:</p>
-								<p className="text-green-600 text-2xl font-bold payment-amount mt-0">
-								{formattedAmount ? `${formattedAmount} VND` : '0 VND'}
-								</p>
+								{/* Payment text below QR code */}
+								<div className="text-center mt-2 sm:mt-3">
+									<p className="text-foreground text-sm sm:text-base font-semibold payment-label mb-0">Tổng thanh toán:</p>
+									<p className="text-green-600 text-xl sm:text-2xl font-bold payment-amount mt-0">
+									{formattedAmount ? `${formattedAmount} VND` : '0 VND'}
+									</p>
+								</div>
 							</div>
 						</div>
+						
+						{/* QR Link selector buttons */}
+						<div className="flex flex-col gap-1 sm:gap-2 pl-2 sm:pl-3 justify-center">
+							{[1, 2, 3, 4].map((num) => (
+								<button
+									key={num}
+									onClick={() => changeQrLink(num)}
+									disabled={num === 4 && !qrLinks[3]}
+									className={`h-8 w-8 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center border bg-background ${
+										num === 4 && !qrLinks[3] ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+									} ${
+										activeQrLink === num 
+											? 'border-primary border-2' 
+											: 'border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800'
+									}`}
+								>
+									<span className="text-xs sm:text-sm font-medium">{num}</span>
+								</button>
+							))}
+						</div>
 					</div>
-				</div>
-				
-				{/* Amount Input with Copy Button */}
-				<div className="w-full max-w-sm">
-					<div className="flex items-center gap-2">
-						<div className="relative flex-1">
+					
+					{/* Amount Input Field */}
+					<div className="mt-4">
+						<div className="relative">
 							<Input
 								type="text"
+								placeholder="Nhập số tiền (VND)"
 								value={formattedAmount}
 								onChange={handleAmountChange}
-								placeholder="0"
-								className="pr-12"
+								className="text-center pr-12"
 							/>
 							<span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground text-sm">
 								VND
 							</span>
 						</div>
-						<Button 
-							onClick={handleCopyPaymentInfo}
-							size="icon"
-							variant={copyButtonSuccess ? 'default' : 'outline'}
-							className={`transition-colors duration-300 ${
-								copyButtonSuccess 
-									? 'bg-green-600 hover:bg-green-700' 
-									: ''
-							}`}
-						>
-							{copyButtonSuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-						</Button>
 					</div>
+				</div>
+				
+				{/* Bank Info Card */}
+				<div className="w-full max-w-sm mt-6">
+					<Card>
+						<CardHeader className="pb-2">
+							<CardTitle className="text-lg font-semibold">{bankName}</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-3">
+							{/* Account Name */}
+							<div>
+								<p className="text-sm text-muted-foreground">Tên tài khoản</p>
+								<p className="font-medium">{accountName}</p>
+							</div>
+							
+							{/* Account Number with Copy Button */}
+							<div className="flex items-center justify-between">
+								<div className="flex-1">
+									<p className="text-sm text-muted-foreground">Số tài khoản</p>
+									<p className="font-medium">{accountNumber}</p>
+								</div>
+								<Button 
+									onClick={handleCopyAccountNumber} 
+									variant={copied ? "default" : "outline"} 
+									size="sm"
+									className={copied ? "bg-green-500 hover:bg-green-600" : ""}
+								>
+									{copied ? (
+										<>
+											<Check className="h-4 w-4 mr-1" /> 
+											<span>Đã copy</span>
+										</>
+									) : (
+										<>
+											<Copy className="h-4 w-4 mr-1" /> 
+											<span>Copy</span>
+										</>
+									)}
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
+					
+					{/* Copy QR button */}
+					<Button
+						onClick={handleCopyPaymentInfo}
+						className="mt-4 w-full flex items-center justify-center"
+						variant={copyButtonSuccess ? "default" : "outline"}
+					>
+						{copyButtonSuccess ? (
+							<>
+								<Check className="h-4 w-4 mr-2" />
+								<span>QR đã được copy</span>
+							</>
+						) : (
+							<>
+								<Copy className="h-4 w-4 mr-2" />
+								<span>Copy QR và thông tin</span>
+							</>
+						)}
+					</Button>
 				</div>
 			</div>
 			
-			{/* Payment Information */}
-			<Card>
-				<CardHeader>
-					<CardTitle>Thông tin thanh toán</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<div>
-						<p className="text-muted-foreground text-sm mb-1">Ngân hàng</p>
-						<p className="text-card-foreground">{bankName}</p>
-					</div>
-					
-					<div>
-						<p className="text-muted-foreground text-sm mb-1">Số tài khoản</p>
-						<div 
-							className="relative group"
-							onClick={handleCopyAccountNumber}
-						>
-							<div className="bg-muted p-3 rounded-lg flex items-center justify-between cursor-pointer hover:bg-muted/80 transition-colors">
-								<span className="font-mono text-card-foreground">{accountNumber}</span>
-								<Copy className="h-4 w-4 text-muted-foreground" />
-							</div>
-							
-							{/* Tooltip */}
-							<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-popover rounded text-sm text-popover-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-								{copied ? 'Đã copy!' : 'Nhấn để copy'}
-							</div>
+			{/* Bank Account Information Card */}
+			<div className="flex flex-col space-y-4 sm:space-y-6">
+				{/* Additional Instructions */}
+				<Card>
+					<CardHeader className="pb-3">
+						<CardTitle className="text-lg">Hướng dẫn thanh toán</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+							<ol className="list-decimal list-inside space-y-2 text-blue-900 dark:text-blue-100 text-sm sm:text-base">
+								<li>Nhập số tiền cần thanh toán</li>
+								<li>Quét mã QR bằng ứng dụng ngân hàng của bạn</li>
+								<li>Hoặc sao chép số tài khoản và chuyển khoản trực tiếp</li>
+								<li>Giữ lại biên lai thanh toán</li>
+							</ol>
 						</div>
-					</div>
-					
-					<div>
-						<p className="text-muted-foreground text-sm mb-1">Chủ tài khoản</p>
-						<div className="bg-muted p-3 rounded-lg">
-							<p className="text-card-foreground font-medium">{accountName}</p>
-						</div>
-					</div>
-					
-					<div>
-						<p className="text-muted-foreground text-sm mb-1">Số tiền</p>
-						<div className="bg-muted p-3 rounded-lg">
-							<p className="text-card-foreground font-medium">
-								{formattedAmount ? `${formattedAmount} VND` : '0 VND'}
+					</CardContent>
+				</Card>
+				
+				{/* Marketing Message */}
+				<Card>
+					<CardContent className="p-4 sm:p-6">
+						<div className="flex flex-col items-center text-center gap-2 sm:gap-3">
+							<div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+								<Check className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+							</div>
+							<h3 className="text-lg sm:text-xl font-semibold">Thanh toán bảo mật</h3>
+							<p className="text-muted-foreground text-sm sm:text-base">
+								Mọi giao dịch đều được bảo mật và xử lý nhanh chóng. Sau khi thanh toán, dịch vụ sẽ được kích hoạt trong thời gian nhanh nhất.
 							</p>
 						</div>
-					</div>
-					
-					<div className="pt-4">
-						<p className="text-muted-foreground text-sm">
-							Quét mã QR bằng ứng dụng ngân hàng để thanh toán. Mã QR sẽ tự động cập nhật khi bạn thay đổi số tiền.
-						</p>
-					</div>
-				</CardContent>
-			</Card>
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	)
 }

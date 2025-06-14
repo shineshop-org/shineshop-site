@@ -18,6 +18,14 @@ export const translations: Translations = {
 		en: 'FAQ',
 		vi: 'FAQ'
 	},
+	menu: {
+		en: 'Menu',
+		vi: 'Menu'
+	},
+	theme: {
+		en: 'Theme',
+		vi: 'Giao diện'
+	},
 	
 	// Store page
 	allProducts: {

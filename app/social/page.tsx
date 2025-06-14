@@ -41,40 +41,40 @@ export default function SocialPage() {
 				</p>
 			</div>
 			
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 				{socialLinks.map((link) => (
 					<Card key={link.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-						<CardContent className="p-6">
+						<CardContent className="p-4 sm:p-6">
 							<div className="flex flex-col items-center space-y-4">
 								{/* Icon */}
-								<div className="p-4 bg-primary/10 rounded-full text-primary">
-									{iconMap[link.icon] || <ExternalLink className="h-8 w-8" />}
+								<div className="p-3 sm:p-4 bg-primary/10 rounded-full text-primary">
+									{iconMap[link.icon] || <ExternalLink className="h-6 w-6 sm:h-8 sm:w-8" />}
 								</div>
 								
 								{/* Platform Name */}
-								<h3 className="font-semibold text-lg">{link.platform}</h3>
+								<h3 className="font-semibold text-base sm:text-lg">{link.platform}</h3>
 								
 								{/* Action Buttons - Square icon buttons */}
-								<div className="flex gap-3 justify-center">
+								<div className="flex gap-2 sm:gap-3 justify-center">
 									<Button
 										onClick={() => handleCopy(link.url, link.id)}
 										variant={copiedId === link.id ? 'default' : 'outline'}
 										size="icon"
-										className={`h-12 w-12 rounded-lg transition-all ${
+										className={`h-10 w-10 sm:h-12 sm:w-12 rounded-lg transition-all ${
 											copiedId === link.id ? 'bg-green-500 hover:bg-green-600' : ''
 										}`}
 										title={copiedId === link.id ? 'Copied!' : t('copyLink')}
 									>
 										{copiedId === link.id ? (
-											<Check className="h-5 w-5" />
+											<Check className="h-4 w-4 sm:h-5 sm:w-5" />
 										) : (
-											<Copy className="h-5 w-5" />
+											<Copy className="h-4 w-4 sm:h-5 sm:w-5" />
 										)}
 									</Button>
 									<Button
 										asChild
 										size="icon"
-										className="h-12 w-12 rounded-lg"
+										className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg"
 										title={t('openLink')}
 									>
 										<Link
@@ -82,7 +82,7 @@ export default function SocialPage() {
 											target="_blank"
 											rel="noopener noreferrer"
 										>
-											<ExternalLink className="h-5 w-5" />
+											<ExternalLink className="h-4 w-4 sm:h-5 sm:w-5" />
 										</Link>
 									</Button>
 								</div>
