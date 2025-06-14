@@ -9,13 +9,16 @@
     "dev:windows-no-refresh": "set NEXT_DISABLE_FAST_REFRESH=true && next dev",
     "build": "next build",
     "pages:build": "npx @cloudflare/next-on-pages",
-    "pages:deploy": "npx @cloudflare/next-on-pages --experimental-minify",
+    "pages:deploy": "next build && npx @cloudflare/next-on-pages",
     "export": "npm run pages:deploy",
+    "export:windows": "powershell -ExecutionPolicy Bypass -File .\\deploy-cloudflare.ps1",
     "start": "next start",
     "lint": "next lint",
     "deploy": "npm run build && npx @cloudflare/next-on-pages"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
