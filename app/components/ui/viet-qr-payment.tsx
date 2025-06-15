@@ -37,8 +37,8 @@ export function VietQRPayment({
 	// QR API links
 	const qrLinks = [
 		'https://img.vietqr.io/image/970407-MS00T09331707449347-Djwd2Cb.jpg?accountName=SHINE%20SHOP&amount=0&addInfo=SHINE%20SHOP',
-		'https://api.vietqr.io/image/970422-598422222-M58hYc1.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
-		'https://api.vietqr.io/image/970422-598422222-UgaSJbV.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
+		'https://img.vietqr.io/image/970422-598422222-M58hYc1.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
+		'https://img.vietqr.io/image/970422-598422222-nBCHiJH.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
 		''
 	]
 
