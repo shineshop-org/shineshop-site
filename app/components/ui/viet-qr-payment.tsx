@@ -19,8 +19,8 @@ interface VietQRPaymentProps {
 }
 
 export function VietQRPayment({ 
-	accountNumber, 
-	bankName, 
+	accountNumber: initialAccountNumber, 
+	bankName: initialBankName, 
 	accountName = 'SHINE SHOP',
 	baseQrUrl = 'https://img.vietqr.io/image/970407-MS00T09331707449347-Djwd2Cb.jpg?accountName=SHINE%20SHOP&amount=0&addInfo=SHINE%20SHOP'
 }: VietQRPaymentProps) {
@@ -31,6 +31,8 @@ export function VietQRPayment({
 	const [copied, setCopied] = useState(false)
 	const [copyButtonSuccess, setCopyButtonSuccess] = useState(false)
 	const [activeQrLink, setActiveQrLink] = useState(1)
+	const [displayBankName, setDisplayBankName] = useState(initialBankName)
+	const [displayAccountNumber, setDisplayAccountNumber] = useState(initialAccountNumber)
 	
 	const qrImageRef = useRef<HTMLImageElement>(null)
 
@@ -56,7 +58,7 @@ export function VietQRPayment({
 
 	// Copy account number to clipboard
 	const handleCopyAccountNumber = async () => {
-		const success = await copyToClipboard(accountNumber)
+		const success = await copyToClipboard(displayAccountNumber)
 		if (success) {
 			setCopied(true)
 			setTimeout(() => setCopied(false), 2000)
@@ -180,6 +182,15 @@ export function VietQRPayment({
 	const changeQrLink = (linkIndex: number) => {
 		if (linkIndex === 4 && !qrLinks[3]) return; // Skip if link 4 is empty
 		setActiveQrLink(linkIndex)
+		
+		// Update bank information based on selected QR slot
+		if (linkIndex === 2 || linkIndex === 3) {
+			setDisplayBankName('MB Bank - Ngân hàng TMCP Quân đội')
+			setDisplayAccountNumber('598422222')
+		} else {
+			setDisplayBankName(initialBankName)
+			setDisplayAccountNumber(initialAccountNumber)
+		}
 	}
 
 	// Update QR URL when amount changes or QR link changes
@@ -219,7 +230,7 @@ export function VietQRPayment({
 							{/* Bank Name */}
 							<div className="p-2">
 								<p className="text-sm text-muted-foreground mb-1">Ngân hàng</p>
-								<p className="font-medium text-lg">{bankName}</p>
+								<p className="font-medium text-lg">{displayBankName}</p>
 							</div>
 							
 							{/* Account Name */}
@@ -232,7 +243,7 @@ export function VietQRPayment({
 							<div className="flex items-center justify-between p-2">
 								<div className="flex-1">
 									<p className="text-sm text-muted-foreground mb-1">Số tài khoản</p>
-									<p className="font-medium text-lg">{accountNumber}</p>
+									<p className="font-medium text-lg">{displayAccountNumber}</p>
 								</div>
 								<Button 
 									onClick={handleCopyAccountNumber} 
@@ -278,21 +289,23 @@ export function VietQRPayment({
 					{/* QR Code with gradient border and payment text */}
 					<div className="relative rounded-lg overflow-hidden qr-container bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-[3px] flex-grow" style={{ maxWidth: 'fit-content' }}>
 						<div className="bg-background rounded-lg p-4 sm:p-6 flex flex-col items-center qr-bg h-full">
-							{/* QR Code with loading effect - 17% larger (30% increase, then 10% decrease) */}
-							<div className="relative flex items-center justify-center flex-grow">
+							{/* QR Code with loading effect - better sized and centered */}
+							<div className="relative flex items-center justify-center flex-grow mb-2">
 								{qrUrl ? (
 									<div className={`transition-opacity duration-300 ${isLoading ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
 										{qrUrl && qrUrl.trim() !== '' ? (
-											<Image 
-												ref={qrImageRef}
-												src={qrUrl}
-												alt="VietQR Payment Code"
-												width={292} /* 17% larger than original 250px */
-												height={292} /* 17% larger than original 250px */
-												className="w-full max-w-[292px] h-auto" /* 17% larger than original */
-												unoptimized
-												crossOrigin="anonymous"
-											/>
+											<div className="flex justify-center">
+												<Image 
+													ref={qrImageRef}
+													src={qrUrl}
+													alt="VietQR Payment Code"
+													width={280}
+													height={280}
+													className="w-full max-w-[280px] h-auto"
+													unoptimized
+													crossOrigin="anonymous"
+												/>
+											</div>
 										) : (
 											<div className="p-6 sm:p-8 flex flex-col items-center justify-center bg-muted rounded-lg">
 												<div className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-muted-foreground/20 rounded-lg flex items-center justify-center mb-2">
@@ -319,9 +332,9 @@ export function VietQRPayment({
 								)}
 							</div>
 							
-							{/* Payment text below QR code */}
-							<div className="text-center mt-3 sm:mt-4">
-								<p className="text-foreground text-base sm:text-lg font-semibold payment-label mb-0">Tổng thanh toán:</p>
+							{/* Payment text below QR code - improved spacing */}
+							<div className="text-center mt-2 sm:mt-3 pt-1 border-t border-gray-200 dark:border-gray-800 w-full">
+								<p className="text-foreground text-base sm:text-lg font-semibold payment-label mb-1">Tổng thanh toán:</p>
 								<p className="text-green-600 text-2xl sm:text-3xl font-bold payment-amount mt-0">
 								{formattedAmount ? `${formattedAmount} VND` : '0 VND'}
 								</p>
