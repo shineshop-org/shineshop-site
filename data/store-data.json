@@ -118,7 +118,7 @@
             {
               "localizedValue": {
                 "en": "",
-                "vi": "1 năm"
+                "vi": "12 tháng"
               },
               "localizedPrice": {
                 "en": 0,
@@ -296,7 +296,7 @@
             {
               "localizedValue": {
                 "en": "1 year",
-                "vi": "1 năm"
+                "vi": "12 tháng"
               },
               "localizedPrice": {
                 "en": 4.99,
@@ -473,14 +473,14 @@
               },
               "localizedPrice": {
                 "en": 0,
-                "vi": 165000
+                "vi": 155000
               },
               "description": ""
             },
             {
               "localizedValue": {
                 "en": "",
-                "vi": "1 năm"
+                "vi": "12 tháng"
               },
               "localizedPrice": {
                 "en": 0,
@@ -502,22 +502,33 @@
             {
               "localizedValue": {
                 "en": "",
-                "vi": "6 tháng"
+                "vi": "3 tháng"
               },
               "localizedPrice": {
                 "en": 0,
-                "vi": 85000
+                "vi": 45000
               },
               "description": ""
             },
             {
               "localizedValue": {
                 "en": "",
-                "vi": "1 năm"
+                "vi": "6 tháng"
               },
               "localizedPrice": {
                 "en": 0,
-                "vi": 165000
+                "vi": 90000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "12 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 180000
               },
               "description": ""
             }
@@ -535,11 +546,33 @@
             {
               "localizedValue": {
                 "en": "",
+                "vi": "1 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 40000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
+                "vi": "3 tháng"
+              },
+              "localizedPrice": {
+                "en": 0,
+                "vi": 115000
+              },
+              "description": ""
+            },
+            {
+              "localizedValue": {
+                "en": "",
                 "vi": "6 tháng"
               },
               "localizedPrice": {
                 "en": 0,
-                "vi": 195000
+                "vi": 215000
               },
               "description": ""
             },
@@ -550,7 +583,7 @@
               },
               "localizedPrice": {
                 "en": 0,
-                "vi": 345000
+                "vi": 395000
               },
               "description": ""
             }
