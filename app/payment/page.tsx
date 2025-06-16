@@ -41,13 +41,13 @@ export default function PaymentPage() {
 			</div>
 			
 			{/* VietQR Payment */}
-			<div className="px-2 sm:px-0">
-				<VietQRPayment
-					accountNumber={paymentInfo.accountNumber}
-					bankName={paymentInfo.bankName}
-					accountName={paymentInfo.accountName}
-				/>
-			</div>
+				<div className="px-2 sm:px-0">
+					<VietQRPayment
+						accountNumber={paymentInfo.accountNumber}
+						bankName={paymentInfo.bankName}
+						accountName={paymentInfo.accountName}
+					/>
+				</div>
 		</div>
 	)
 } 

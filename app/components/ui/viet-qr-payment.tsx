@@ -65,117 +65,150 @@ export function VietQRPayment({
 		}
 	}
 
-	// Copy QR code with image capture
-	const handleCopyQR = async () => {
-		try {
-			const qrContainer = document.querySelector('.qr-container');
-			
-			if (!qrContainer) {
-				console.error('QR container element not found');
-				return;
-			}
-			
-			try {
-				// Import html2canvas dynamically
-				const html2canvasModule = await import('html2canvas');
-				const html2canvas = html2canvasModule.default;
-				
-				// Capture the container with all styling
-				const capturedCanvas = await html2canvas(qrContainer as HTMLElement, {
-					backgroundColor: '#000000',
-					scale: 2,
-					logging: false,
-					allowTaint: true,
-					useCORS: true,
-					onclone: (clonedDoc) => {
-						const clonedContainer = clonedDoc.querySelector('.qr-container');
-						if (clonedContainer) {
-							// Add extra styling to ensure gradient is visible
-							clonedContainer.setAttribute('style', 'background: linear-gradient(to right, #06b6d4, #8b5cf6, #ec4899); padding: 3px; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);');
-							
-							const bgElement = clonedContainer.querySelector('.qr-bg');
-							if (bgElement) {
-								bgElement.setAttribute('style', 'background-color: #000000; border-radius: 0.375rem; padding: 16px 24px; display: flex; flex-direction: column; align-items: center;');
-							}
-							
-							const totalPaymentText = clonedContainer.querySelector('.payment-label');
-							if (totalPaymentText) {
-								totalPaymentText.setAttribute('style', 'color: #ffffff; font-weight: 600; font-size: 1.125rem; margin-bottom: 0.25rem;');
-								totalPaymentText.textContent = 'Tổng thanh toán:';
-							}
-							
-							const amountText = clonedContainer.querySelector('.payment-amount');
-							if (amountText) {
-								amountText.setAttribute('style', 'color: #10b981; font-weight: 700; font-size: 1.75rem; margin-top: 0;');
-							}
-						}
-					}
-				});
-				
-				try {
-					// Try using the Clipboard API first
-					if (navigator.clipboard && window.ClipboardItem) {
-						const blob = await new Promise<Blob>((resolve, reject) => {
-							capturedCanvas.toBlob((result) => {
-								if (result) {
-									resolve(result);
-								} else {
-									reject(new Error('Failed to create blob from canvas'));
-								}
-							}, 'image/png');
-						});
-						
-						const clipboardData = new (window as any).ClipboardItem({
-							'image/png': blob
-						});
-						
-						await navigator.clipboard.write([clipboardData]);
-						setCopyButtonSuccess(true);
-						setTimeout(() => setCopyButtonSuccess(false), 2000);
-					} else {
-						// Fallback - create a temporary link and click it to download
-						const url = capturedCanvas.toDataURL('image/png');
-						const link = document.createElement('a');
-						link.href = url;
-						link.download = 'qr-payment.png';
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
-						
-						setCopyButtonSuccess(true);
-						setTimeout(() => setCopyButtonSuccess(false), 2000);
-					}
-				} catch (err) {
-					console.error('Error copying with Clipboard API, falling back to URL download:', err);
-					// Fallback to download
-					const url = capturedCanvas.toDataURL('image/png');
-					const link = document.createElement('a');
-					link.href = url;
-					link.download = 'qr-payment.png';
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-					
-					setCopyButtonSuccess(true);
-					setTimeout(() => setCopyButtonSuccess(false), 2000);
-				}
-			} catch (error) {
-				console.error('Error capturing QR container:', error);
-				if (qrUrl) {
-					await copyToClipboard(qrUrl);
-					setCopyButtonSuccess(true);
-					setTimeout(() => setCopyButtonSuccess(false), 2000);
-				}
-			}
-		} catch (error) {
-			console.error('Failed to copy QR code:', error);
-			// Final fallback
-			if (qrUrl) {
-				await copyToClipboard(qrUrl);
-				setCopyButtonSuccess(true);
-				setTimeout(() => setCopyButtonSuccess(false), 2000);
-			}
+	// Wrapper for QR code copying to avoid lint errors
+	const handleCopyQR = () => {
+		createAndDownloadQRImage(qrImageRef, qrUrl, formattedAmount)
+			.then(() => {
+				setCopyButtonSuccess(true)
+				setTimeout(() => setCopyButtonSuccess(false), 2000)
+			})
+			.catch(err => {
+				console.error('Error creating QR image:', err)
+			})
+	}
+	
+	// Helper function to create and download QR image
+	const createAndDownloadQRImage = async (
+		imageRef: React.RefObject<HTMLImageElement | null>,
+		imageUrl: string, 
+		amount: string
+	): Promise<void> => {
+		// Create canvas element
+		const canvas = document.createElement('canvas')
+		const ctx = canvas.getContext('2d')
+		if (!ctx) {
+			throw new Error('Unable to get 2d context')
 		}
+		
+		// Set canvas size - match the dimensions of the QR code with gradient border
+		const width = 345
+		const height = 450
+		canvas.width = width
+		canvas.height = height
+		
+		// Create gradient background (rounded rectangle with gradient border)
+		const gradient = ctx.createLinearGradient(0, 0, width, 0)
+		gradient.addColorStop(0, '#06b6d4')    // cyan-500
+		gradient.addColorStop(0.5, '#8b5cf6')  // purple-500
+		gradient.addColorStop(1, '#ec4899')    // pink-500
+		
+		// Clear canvas with transparency
+		ctx.clearRect(0, 0, width, height)
+		
+		// Draw rounded rectangle with gradient
+		ctx.save()
+		roundRect(ctx, 0, 0, width, height, 48)
+		ctx.fillStyle = gradient
+		ctx.fill()
+		
+		// Draw black background with slightly smaller rounded corners
+		ctx.save()
+		roundRect(ctx, 6, 6, width - 12, height - 12, 45)
+		ctx.fillStyle = '#000000'
+		ctx.fill()
+		ctx.restore()
+		
+		// Draw QR code image if we have it
+		if (imageRef.current && imageUrl) {
+			// Create a promise to handle image loading
+			return new Promise((resolve, reject) => {
+				const qrImage = new window.Image()
+				qrImage.crossOrigin = 'anonymous'
+				
+				qrImage.onload = () => {
+					// Draw QR code centered
+					const qrSize = 280
+					const qrX = (width - qrSize) / 2
+					const qrY = 24
+					
+					ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize)
+					
+					// Draw divider line
+					ctx.beginPath()
+					ctx.moveTo(24, height - 115)
+					ctx.lineTo(width - 24, height - 115)
+					ctx.strokeStyle = '#333333'
+					ctx.lineWidth = 1
+					ctx.stroke()
+					
+					// Draw "Tổng thanh toán:" text
+					ctx.font = '600 17px system-ui, -apple-system, sans-serif'
+					ctx.fillStyle = '#ffffff'
+					ctx.textAlign = 'center'
+					ctx.fillText('Tổng thanh toán:', width / 2, height - 82)
+					
+					// Draw amount
+					ctx.font = '700 26px system-ui, -apple-system, sans-serif'
+					ctx.fillStyle = '#10b981' // green-500
+					ctx.textAlign = 'center'
+					ctx.fillText(`${amount ? amount : '0'} VND`, width / 2, height - 50)
+					
+					// Try to copy to clipboard using canvas
+					canvas.toBlob(async (blob) => {
+						if (blob) {
+							try {
+								// Use Clipboard API if available
+								if (navigator.clipboard && navigator.clipboard.write) {
+									const clipboardItem = new window.ClipboardItem({ 'image/png': blob });
+									await navigator.clipboard.write([clipboardItem]);
+									resolve();
+								} else {
+									// Fallback to legacy clipboard API or other methods
+									// This is a last resort as we prefer copying over downloading
+									const url = URL.createObjectURL(blob);
+									const tempTextArea = document.createElement('textarea');
+									tempTextArea.value = url;
+									document.body.appendChild(tempTextArea);
+									tempTextArea.select();
+									document.execCommand('copy');
+									document.body.removeChild(tempTextArea);
+									URL.revokeObjectURL(url);
+									resolve();
+								}
+							} catch (error) {
+								console.error('Failed to copy image to clipboard:', error);
+								reject(error);
+							}
+						} else {
+							reject(new Error('Failed to create blob from canvas'));
+						}
+					}, 'image/png');
+				}
+				
+				qrImage.onerror = () => {
+					reject(new Error('Failed to load QR image'))
+				}
+				
+				qrImage.src = imageUrl
+			})
+		} else {
+			throw new Error('QR image reference not available')
+		}
+	}
+	
+	// Helper function to draw rounded rectangles
+	function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+		ctx.beginPath()
+		ctx.moveTo(x + radius, y)
+		ctx.lineTo(x + width - radius, y)
+		ctx.arcTo(x + width, y, x + width, y + radius, radius)
+		ctx.lineTo(x + width, y + height - radius)
+		ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius)
+		ctx.lineTo(x + radius, y + height)
+		ctx.arcTo(x, y + height, x, y + height - radius, radius)
+		ctx.lineTo(x, y + radius)
+		ctx.arcTo(x, y, x + radius, y, radius)
+		ctx.closePath()
 	}
 
 	// Change QR API Link
@@ -287,10 +320,10 @@ export function VietQRPayment({
 				{/* QR Code container with QR link selector buttons */}
 				<div className="flex h-full">
 					{/* QR Code with gradient border and payment text */}
-					<div className="relative rounded-lg overflow-hidden qr-container bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-[3px] flex-grow" style={{ maxWidth: 'fit-content' }}>
-						<div className="bg-background rounded-lg p-4 sm:p-6 flex flex-col items-center qr-bg h-full">
+					<div className="relative rounded-[48px] overflow-hidden qr-container bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-[6px] flex-grow" style={{ maxWidth: 'fit-content' }}>
+						<div className="bg-black rounded-[42px] p-3 pb-1 flex flex-col items-center qr-bg h-full">
 							{/* QR Code with loading effect - better sized and centered */}
-							<div className="relative flex items-center justify-center flex-grow mb-2">
+							<div className="relative flex items-center justify-center flex-grow mb-1">
 								{qrUrl ? (
 									<div className={`transition-opacity duration-300 ${isLoading ? 'opacity-30 blur-sm' : 'opacity-100'}`}>
 										{qrUrl && qrUrl.trim() !== '' ? (
@@ -301,7 +334,7 @@ export function VietQRPayment({
 													alt="VietQR Payment Code"
 													width={280}
 													height={280}
-													className="w-full max-w-[280px] h-auto"
+													className="w-full max-w-[280px] h-auto rounded-[8px]"
 													unoptimized
 													crossOrigin="anonymous"
 												/>
@@ -333,9 +366,10 @@ export function VietQRPayment({
 							</div>
 							
 							{/* Payment text below QR code - improved spacing */}
-							<div className="text-center mt-2 sm:mt-3 pt-1 border-t border-gray-200 dark:border-gray-800 w-full">
-								<p className="text-foreground text-base sm:text-lg font-semibold payment-label mb-1">Tổng thanh toán:</p>
-								<p className="text-green-600 text-2xl sm:text-3xl font-bold payment-amount mt-0">
+							<div className="text-center mt-1 pt-1 w-full">
+								<div className="border-t border-gray-700 w-full payment-divider"></div>
+								<p className="text-white text-base font-semibold payment-label mb-0 mt-2">Tổng thanh toán:</p>
+								<p className="text-green-500 text-2xl font-bold payment-amount mt-0 mb-2">
 								{formattedAmount ? `${formattedAmount} VND` : '0 VND'}
 								</p>
 							</div>
