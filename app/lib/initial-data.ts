@@ -6,9 +6,9 @@ const defaultStoreData = {
   faqArticles: [],
   socialLinks: [],
   paymentInfo: {
-    bankName: "Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam",
-    accountNumber: "MS00T09331707449347",
-    accountName: "SHINE SHOP",
+    bankName: "MB Bank - Ngân hàng Thương mại Cổ phần Quân đội",
+    accountNumber: "622566",
+    accountName: "NGUYEN TUNG LAM",
     qrTemplate: "compact",
     wiseEmail: "payment@shineshop.org",
     paypalEmail: "paypal@shineshop.org"

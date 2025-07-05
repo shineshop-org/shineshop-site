@@ -21,8 +21,8 @@ interface VietQRPaymentProps {
 export function VietQRPayment({ 
 	accountNumber: initialAccountNumber, 
 	bankName: initialBankName, 
-	accountName = 'SHINE SHOP',
-	baseQrUrl = 'https://img.vietqr.io/image/970407-MS00T09331707449347-Djwd2Cb.jpg?accountName=SHINE%20SHOP&amount=0&addInfo=SHINE%20SHOP'
+	accountName = 'NGUYEN TUNG LAM',
+	baseQrUrl = 'https://api.vietqr.io/image/970422-622566-UZS9BVz.jpg?accountName=NGUYEN%20TUNG%20LAM&amount=0'
 }: VietQRPaymentProps) {
 	const [amount, setAmount] = useState('')
 	const [formattedAmount, setFormattedAmount] = useState('')
@@ -38,7 +38,7 @@ export function VietQRPayment({
 
 	// QR API links
 	const qrLinks = [
-		'https://img.vietqr.io/image/970407-MS00T09331707449347-Djwd2Cb.jpg?accountName=SHINE%20SHOP&amount=0&addInfo=SHINE%20SHOP',
+		'https://api.vietqr.io/image/970422-622566-UZS9BVz.jpg?accountName=NGUYEN%20TUNG%20LAM&amount=0',
 		'https://img.vietqr.io/image/970422-598422222-M58hYc1.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
 		'https://img.vietqr.io/image/970422-598422222-nBCHiJH.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
 		''
@@ -217,7 +217,10 @@ export function VietQRPayment({
 		setActiveQrLink(linkIndex)
 		
 		// Update bank information based on selected QR slot
-		if (linkIndex === 2 || linkIndex === 3) {
+		if (linkIndex === 1) {
+			setDisplayBankName('MB Bank - Ngân hàng Thương mại Cổ phần Quân đội')
+			setDisplayAccountNumber('622566')
+		} else if (linkIndex === 2 || linkIndex === 3) {
 			setDisplayBankName('MB Bank - Ngân hàng TMCP Quân đội')
 			setDisplayAccountNumber('598422222')
 		} else {

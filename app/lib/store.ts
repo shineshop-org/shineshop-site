@@ -210,7 +210,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 		if (typeof window !== 'undefined') {
 			try {
 				setLanguagePreference(language)
-				console.log(`Language preference set to: ${language}`)
+				// console.log(`Language preference set to: ${language}`)
 			} catch (e) {
 				console.error('Error setting language cookie:', e)
 			}
@@ -356,7 +356,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 			// Only attempt to load from server in development mode
 			const isDevelopment = process.env.NODE_ENV === 'development'
 			if (!isDevelopment) {
-				console.log('Running in production mode, skipping server data load')
+				// console.log('Running in production mode, skipping server data load')
 				return
 			}
 			
@@ -440,7 +440,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 			// Check for an existing debounce timer
 			if ((window as any)._syncDataTimeout) {
 				// Don't create multiple syncs, just use the existing one
-				console.log('Sync already scheduled, skipping redundant sync');
+				// console.log('Sync already scheduled, skipping redundant sync');
 				return;
 			}
 			
@@ -478,7 +478,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 					// Only attempt to save to server in development mode
 					const isDevelopment = process.env.NODE_ENV === 'development';
 					if (!isDevelopment) {
-						console.log('Running in production mode, skipping server sync');
+						// console.log('Running in production mode, skipping server sync');
 						return;
 					}
 					
@@ -533,7 +533,7 @@ export const useStore = create<StoreState>()((set, get) => ({
 						if (response.ok) {
 							// Update data version after successful save
 							set({ dataVersion: CURRENT_DATA_VERSION });
-							console.log('Data synced successfully');
+							// console.log('Data synced successfully');
 							
 							// Mark sync time to help recover from hot reloads
 							if (typeof window !== 'undefined') {

@@ -13,7 +13,7 @@ function NavigationTrackerInner() {
     try {
       const currentTime = Date.now().toString()
       sessionStorage.setItem('last-page-navigation', currentTime)
-      console.log(`Navigation tracked: ${pathname}${searchParams ? '?' + searchParams.toString() : ''}`)
+      // console.log(`Navigation tracked: ${pathname}${searchParams ? '?' + searchParams.toString() : ''}`)
     } catch (err) {
       console.warn('Failed to update navigation timestamp:', err)
     }

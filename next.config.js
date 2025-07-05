@@ -22,7 +22,7 @@ const nextConfig = {
 	distDir: '.next',
 	images: {
 		unoptimized: true,
-		domains: ['ik.imagekit.io', 'images.unsplash.com', 'img.vietqr.io'],
+		domains: ['ik.imagekit.io', 'images.unsplash.com', 'img.vietqr.io', 'api.vietqr.io'],
 		remotePatterns: [
 			{
 				protocol: 'https',
@@ -34,6 +34,10 @@ const nextConfig = {
 			},
 			{
 				protocol: 'https',
+				hostname: 'api.vietqr.io',
+			},
+			{
+				protocol: 'https',
 				hostname: 'ik.imagekit.io',
 			},
 		],
@@ -41,7 +45,7 @@ const nextConfig = {
 		disableStaticImages: false,
 		dangerouslyAllowSVG: true,
 		contentDispositionType: 'attachment',
-		contentSecurityPolicy: "default-src 'self'; img-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io data:; connect-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io; script-src 'self';",
+		contentSecurityPolicy: "default-src 'self'; img-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io data:; connect-src 'self' https://ik.imagekit.io https://images.unsplash.com https://img.vietqr.io https://api.vietqr.io; script-src 'self';",
 	},
 	// Disable features not supported in static export
 	trailingSlash: true,

@@ -16,7 +16,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 		// Check for saved language preference and apply it, or default to Vietnamese
 		const savedLang = getLanguagePreference()
 		if (savedLang) {
-			console.log('StoreProvider: Applying saved language preference:', savedLang)
+			// console.log('StoreProvider: Applying saved language preference:', savedLang)
 			setLanguage(savedLang)
 		} else {
 			// Default to Vietnamese if no preference is saved
