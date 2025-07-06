@@ -22,7 +22,7 @@ export function VietQRPayment({
 	accountNumber: initialAccountNumber, 
 	bankName: initialBankName, 
 	accountName = 'NGUYEN TUNG LAM',
-	baseQrUrl = 'https://api.vietqr.io/image/970422-622566-UZS9BVz.jpg?accountName=NGUYEN%20TUNG%20LAM&amount=0'
+	baseQrUrl = 'https://img.vietqr.io/image/970422-622566-UZS9BVz.jpg?accountName=NGUYEN%20TUNG%20LAM'
 }: VietQRPaymentProps) {
 	const [amount, setAmount] = useState('')
 	const [formattedAmount, setFormattedAmount] = useState('')
@@ -36,11 +36,11 @@ export function VietQRPayment({
 	
 	const qrImageRef = useRef<HTMLImageElement>(null)
 
-	// QR API links
+	// QR API links - Updated to use correct VietQR img service format
 	const qrLinks = [
-		'https://api.vietqr.io/image/970422-622566-UZS9BVz.jpg?accountName=NGUYEN%20TUNG%20LAM&amount=0',
-		'https://img.vietqr.io/image/970422-598422222-M58hYc1.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
-		'https://img.vietqr.io/image/970422-598422222-nBCHiJH.jpg?accountName=TRAN%20BAO%20NHU&amount=0',
+		'https://img.vietqr.io/image/970422-622566-UZS9BVz.jpg?accountName=NGUYEN%20TUNG%20LAM',
+		'https://img.vietqr.io/image/970422-598422222-M58hYc1.jpg?accountName=TRAN%20BAO%20NHU',
+		'https://img.vietqr.io/image/970422-598422222-nBCHiJH.jpg?accountName=TRAN%20BAO%20NHU',
 		''
 	]
 
@@ -235,10 +235,11 @@ export function VietQRPayment({
 		
 		const currentBaseUrl = qrLinks[activeQrLink - 1];
 		
-		if (amount) {
+		if (amount && parseInt(amount) > 0) {
 			setIsLoading(true)
 			
 			const timer = setTimeout(() => {
+				// Properly format the URL with amount parameter
 				const separator = currentBaseUrl.includes('?') ? '&' : '?'
 				const newQrUrl = `${currentBaseUrl}${separator}amount=${amount}`
 				setQrUrl(newQrUrl)
@@ -247,8 +248,8 @@ export function VietQRPayment({
 			
 			return () => clearTimeout(timer)
 		} else {
-			const separator = currentBaseUrl.includes('?') ? '&' : '?'
-			setQrUrl(`${currentBaseUrl}${separator}amount=0`)
+			// For amount 0 or empty, still show QR but without amount parameter for better compatibility
+			setQrUrl(currentBaseUrl)
 		}
 	}, [amount, activeQrLink])
 
